@@ -1,0 +1,301 @@
+id,trade_id,provider_id,state,district,cohort_year,placement_rate,avg_start_salary_inr,salary_3yr_min,salary_3yr_max,self_employment_rate,sample_size,source,verified_on
+1,1,1,Telangana,Hyderabad,2024,77,14639,19762,30741,14,54,State Skill Mission & NCVT Portal,2024-03-15
+2,1,2,Telangana,Hyderabad,2023,80,14454,19512,30353,24,65,State Skill Mission & NCVT Portal,2024-03-15
+3,1,3,Telangana,Hyderabad,2024,85,15205,20526,31930,27,53,State Skill Mission & NCVT Portal,2024-03-15
+4,1,4,Telangana,Warangal,2023,79,14944,20174,31382,16,50,State Skill Mission & NCVT Portal,2024-03-15
+5,1,5,Telangana,Warangal,2023,89,16367,22095,34370,9,33,State Skill Mission & NCVT Portal,2024-03-15
+6,1,6,Telangana,Warangal,2023,87,13957,18841,29309,19,17,State Skill Mission & NCVT Portal,2024-03-15
+7,1,7,Telangana,Karimnagar,2023,89,14436,19488,30315,19,39,State Skill Mission & NCVT Portal,2024-03-15
+8,1,8,Telangana,Karimnagar,2024,90,15855,21404,33295,18,47,State Skill Mission & NCVT Portal,2024-03-15
+9,1,9,Telangana,Karimnagar,2023,77,14250,19237,29925,8,90,State Skill Mission & NCVT Portal,2024-03-15
+10,1,10,Madhya Pradesh,Bhopal,2023,90,17200,23220,36120,22,102,State Skill Mission & NCVT Portal,2024-03-15
+11,1,11,Madhya Pradesh,Bhopal,2023,89,17188,23203,36094,14,29,State Skill Mission & NCVT Portal,2024-03-15
+12,1,12,Madhya Pradesh,Bhopal,2024,74,15835,21377,33253,15,92,State Skill Mission & NCVT Portal,2024-03-15
+13,1,13,Madhya Pradesh,Indore,2023,80,14469,19533,30384,28,34,State Skill Mission & NCVT Portal,2024-03-15
+14,1,14,Madhya Pradesh,Indore,2023,76,14847,20043,31178,10,26,State Skill Mission & NCVT Portal,2024-03-15
+15,1,15,Madhya Pradesh,Indore,2023,79,14891,20102,31271,24,96,State Skill Mission & NCVT Portal,2024-03-15
+16,1,16,Madhya Pradesh,Jabalpur,2023,84,14667,19800,30800,14,51,State Skill Mission & NCVT Portal,2024-03-15
+17,1,17,Madhya Pradesh,Jabalpur,2024,84,15336,20703,32205,12,97,State Skill Mission & NCVT Portal,2024-03-15
+18,1,18,Madhya Pradesh,Jabalpur,2024,83,14192,19159,29803,21,29,State Skill Mission & NCVT Portal,2024-03-15
+19,1,19,Madhya Pradesh,Gwalior,2024,85,15056,20325,31617,24,33,State Skill Mission & NCVT Portal,2024-03-15
+20,1,20,Madhya Pradesh,Gwalior,2023,83,17478,23595,36703,16,61,State Skill Mission & NCVT Portal,2024-03-15
+21,1,21,Madhya Pradesh,Gwalior,2024,90,16756,22620,35187,8,17,State Skill Mission & NCVT Portal,2024-03-15
+22,1,22,Rajasthan,Jaipur,2024,74,16312,22021,34255,21,86,State Skill Mission & NCVT Portal,2024-03-15
+23,1,23,Rajasthan,Jaipur,2023,89,15122,20414,31756,9,24,State Skill Mission & NCVT Portal,2024-03-15
+24,1,24,Rajasthan,Jaipur,2024,87,16987,22932,35672,17,78,State Skill Mission & NCVT Portal,2024-03-15
+25,1,25,Rajasthan,Jodhpur,2024,86,14405,19446,30250,20,89,State Skill Mission & NCVT Portal,2024-03-15
+26,1,26,Rajasthan,Jodhpur,2024,76,16795,22673,35269,15,47,State Skill Mission & NCVT Portal,2024-03-15
+27,1,27,Rajasthan,Jodhpur,2023,83,16185,21849,33988,20,82,State Skill Mission & NCVT Portal,2024-03-15
+28,1,28,Rajasthan,Udaipur,2024,86,15331,20696,32195,22,29,State Skill Mission & NCVT Portal,2024-03-15
+29,1,29,Rajasthan,Udaipur,2023,83,16011,21614,33623,16,64,State Skill Mission & NCVT Portal,2024-03-15
+30,1,30,Rajasthan,Udaipur,2024,87,13527,18261,28406,27,37,State Skill Mission & NCVT Portal,2024-03-15
+31,2,1,Telangana,Hyderabad,2023,74,14584,19688,30626,22,44,State Skill Mission & NCVT Portal,2024-03-15
+32,2,2,Telangana,Hyderabad,2024,81,15425,20823,32392,16,53,State Skill Mission & NCVT Portal,2024-03-15
+33,2,3,Telangana,Hyderabad,2023,76,14442,19496,30328,10,31,State Skill Mission & NCVT Portal,2024-03-15
+34,2,4,Telangana,Warangal,2023,68,13823,18661,29028,13,103,State Skill Mission & NCVT Portal,2024-03-15
+35,2,5,Telangana,Warangal,2024,74,12641,17065,26546,8,39,State Skill Mission & NCVT Portal,2024-03-15
+36,2,6,Telangana,Warangal,2023,66,14805,19986,31090,23,17,State Skill Mission & NCVT Portal,2024-03-15
+37,2,7,Telangana,Karimnagar,2023,78,13653,18431,28671,12,90,State Skill Mission & NCVT Portal,2024-03-15
+38,2,8,Telangana,Karimnagar,2024,81,12874,17379,27035,26,69,State Skill Mission & NCVT Portal,2024-03-15
+39,2,9,Telangana,Karimnagar,2024,75,12129,16374,25470,9,94,State Skill Mission & NCVT Portal,2024-03-15
+40,2,10,Madhya Pradesh,Bhopal,2024,69,11615,15680,24391,18,36,State Skill Mission & NCVT Portal,2024-03-15
+41,2,11,Madhya Pradesh,Bhopal,2023,70,11571,15620,24299,12,67,State Skill Mission & NCVT Portal,2024-03-15
+42,2,12,Madhya Pradesh,Bhopal,2023,74,14420,19467,30282,13,70,State Skill Mission & NCVT Portal,2024-03-15
+43,2,13,Madhya Pradesh,Indore,2024,66,12898,17412,27085,9,42,State Skill Mission & NCVT Portal,2024-03-15
+44,2,14,Madhya Pradesh,Indore,2024,79,12546,16937,26346,22,76,State Skill Mission & NCVT Portal,2024-03-15
+45,2,15,Madhya Pradesh,Indore,2024,80,11545,15585,24244,26,91,State Skill Mission & NCVT Portal,2024-03-15
+46,2,16,Madhya Pradesh,Jabalpur,2023,68,15300,20655,32130,12,29,State Skill Mission & NCVT Portal,2024-03-15
+47,2,17,Madhya Pradesh,Jabalpur,2024,80,15479,20896,32505,25,96,State Skill Mission & NCVT Portal,2024-03-15
+48,2,18,Madhya Pradesh,Jabalpur,2023,75,15470,20884,32487,22,66,State Skill Mission & NCVT Portal,2024-03-15
+49,2,19,Madhya Pradesh,Gwalior,2024,68,15168,20476,31852,24,59,State Skill Mission & NCVT Portal,2024-03-15
+50,2,20,Madhya Pradesh,Gwalior,2024,70,12077,16303,25361,21,87,State Skill Mission & NCVT Portal,2024-03-15
+51,2,21,Madhya Pradesh,Gwalior,2024,79,14869,20073,31224,14,12,State Skill Mission & NCVT Portal,2024-03-15
+52,2,22,Rajasthan,Jaipur,2024,74,11819,15955,24819,26,109,State Skill Mission & NCVT Portal,2024-03-15
+53,2,23,Rajasthan,Jaipur,2024,69,13055,17624,27415,28,71,State Skill Mission & NCVT Portal,2024-03-15
+54,2,24,Rajasthan,Jaipur,2024,73,13043,17608,27390,10,25,State Skill Mission & NCVT Portal,2024-03-15
+55,2,25,Rajasthan,Jodhpur,2024,67,15174,20484,31865,28,53,State Skill Mission & NCVT Portal,2024-03-15
+56,2,26,Rajasthan,Jodhpur,2023,71,13988,18883,29374,27,68,State Skill Mission & NCVT Portal,2024-03-15
+57,2,27,Rajasthan,Jodhpur,2023,66,14899,20113,31287,9,37,State Skill Mission & NCVT Portal,2024-03-15
+58,2,28,Rajasthan,Udaipur,2023,80,13794,18621,28967,13,57,State Skill Mission & NCVT Portal,2024-03-15
+59,2,29,Rajasthan,Udaipur,2024,77,12311,16619,25853,27,81,State Skill Mission & NCVT Portal,2024-03-15
+60,2,30,Rajasthan,Udaipur,2024,73,14945,20175,31384,20,41,State Skill Mission & NCVT Portal,2024-03-15
+61,3,1,Telangana,Hyderabad,2024,81,14781,19954,31040,9,85,State Skill Mission & NCVT Portal,2024-03-15
+62,3,2,Telangana,Hyderabad,2023,80,15491,20912,32531,10,102,State Skill Mission & NCVT Portal,2024-03-15
+63,3,3,Telangana,Hyderabad,2023,80,13489,18210,28326,24,41,State Skill Mission & NCVT Portal,2024-03-15
+64,3,4,Telangana,Warangal,2023,66,14857,20056,31199,15,31,State Skill Mission & NCVT Portal,2024-03-15
+65,3,5,Telangana,Warangal,2024,66,13336,18003,28005,13,25,State Skill Mission & NCVT Portal,2024-03-15
+66,3,6,Telangana,Warangal,2024,73,14421,19468,30284,24,13,State Skill Mission & NCVT Portal,2024-03-15
+67,3,7,Telangana,Karimnagar,2023,81,14110,19048,29631,9,65,State Skill Mission & NCVT Portal,2024-03-15
+68,3,8,Telangana,Karimnagar,2023,67,14740,19899,30954,10,27,State Skill Mission & NCVT Portal,2024-03-15
+69,3,9,Telangana,Karimnagar,2024,79,12000,16200,25200,10,74,State Skill Mission & NCVT Portal,2024-03-15
+70,3,10,Madhya Pradesh,Bhopal,2024,69,14641,19765,30746,27,78,State Skill Mission & NCVT Portal,2024-03-15
+71,3,11,Madhya Pradesh,Bhopal,2024,66,13905,18771,29200,28,58,State Skill Mission & NCVT Portal,2024-03-15
+72,3,12,Madhya Pradesh,Bhopal,2024,68,12851,17348,26987,8,56,State Skill Mission & NCVT Portal,2024-03-15
+73,3,13,Madhya Pradesh,Indore,2024,66,15064,20336,31634,10,81,State Skill Mission & NCVT Portal,2024-03-15
+74,3,14,Madhya Pradesh,Indore,2024,80,15150,20452,31815,19,26,State Skill Mission & NCVT Portal,2024-03-15
+75,3,15,Madhya Pradesh,Indore,2024,70,11995,16193,25189,20,94,State Skill Mission & NCVT Portal,2024-03-15
+76,3,16,Madhya Pradesh,Jabalpur,2024,73,13885,18744,29158,10,93,State Skill Mission & NCVT Portal,2024-03-15
+77,3,17,Madhya Pradesh,Jabalpur,2024,81,15161,20467,31838,8,52,State Skill Mission & NCVT Portal,2024-03-15
+78,3,18,Madhya Pradesh,Jabalpur,2024,74,14546,19637,30546,25,54,State Skill Mission & NCVT Portal,2024-03-15
+79,3,19,Madhya Pradesh,Gwalior,2024,66,11731,15836,24635,14,70,State Skill Mission & NCVT Portal,2024-03-15
+80,3,20,Madhya Pradesh,Gwalior,2023,75,14755,19919,30985,14,50,State Skill Mission & NCVT Portal,2024-03-15
+81,3,21,Madhya Pradesh,Gwalior,2023,76,12948,17479,27190,12,14,State Skill Mission & NCVT Portal,2024-03-15
+82,3,22,Rajasthan,Jaipur,2023,73,14049,18966,29502,20,101,State Skill Mission & NCVT Portal,2024-03-15
+83,3,23,Rajasthan,Jaipur,2023,74,12405,16746,26050,14,91,State Skill Mission & NCVT Portal,2024-03-15
+84,3,24,Rajasthan,Jaipur,2024,79,12160,16416,25536,16,62,State Skill Mission & NCVT Portal,2024-03-15
+85,3,25,Rajasthan,Jodhpur,2023,75,15291,20642,32111,26,68,State Skill Mission & NCVT Portal,2024-03-15
+86,3,26,Rajasthan,Jodhpur,2023,66,12905,17421,27100,23,51,State Skill Mission & NCVT Portal,2024-03-15
+87,3,27,Rajasthan,Jodhpur,2023,79,15261,20602,32048,22,52,State Skill Mission & NCVT Portal,2024-03-15
+88,3,28,Rajasthan,Udaipur,2024,71,14210,19183,29841,8,53,State Skill Mission & NCVT Portal,2024-03-15
+89,3,29,Rajasthan,Udaipur,2024,78,14850,20047,31185,16,30,State Skill Mission & NCVT Portal,2024-03-15
+90,3,30,Rajasthan,Udaipur,2023,81,13525,18258,28402,16,56,State Skill Mission & NCVT Portal,2024-03-15
+91,4,1,Telangana,Hyderabad,2023,71,14038,18951,29479,16,107,State Skill Mission & NCVT Portal,2024-03-15
+92,4,2,Telangana,Hyderabad,2024,74,17176,23187,36069,14,37,State Skill Mission & NCVT Portal,2024-03-15
+93,4,3,Telangana,Hyderabad,2023,81,15945,21525,33484,28,95,State Skill Mission & NCVT Portal,2024-03-15
+94,4,4,Telangana,Warangal,2023,66,13965,18852,29326,18,79,State Skill Mission & NCVT Portal,2024-03-15
+95,4,5,Telangana,Warangal,2023,76,16064,21686,33734,14,56,State Skill Mission & NCVT Portal,2024-03-15
+96,4,6,Telangana,Warangal,2023,80,15114,20403,31739,15,12,State Skill Mission & NCVT Portal,2024-03-15
+97,4,7,Telangana,Karimnagar,2023,79,16841,22735,35366,28,85,State Skill Mission & NCVT Portal,2024-03-15
+98,4,8,Telangana,Karimnagar,2023,75,15755,21269,33085,8,50,State Skill Mission & NCVT Portal,2024-03-15
+99,4,9,Telangana,Karimnagar,2023,67,16936,22863,35565,9,68,State Skill Mission & NCVT Portal,2024-03-15
+100,4,10,Madhya Pradesh,Bhopal,2024,80,14433,19484,30309,11,49,State Skill Mission & NCVT Portal,2024-03-15
+101,4,11,Madhya Pradesh,Bhopal,2024,75,14310,19318,30051,14,29,State Skill Mission & NCVT Portal,2024-03-15
+102,4,12,Madhya Pradesh,Bhopal,2023,79,14324,19337,30080,15,109,State Skill Mission & NCVT Portal,2024-03-15
+103,4,13,Madhya Pradesh,Indore,2023,66,17202,23222,36124,18,105,State Skill Mission & NCVT Portal,2024-03-15
+104,4,14,Madhya Pradesh,Indore,2023,76,13851,18698,29087,16,76,State Skill Mission & NCVT Portal,2024-03-15
+105,4,15,Madhya Pradesh,Indore,2024,69,15365,20742,32266,14,99,State Skill Mission & NCVT Portal,2024-03-15
+106,4,16,Madhya Pradesh,Jabalpur,2023,78,15022,20279,31546,25,57,State Skill Mission & NCVT Portal,2024-03-15
+107,4,17,Madhya Pradesh,Jabalpur,2024,76,14966,20204,31428,21,102,State Skill Mission & NCVT Portal,2024-03-15
+108,4,18,Madhya Pradesh,Jabalpur,2023,73,16921,22843,35534,9,62,State Skill Mission & NCVT Portal,2024-03-15
+109,4,19,Madhya Pradesh,Gwalior,2023,79,15215,20540,31951,26,34,State Skill Mission & NCVT Portal,2024-03-15
+110,4,20,Madhya Pradesh,Gwalior,2023,80,14335,19352,30103,14,54,State Skill Mission & NCVT Portal,2024-03-15
+111,4,21,Madhya Pradesh,Gwalior,2024,75,16744,22604,35162,16,16,State Skill Mission & NCVT Portal,2024-03-15
+112,4,22,Rajasthan,Jaipur,2023,82,16724,22577,35120,16,109,State Skill Mission & NCVT Portal,2024-03-15
+113,4,23,Rajasthan,Jaipur,2024,69,14061,18982,29528,17,101,State Skill Mission & NCVT Portal,2024-03-15
+114,4,24,Rajasthan,Jaipur,2024,70,13646,18422,28656,23,104,State Skill Mission & NCVT Portal,2024-03-15
+115,4,25,Rajasthan,Jodhpur,2023,79,16071,21695,33749,28,86,State Skill Mission & NCVT Portal,2024-03-15
+116,4,26,Rajasthan,Jodhpur,2023,79,16961,22897,35618,14,37,State Skill Mission & NCVT Portal,2024-03-15
+117,4,27,Rajasthan,Jodhpur,2023,66,15032,20293,31567,8,24,State Skill Mission & NCVT Portal,2024-03-15
+118,4,28,Rajasthan,Udaipur,2024,74,15037,20299,31577,24,93,State Skill Mission & NCVT Portal,2024-03-15
+119,4,29,Rajasthan,Udaipur,2024,79,17223,23251,36168,21,84,State Skill Mission & NCVT Portal,2024-03-15
+120,4,30,Rajasthan,Udaipur,2023,73,14934,20160,31361,11,50,State Skill Mission & NCVT Portal,2024-03-15
+121,5,1,Telangana,Hyderabad,2023,68,11510,15538,24171,23,80,State Skill Mission & NCVT Portal,2024-03-15
+122,5,2,Telangana,Hyderabad,2024,77,13638,18411,28639,15,84,State Skill Mission & NCVT Portal,2024-03-15
+123,5,3,Telangana,Hyderabad,2024,72,13161,17767,27638,16,82,State Skill Mission & NCVT Portal,2024-03-15
+124,5,4,Telangana,Warangal,2024,80,13511,18239,28373,9,89,State Skill Mission & NCVT Portal,2024-03-15
+125,5,5,Telangana,Warangal,2023,80,13587,18342,28532,12,71,State Skill Mission & NCVT Portal,2024-03-15
+126,5,6,Telangana,Warangal,2024,80,15307,20664,32144,10,18,State Skill Mission & NCVT Portal,2024-03-15
+127,5,7,Telangana,Karimnagar,2024,66,12929,17454,27150,26,75,State Skill Mission & NCVT Portal,2024-03-15
+128,5,8,Telangana,Karimnagar,2023,74,14734,19890,30941,26,36,State Skill Mission & NCVT Portal,2024-03-15
+129,5,9,Telangana,Karimnagar,2023,69,15141,20440,31796,26,46,State Skill Mission & NCVT Portal,2024-03-15
+130,5,10,Madhya Pradesh,Bhopal,2023,68,12526,16910,26304,14,25,State Skill Mission & NCVT Portal,2024-03-15
+131,5,11,Madhya Pradesh,Bhopal,2023,76,15334,20700,32201,13,82,State Skill Mission & NCVT Portal,2024-03-15
+132,5,12,Madhya Pradesh,Bhopal,2024,70,12667,17100,26600,8,62,State Skill Mission & NCVT Portal,2024-03-15
+133,5,13,Madhya Pradesh,Indore,2023,76,13054,17622,27413,8,44,State Skill Mission & NCVT Portal,2024-03-15
+134,5,14,Madhya Pradesh,Indore,2023,81,15253,20591,32031,11,55,State Skill Mission & NCVT Portal,2024-03-15
+135,5,15,Madhya Pradesh,Indore,2024,76,14285,19284,29998,13,86,State Skill Mission & NCVT Portal,2024-03-15
+136,5,16,Madhya Pradesh,Jabalpur,2024,80,14926,20150,31344,23,72,State Skill Mission & NCVT Portal,2024-03-15
+137,5,17,Madhya Pradesh,Jabalpur,2023,68,14248,19234,29920,16,110,State Skill Mission & NCVT Portal,2024-03-15
+138,5,18,Madhya Pradesh,Jabalpur,2023,67,12290,16591,25809,16,105,State Skill Mission & NCVT Portal,2024-03-15
+139,5,19,Madhya Pradesh,Gwalior,2023,68,15007,20259,31514,19,89,State Skill Mission & NCVT Portal,2024-03-15
+140,5,20,Madhya Pradesh,Gwalior,2024,70,12086,16316,25380,9,108,State Skill Mission & NCVT Portal,2024-03-15
+141,5,21,Madhya Pradesh,Gwalior,2024,78,11695,15788,24559,10,13,State Skill Mission & NCVT Portal,2024-03-15
+142,5,22,Rajasthan,Jaipur,2023,82,14071,18995,29549,15,26,State Skill Mission & NCVT Portal,2024-03-15
+143,5,23,Rajasthan,Jaipur,2023,66,14422,19469,30286,27,37,State Skill Mission & NCVT Portal,2024-03-15
+144,5,24,Rajasthan,Jaipur,2024,67,11834,15975,24851,12,102,State Skill Mission & NCVT Portal,2024-03-15
+145,5,25,Rajasthan,Jodhpur,2024,72,12482,16850,26212,17,104,State Skill Mission & NCVT Portal,2024-03-15
+146,5,26,Rajasthan,Jodhpur,2024,66,12985,17529,27268,15,75,State Skill Mission & NCVT Portal,2024-03-15
+147,5,27,Rajasthan,Jodhpur,2023,79,11728,15832,24628,13,80,State Skill Mission & NCVT Portal,2024-03-15
+148,5,28,Rajasthan,Udaipur,2023,69,11730,15835,24633,23,60,State Skill Mission & NCVT Portal,2024-03-15
+149,5,29,Rajasthan,Udaipur,2024,66,14647,19773,30758,11,44,State Skill Mission & NCVT Portal,2024-03-15
+150,5,30,Rajasthan,Udaipur,2023,69,12543,16933,26340,8,53,State Skill Mission & NCVT Portal,2024-03-15
+151,6,1,Telangana,Hyderabad,2024,78,14392,19429,30223,26,84,State Skill Mission & NCVT Portal,2024-03-15
+152,6,2,Telangana,Hyderabad,2023,77,14662,19793,30790,18,102,State Skill Mission & NCVT Portal,2024-03-15
+153,6,3,Telangana,Hyderabad,2024,76,13807,18639,28994,15,45,State Skill Mission & NCVT Portal,2024-03-15
+154,6,4,Telangana,Warangal,2024,87,14295,19298,30019,8,103,State Skill Mission & NCVT Portal,2024-03-15
+155,6,5,Telangana,Warangal,2023,76,16071,21695,33749,24,77,State Skill Mission & NCVT Portal,2024-03-15
+156,6,6,Telangana,Warangal,2024,74,15655,21134,32875,20,12,State Skill Mission & NCVT Portal,2024-03-15
+157,6,7,Telangana,Karimnagar,2024,86,15362,20738,32260,19,36,State Skill Mission & NCVT Portal,2024-03-15
+158,6,8,Telangana,Karimnagar,2023,89,17129,23124,35970,8,65,State Skill Mission & NCVT Portal,2024-03-15
+159,6,9,Telangana,Karimnagar,2023,86,16955,22889,35605,22,80,State Skill Mission & NCVT Portal,2024-03-15
+160,6,10,Madhya Pradesh,Bhopal,2023,85,14494,19566,30437,15,99,State Skill Mission & NCVT Portal,2024-03-15
+161,6,11,Madhya Pradesh,Bhopal,2023,89,15796,21324,33171,11,59,State Skill Mission & NCVT Portal,2024-03-15
+162,6,12,Madhya Pradesh,Bhopal,2023,80,16276,21972,34179,19,25,State Skill Mission & NCVT Portal,2024-03-15
+163,6,13,Madhya Pradesh,Indore,2023,77,15633,21104,32829,28,24,State Skill Mission & NCVT Portal,2024-03-15
+164,6,14,Madhya Pradesh,Indore,2024,83,13769,18588,28914,26,73,State Skill Mission & NCVT Portal,2024-03-15
+165,6,15,Madhya Pradesh,Indore,2024,79,16317,22027,34265,8,103,State Skill Mission & NCVT Portal,2024-03-15
+166,6,16,Madhya Pradesh,Jabalpur,2024,85,17328,23392,36388,8,31,State Skill Mission & NCVT Portal,2024-03-15
+167,6,17,Madhya Pradesh,Jabalpur,2024,74,15310,20668,32151,21,49,State Skill Mission & NCVT Portal,2024-03-15
+168,6,18,Madhya Pradesh,Jabalpur,2024,79,16903,22819,35496,15,58,State Skill Mission & NCVT Portal,2024-03-15
+169,6,19,Madhya Pradesh,Gwalior,2023,77,15784,21308,33146,15,73,State Skill Mission & NCVT Portal,2024-03-15
+170,6,20,Madhya Pradesh,Gwalior,2023,90,16624,22442,34910,9,93,State Skill Mission & NCVT Portal,2024-03-15
+171,6,21,Madhya Pradesh,Gwalior,2023,90,13523,18256,28398,28,17,State Skill Mission & NCVT Portal,2024-03-15
+172,6,22,Rajasthan,Jaipur,2023,88,15968,21556,33532,11,76,State Skill Mission & NCVT Portal,2024-03-15
+173,6,23,Rajasthan,Jaipur,2024,83,14206,19178,29832,20,96,State Skill Mission & NCVT Portal,2024-03-15
+174,6,24,Rajasthan,Jaipur,2024,82,16649,22476,34962,22,56,State Skill Mission & NCVT Portal,2024-03-15
+175,6,25,Rajasthan,Jodhpur,2024,78,15719,21220,33009,26,109,State Skill Mission & NCVT Portal,2024-03-15
+176,6,26,Rajasthan,Jodhpur,2023,86,17261,23302,36248,8,78,State Skill Mission & NCVT Portal,2024-03-15
+177,6,27,Rajasthan,Jodhpur,2024,79,14775,19946,31027,13,89,State Skill Mission & NCVT Portal,2024-03-15
+178,6,28,Rajasthan,Udaipur,2023,88,16921,22843,35534,17,46,State Skill Mission & NCVT Portal,2024-03-15
+179,6,29,Rajasthan,Udaipur,2024,76,13799,18628,28977,19,37,State Skill Mission & NCVT Portal,2024-03-15
+180,6,30,Rajasthan,Udaipur,2024,85,16119,21760,33849,16,81,State Skill Mission & NCVT Portal,2024-03-15
+181,7,1,Telangana,Hyderabad,2024,87,14379,19411,30195,9,68,State Skill Mission & NCVT Portal,2024-03-15
+182,7,2,Telangana,Hyderabad,2024,85,14265,19257,29956,10,40,State Skill Mission & NCVT Portal,2024-03-15
+183,7,3,Telangana,Hyderabad,2024,89,13721,18523,28814,26,97,State Skill Mission & NCVT Portal,2024-03-15
+184,7,4,Telangana,Warangal,2024,87,16174,21834,33965,13,34,State Skill Mission & NCVT Portal,2024-03-15
+185,7,5,Telangana,Warangal,2023,75,15821,21358,33224,15,53,State Skill Mission & NCVT Portal,2024-03-15
+186,7,6,Telangana,Warangal,2024,75,16960,22896,35616,21,15,State Skill Mission & NCVT Portal,2024-03-15
+187,7,7,Telangana,Karimnagar,2023,79,13751,18563,28877,12,93,State Skill Mission & NCVT Portal,2024-03-15
+188,7,8,Telangana,Karimnagar,2023,88,14637,19759,30737,14,36,State Skill Mission & NCVT Portal,2024-03-15
+189,7,9,Telangana,Karimnagar,2024,86,15500,20925,32550,9,108,State Skill Mission & NCVT Portal,2024-03-15
+190,7,10,Madhya Pradesh,Bhopal,2024,74,16784,22658,35246,19,76,State Skill Mission & NCVT Portal,2024-03-15
+191,7,11,Madhya Pradesh,Bhopal,2023,80,15792,21319,33163,8,104,State Skill Mission & NCVT Portal,2024-03-15
+192,7,12,Madhya Pradesh,Bhopal,2024,74,13895,18758,29179,15,67,State Skill Mission & NCVT Portal,2024-03-15
+193,7,13,Madhya Pradesh,Indore,2023,87,15605,21066,32770,16,93,State Skill Mission & NCVT Portal,2024-03-15
+194,7,14,Madhya Pradesh,Indore,2024,74,14001,18901,29402,11,31,State Skill Mission & NCVT Portal,2024-03-15
+195,7,15,Madhya Pradesh,Indore,2024,88,15006,20258,31512,21,55,State Skill Mission & NCVT Portal,2024-03-15
+196,7,16,Madhya Pradesh,Jabalpur,2023,86,16950,22882,35595,20,70,State Skill Mission & NCVT Portal,2024-03-15
+197,7,17,Madhya Pradesh,Jabalpur,2023,85,13942,18821,29278,20,49,State Skill Mission & NCVT Portal,2024-03-15
+198,7,18,Madhya Pradesh,Jabalpur,2023,74,16742,22601,35158,25,92,State Skill Mission & NCVT Portal,2024-03-15
+199,7,19,Madhya Pradesh,Gwalior,2023,79,14037,18949,29477,20,58,State Skill Mission & NCVT Portal,2024-03-15
+200,7,20,Madhya Pradesh,Gwalior,2024,74,15057,20326,31619,18,40,State Skill Mission & NCVT Portal,2024-03-15
+201,7,21,Madhya Pradesh,Gwalior,2024,87,16807,22689,35294,18,15,State Skill Mission & NCVT Portal,2024-03-15
+202,7,22,Rajasthan,Jaipur,2024,86,17160,23166,36036,12,82,State Skill Mission & NCVT Portal,2024-03-15
+203,7,23,Rajasthan,Jaipur,2024,80,13689,18480,28746,17,45,State Skill Mission & NCVT Portal,2024-03-15
+204,7,24,Rajasthan,Jaipur,2024,90,13675,18461,28717,21,69,State Skill Mission & NCVT Portal,2024-03-15
+205,7,25,Rajasthan,Jodhpur,2023,85,17326,23390,36384,22,34,State Skill Mission & NCVT Portal,2024-03-15
+206,7,26,Rajasthan,Jodhpur,2023,89,14556,19650,30567,14,95,State Skill Mission & NCVT Portal,2024-03-15
+207,7,27,Rajasthan,Jodhpur,2023,87,13835,18677,29053,10,73,State Skill Mission & NCVT Portal,2024-03-15
+208,7,28,Rajasthan,Udaipur,2024,79,15214,20538,31949,9,37,State Skill Mission & NCVT Portal,2024-03-15
+209,7,29,Rajasthan,Udaipur,2023,81,14700,19845,30870,10,30,State Skill Mission & NCVT Portal,2024-03-15
+210,7,30,Rajasthan,Udaipur,2024,89,15083,20362,31674,22,87,State Skill Mission & NCVT Portal,2024-03-15
+211,8,1,Telangana,Hyderabad,2023,79,9861,13312,20708,17,101,State Skill Mission & NCVT Portal,2024-03-15
+212,8,2,Telangana,Hyderabad,2023,81,11358,15333,23851,13,24,State Skill Mission & NCVT Portal,2024-03-15
+213,8,3,Telangana,Hyderabad,2023,81,13086,17666,27480,12,52,State Skill Mission & NCVT Portal,2024-03-15
+214,8,4,Telangana,Warangal,2023,73,10422,14069,21886,8,106,State Skill Mission & NCVT Portal,2024-03-15
+215,8,5,Telangana,Warangal,2023,76,12563,16960,26382,28,64,State Skill Mission & NCVT Portal,2024-03-15
+216,8,6,Telangana,Warangal,2023,69,10889,14700,22866,21,17,State Skill Mission & NCVT Portal,2024-03-15
+217,8,7,Telangana,Karimnagar,2023,82,10742,14501,22558,26,55,State Skill Mission & NCVT Portal,2024-03-15
+218,8,8,Telangana,Karimnagar,2024,72,12334,16650,25901,20,65,State Skill Mission & NCVT Portal,2024-03-15
+219,8,9,Telangana,Karimnagar,2024,73,10812,14596,22705,13,52,State Skill Mission & NCVT Portal,2024-03-15
+220,8,10,Madhya Pradesh,Bhopal,2023,80,11318,15279,23767,23,40,State Skill Mission & NCVT Portal,2024-03-15
+221,8,11,Madhya Pradesh,Bhopal,2024,76,10600,14310,22260,11,57,State Skill Mission & NCVT Portal,2024-03-15
+222,8,12,Madhya Pradesh,Bhopal,2023,82,10123,13666,21258,22,102,State Skill Mission & NCVT Portal,2024-03-15
+223,8,13,Madhya Pradesh,Indore,2024,66,11517,15547,24185,16,39,State Skill Mission & NCVT Portal,2024-03-15
+224,8,14,Madhya Pradesh,Indore,2023,82,11769,15888,24714,21,52,State Skill Mission & NCVT Portal,2024-03-15
+225,8,15,Madhya Pradesh,Indore,2023,79,9870,13324,20727,10,24,State Skill Mission & NCVT Portal,2024-03-15
+226,8,16,Madhya Pradesh,Jabalpur,2023,75,13105,17691,27520,19,94,State Skill Mission & NCVT Portal,2024-03-15
+227,8,17,Madhya Pradesh,Jabalpur,2024,74,10454,14112,21953,28,78,State Skill Mission & NCVT Portal,2024-03-15
+228,8,18,Madhya Pradesh,Jabalpur,2024,76,11061,14932,23228,19,70,State Skill Mission & NCVT Portal,2024-03-15
+229,8,19,Madhya Pradesh,Gwalior,2023,80,11388,15373,23914,22,88,State Skill Mission & NCVT Portal,2024-03-15
+230,8,20,Madhya Pradesh,Gwalior,2024,68,10680,14418,22428,13,71,State Skill Mission & NCVT Portal,2024-03-15
+231,8,21,Madhya Pradesh,Gwalior,2024,74,10338,13956,21709,16,16,State Skill Mission & NCVT Portal,2024-03-15
+232,8,22,Rajasthan,Jaipur,2024,81,13400,18090,28140,19,101,State Skill Mission & NCVT Portal,2024-03-15
+233,8,23,Rajasthan,Jaipur,2023,67,12291,16592,25811,11,25,State Skill Mission & NCVT Portal,2024-03-15
+234,8,24,Rajasthan,Jaipur,2024,73,12817,17302,26915,22,38,State Skill Mission & NCVT Portal,2024-03-15
+235,8,25,Rajasthan,Jodhpur,2024,67,11771,15890,24719,27,35,State Skill Mission & NCVT Portal,2024-03-15
+236,8,26,Rajasthan,Jodhpur,2023,70,12842,17336,26968,12,60,State Skill Mission & NCVT Portal,2024-03-15
+237,8,27,Rajasthan,Jodhpur,2023,71,12534,16920,26321,9,28,State Skill Mission & NCVT Portal,2024-03-15
+238,8,28,Rajasthan,Udaipur,2023,81,10042,13556,21088,21,69,State Skill Mission & NCVT Portal,2024-03-15
+239,8,29,Rajasthan,Udaipur,2024,77,13205,17826,27730,23,78,State Skill Mission & NCVT Portal,2024-03-15
+240,8,30,Rajasthan,Udaipur,2024,71,12937,17464,27167,16,101,State Skill Mission & NCVT Portal,2024-03-15
+241,9,1,Telangana,Hyderabad,2024,69,10723,14476,22518,10,60,State Skill Mission & NCVT Portal,2024-03-15
+242,9,2,Telangana,Hyderabad,2023,78,12169,16428,25554,11,97,State Skill Mission & NCVT Portal,2024-03-15
+243,9,3,Telangana,Hyderabad,2024,81,13201,17821,27722,15,96,State Skill Mission & NCVT Portal,2024-03-15
+244,9,4,Telangana,Warangal,2023,79,11702,15797,24574,27,90,State Skill Mission & NCVT Portal,2024-03-15
+245,9,5,Telangana,Warangal,2024,76,10918,14739,22927,8,26,State Skill Mission & NCVT Portal,2024-03-15
+246,9,6,Telangana,Warangal,2023,72,12760,17226,26796,11,12,State Skill Mission & NCVT Portal,2024-03-15
+247,9,7,Telangana,Karimnagar,2024,78,10585,14289,22228,27,75,State Skill Mission & NCVT Portal,2024-03-15
+248,9,8,Telangana,Karimnagar,2023,79,11359,15334,23853,10,40,State Skill Mission & NCVT Portal,2024-03-15
+249,9,9,Telangana,Karimnagar,2024,75,10099,13633,21207,25,61,State Skill Mission & NCVT Portal,2024-03-15
+250,9,10,Madhya Pradesh,Bhopal,2023,69,10669,14403,22404,21,107,State Skill Mission & NCVT Portal,2024-03-15
+251,9,11,Madhya Pradesh,Bhopal,2024,82,12286,16586,25800,12,108,State Skill Mission & NCVT Portal,2024-03-15
+252,9,12,Madhya Pradesh,Bhopal,2023,78,10825,14613,22732,12,27,State Skill Mission & NCVT Portal,2024-03-15
+253,9,13,Madhya Pradesh,Indore,2024,71,12705,17151,26680,15,82,State Skill Mission & NCVT Portal,2024-03-15
+254,9,14,Madhya Pradesh,Indore,2024,74,10819,14605,22719,28,51,State Skill Mission & NCVT Portal,2024-03-15
+255,9,15,Madhya Pradesh,Indore,2024,68,11624,15692,24410,18,40,State Skill Mission & NCVT Portal,2024-03-15
+256,9,16,Madhya Pradesh,Jabalpur,2023,71,10346,13967,21726,14,31,State Skill Mission & NCVT Portal,2024-03-15
+257,9,17,Madhya Pradesh,Jabalpur,2023,71,10594,14301,22247,12,71,State Skill Mission & NCVT Portal,2024-03-15
+258,9,18,Madhya Pradesh,Jabalpur,2024,68,10785,14559,22648,23,44,State Skill Mission & NCVT Portal,2024-03-15
+259,9,19,Madhya Pradesh,Gwalior,2023,82,11410,15403,23961,20,26,State Skill Mission & NCVT Portal,2024-03-15
+260,9,20,Madhya Pradesh,Gwalior,2023,82,11626,15695,24414,13,34,State Skill Mission & NCVT Portal,2024-03-15
+261,9,21,Madhya Pradesh,Gwalior,2023,75,9618,12984,20197,8,15,State Skill Mission & NCVT Portal,2024-03-15
+262,9,22,Rajasthan,Jaipur,2024,80,11340,15309,23814,10,75,State Skill Mission & NCVT Portal,2024-03-15
+263,9,23,Rajasthan,Jaipur,2024,72,12284,16583,25796,18,93,State Skill Mission & NCVT Portal,2024-03-15
+264,9,24,Rajasthan,Jaipur,2023,66,11807,15939,24794,20,29,State Skill Mission & NCVT Portal,2024-03-15
+265,9,25,Rajasthan,Jodhpur,2024,66,11377,15358,23891,26,85,State Skill Mission & NCVT Portal,2024-03-15
+266,9,26,Rajasthan,Jodhpur,2023,81,12746,17207,26766,13,101,State Skill Mission & NCVT Portal,2024-03-15
+267,9,27,Rajasthan,Jodhpur,2023,69,11097,14980,23303,15,84,State Skill Mission & NCVT Portal,2024-03-15
+268,9,28,Rajasthan,Udaipur,2024,68,12566,16964,26388,17,55,State Skill Mission & NCVT Portal,2024-03-15
+269,9,29,Rajasthan,Udaipur,2024,68,12787,17262,26852,23,54,State Skill Mission & NCVT Portal,2024-03-15
+270,9,30,Rajasthan,Udaipur,2024,81,12476,16842,26199,27,80,State Skill Mission & NCVT Portal,2024-03-15
+271,10,1,Telangana,Hyderabad,2024,76,10245,13830,21514,9,52,State Skill Mission & NCVT Portal,2024-03-15
+272,10,2,Telangana,Hyderabad,2023,76,10142,13691,21298,20,37,State Skill Mission & NCVT Portal,2024-03-15
+273,10,3,Telangana,Hyderabad,2024,87,12625,17043,26512,18,55,State Skill Mission & NCVT Portal,2024-03-15
+274,10,4,Telangana,Warangal,2023,80,12378,16710,25993,8,68,State Skill Mission & NCVT Portal,2024-03-15
+275,10,5,Telangana,Warangal,2023,87,12745,17205,26764,13,82,State Skill Mission & NCVT Portal,2024-03-15
+276,10,6,Telangana,Warangal,2023,81,13348,18019,28030,11,14,State Skill Mission & NCVT Portal,2024-03-15
+277,10,7,Telangana,Karimnagar,2023,76,13086,17666,27480,8,57,State Skill Mission & NCVT Portal,2024-03-15
+278,10,8,Telangana,Karimnagar,2024,79,10888,14698,22864,27,55,State Skill Mission & NCVT Portal,2024-03-15
+279,10,9,Telangana,Karimnagar,2023,76,12088,16318,25384,26,77,State Skill Mission & NCVT Portal,2024-03-15
+280,10,10,Madhya Pradesh,Bhopal,2024,87,10053,13571,21111,18,77,State Skill Mission & NCVT Portal,2024-03-15
+281,10,11,Madhya Pradesh,Bhopal,2024,77,11042,14906,23188,10,60,State Skill Mission & NCVT Portal,2024-03-15
+282,10,12,Madhya Pradesh,Bhopal,2023,76,9997,13495,20993,21,101,State Skill Mission & NCVT Portal,2024-03-15
+283,10,13,Madhya Pradesh,Indore,2024,87,11862,16013,24910,11,33,State Skill Mission & NCVT Portal,2024-03-15
+284,10,14,Madhya Pradesh,Indore,2024,90,12698,17142,26665,12,24,State Skill Mission & NCVT Portal,2024-03-15
+285,10,15,Madhya Pradesh,Indore,2023,80,10310,13918,21651,16,84,State Skill Mission & NCVT Portal,2024-03-15
+286,10,16,Madhya Pradesh,Jabalpur,2024,74,12598,17007,26455,22,59,State Skill Mission & NCVT Portal,2024-03-15
+287,10,17,Madhya Pradesh,Jabalpur,2024,81,12917,17437,27125,13,55,State Skill Mission & NCVT Portal,2024-03-15
+288,10,18,Madhya Pradesh,Jabalpur,2024,83,13100,17685,27510,9,61,State Skill Mission & NCVT Portal,2024-03-15
+289,10,19,Madhya Pradesh,Gwalior,2024,83,12972,17512,27241,11,92,State Skill Mission & NCVT Portal,2024-03-15
+290,10,20,Madhya Pradesh,Gwalior,2024,90,10982,14825,23062,21,81,State Skill Mission & NCVT Portal,2024-03-15
+291,10,21,Madhya Pradesh,Gwalior,2023,81,12585,16989,26428,16,17,State Skill Mission & NCVT Portal,2024-03-15
+292,10,22,Rajasthan,Jaipur,2023,75,9607,12969,20174,9,80,State Skill Mission & NCVT Portal,2024-03-15
+293,10,23,Rajasthan,Jaipur,2023,90,9553,12896,20061,9,29,State Skill Mission & NCVT Portal,2024-03-15
+294,10,24,Rajasthan,Jaipur,2023,77,12725,17178,26722,10,85,State Skill Mission & NCVT Portal,2024-03-15
+295,10,25,Rajasthan,Jodhpur,2024,90,9552,12895,20059,12,65,State Skill Mission & NCVT Portal,2024-03-15
+296,10,26,Rajasthan,Jodhpur,2024,89,9515,12845,19981,9,61,State Skill Mission & NCVT Portal,2024-03-15
+297,10,27,Rajasthan,Jodhpur,2024,82,12468,16831,26182,10,97,State Skill Mission & NCVT Portal,2024-03-15
+298,10,28,Rajasthan,Udaipur,2023,81,12390,16726,26019,15,52,State Skill Mission & NCVT Portal,2024-03-15
+299,10,29,Rajasthan,Udaipur,2024,88,13040,17604,27384,23,110,State Skill Mission & NCVT Portal,2024-03-15
+300,10,30,Rajasthan,Udaipur,2023,76,9992,13489,20983,8,85,State Skill Mission & NCVT Portal,2024-03-15

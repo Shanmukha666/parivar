@@ -1,0 +1,14 @@
+{
+  "welcome": "Welcome",
+  "select_language": "Select Language",
+  "consent_title": "Before we begin",
+  "consent_point1": "We will ask about your education and interests.",
+  "consent_point2": "We will suggest career options for you.",
+  "consent_point3": "You can share this with your parents.",
+  "agree_continue": "I Agree & Continue",
+  "profile_title": "Tell us about yourself",
+  "next": "Next",
+  "chat_title": "Family Discussion",
+  "learner": "Learner",
+  "parent": "Parent"
+}

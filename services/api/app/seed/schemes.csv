@@ -1,0 +1,9 @@
+id,name,state,eligibility,benefit,how_to_apply,source
+1,PM Vishwakarma Scheme,,"{""income_bracket"": ""All"", ""min_class"": ""Class 8""}","₹15,000 tool kit incentive + 500/day stipend during training + 5% subsidized loan",Online at pmvishwakarma.gov.in or CSC,MSDE Official Portal
+2,PMKVY 4.0 Free Training,,"{""income_bracket"": ""Below 3 Lakhs"", ""min_class"": ""Class 8""}",100% course fee waiver + free study material + assessment support,Directly at accredited PMKVY Skill Hub,Skill India Digital Hub
+3,Telangana State Dalit Bandhu (Skilling Component),Telangana,"{""income_bracket"": ""Below 2 Lakhs"", ""category"": ""SC""}","₹10,000 initial startup equipment allowance post ITI graduation",District Collectorate / TS Skill Mission,Govt of Telangana
+4,Telangana Overseas & Advanced Technical Fellowship,Telangana,"{""income_bracket"": ""Below 5 Lakhs"", ""min_class"": ""Class 10""}",Free placement counseling and lateral entry subsidy for polytechnic,TS ePass Portal,TS Department of Technical Education
+5,MP Mukhyamantri Kaushalya Yojana,Madhya Pradesh,"{""gender"": ""Female"", ""min_class"": ""Class 8""}",Free residential vocational training + hostel + placement guarantee for girls,MP Skill Portal (ssdm.mp.gov.in),MP Skill Development Mission
+6,MP Seekho Kamao Yojana (Learn & Earn),Madhya Pradesh,"{""age"": ""18-29"", ""min_class"": ""Class 10""}","Monthly stipend of ₹8,000 to ₹10,000 directly to bank account during apprenticeship",mmsky.mp.gov.in,Govt of Madhya Pradesh
+7,Rajasthan Kaushal Vikas Kendra Subsidy,Rajasthan,"{""income_bracket"": ""BPL"", ""min_class"": ""Class 8""}","100% scholarship for ITI admission + ₹2,000 monthly travel stipend",Emitra Kiosks across Rajasthan,RSLDC Rajasthan
+8,National Apprenticeship Promotion Scheme (NAPS),,"{""income_bracket"": ""All"", ""min_class"": ""Class 10""}","Govt pays 25% of prescribed stipend up to ₹1,500/month to industry employers",apprenticeshipindia.gov.in,MSDE NAPS Division

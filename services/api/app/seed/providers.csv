@@ -1,0 +1,31 @@
+id,name,type,state,district,accreditation,fee_inr,contact
+1,Hyderabad Government ITI,Government ITI,Telangana,Hyderabad,NCVT Verified,1200,040-25723153
+2,Hyderabad PMKVY Skill Hub,PMKVY Skill Hub,Telangana,Hyderabad,NSDC Certified,0,040-23015337
+3,Hyderabad Polytechnic Centre,Polytechnic Centre,Telangana,Hyderabad,State Board Accredited,18500,040-25314325
+4,Warangal Government ITI,Government ITI,Telangana,Warangal,NCVT Verified,1200,040-23836763
+5,Warangal PMKVY Skill Hub,PMKVY Skill Hub,Telangana,Warangal,NSDC Certified,0,040-25544278
+6,Warangal Polytechnic Centre,Polytechnic Centre,Telangana,Warangal,State Board Accredited,18500,040-29908608
+7,Karimnagar Government ITI,Government ITI,Telangana,Karimnagar,NCVT Verified,1200,040-29821371
+8,Karimnagar PMKVY Skill Hub,PMKVY Skill Hub,Telangana,Karimnagar,NSDC Certified,0,040-29201146
+9,Karimnagar Polytechnic Centre,Polytechnic Centre,Telangana,Karimnagar,State Board Accredited,18500,040-26901364
+10,Bhopal Government ITI,Government ITI,Madhya Pradesh,Bhopal,NCVT Verified,1200,0755-2121942
+11,Bhopal PMKVY Skill Hub,PMKVY Skill Hub,Madhya Pradesh,Bhopal,NSDC Certified,0,0755-2768347
+12,Bhopal Polytechnic Centre,Polytechnic Centre,Madhya Pradesh,Bhopal,State Board Accredited,18500,0755-2768105
+13,Indore Government ITI,Government ITI,Madhya Pradesh,Indore,NCVT Verified,1200,0755-2199664
+14,Indore PMKVY Skill Hub,PMKVY Skill Hub,Madhya Pradesh,Indore,NSDC Certified,0,0755-2629416
+15,Indore Polytechnic Centre,Polytechnic Centre,Madhya Pradesh,Indore,State Board Accredited,18500,0755-2893615
+16,Jabalpur Government ITI,Government ITI,Madhya Pradesh,Jabalpur,NCVT Verified,1200,0755-2012198
+17,Jabalpur PMKVY Skill Hub,PMKVY Skill Hub,Madhya Pradesh,Jabalpur,NSDC Certified,0,0755-2608883
+18,Jabalpur Polytechnic Centre,Polytechnic Centre,Madhya Pradesh,Jabalpur,State Board Accredited,18500,0755-2039598
+19,Gwalior Government ITI,Government ITI,Madhya Pradesh,Gwalior,NCVT Verified,1200,0755-2092004
+20,Gwalior PMKVY Skill Hub,PMKVY Skill Hub,Madhya Pradesh,Gwalior,NSDC Certified,0,0755-2690023
+21,Gwalior Polytechnic Centre,Polytechnic Centre,Madhya Pradesh,Gwalior,State Board Accredited,18500,0755-2877020
+22,Jaipur Government ITI,Government ITI,Rajasthan,Jaipur,NCVT Verified,1200,0755-2864092
+23,Jaipur PMKVY Skill Hub,PMKVY Skill Hub,Rajasthan,Jaipur,NSDC Certified,0,0755-2229816
+24,Jaipur Polytechnic Centre,Polytechnic Centre,Rajasthan,Jaipur,State Board Accredited,18500,0755-2974494
+25,Jodhpur Government ITI,Government ITI,Rajasthan,Jodhpur,NCVT Verified,1200,0755-2422832
+26,Jodhpur PMKVY Skill Hub,PMKVY Skill Hub,Rajasthan,Jodhpur,NSDC Certified,0,0755-2346797
+27,Jodhpur Polytechnic Centre,Polytechnic Centre,Rajasthan,Jodhpur,State Board Accredited,18500,0755-2382551
+28,Udaipur Government ITI,Government ITI,Rajasthan,Udaipur,NCVT Verified,1200,0755-2291034
+29,Udaipur PMKVY Skill Hub,PMKVY Skill Hub,Rajasthan,Udaipur,NSDC Certified,0,0755-2746757
+30,Udaipur Polytechnic Centre,Polytechnic Centre,Rajasthan,Udaipur,State Board Accredited,18500,0755-2141681

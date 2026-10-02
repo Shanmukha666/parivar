@@ -1,0 +1,4 @@
+id,email,password_hash,role
+1,admin@parivarpath.in,$2b$12$R.P9f28/oXw2k54G4H6zR.0zY5M/q8p.y.vM6qR5E/jC7v/5pE/gO,admin
+2,counsellor1@parivarpath.in,$2b$12$R.P9f28/oXw2k54G4H6zR.0zY5M/q8p.y.vM6qR5E/jC7v/5pE/gO,counsellor
+3,counsellor2@parivarpath.in,$2b$12$R.P9f28/oXw2k54G4H6zR.0zY5M/q8p.y.vM6qR5E/jC7v/5pE/gO,counsellor

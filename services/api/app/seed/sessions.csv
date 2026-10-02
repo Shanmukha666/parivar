@@ -1,0 +1,301 @@
+id,lang,state,district,user_role,learner_class,income_bracket,selected_trade_id,consent,created_at
+78d63c03-b667-4edd-ba17-0d25fcd0073f,te,Madhya Pradesh,Bhopal,learner,Class 8 Pass,Below ₹1 Lakh,1,True,2024-04-08T08:59:41
+41f3cf47-9b1e-49c5-8a28-666e035b1120,hi,Telangana,Hyderabad,both,Class 8 Pass,₹1 - 3 Lakhs,3,True,2024-06-23T04:41:16
+aef33966-5ebc-4232-95dd-acb9eef36041,en,Madhya Pradesh,Bhopal,parent,Class 8 Pass,₹3 - 5 Lakhs,12,True,2024-05-12T18:21:16
+3b9a109f-4688-4a2a-bf82-269523e041ea,te,Telangana,Karimnagar,both,Class 10 Pass,Below ₹1 Lakh,10,True,2024-07-16T05:11:24
+46cdc4be-4e66-4526-b12d-11c352d9409e,en,Rajasthan,Udaipur,both,Class 8 Pass,₹3 - 5 Lakhs,11,True,2024-06-03T01:47:31
+ff4b93e8-9404-4c2a-8660-090c92eb4a7d,te,Madhya Pradesh,Indore,learner,Class 10 Pass,₹1 - 3 Lakhs,12,True,2024-02-02T03:58:01
+da1fce8e-8c13-43ec-8c90-0d3a2373c467,en,Telangana,Warangal,both,Class 8 Pass,₹1 - 3 Lakhs,10,True,2024-05-24T08:03:17
+f89a27a9-c96c-4212-ac53-f15d0e03875c,hi,Madhya Pradesh,Bhopal,both,Class 8 Pass,Below ₹1 Lakh,2,True,2024-01-05T16:22:42
+5d25c9ff-1a17-44b6-9cc5-37da0d81d308,te,Madhya Pradesh,Indore,parent,Class 12 Pass,Below ₹1 Lakh,10,True,2024-05-31T09:03:01
+56ca8472-14ad-4f1b-9277-959b8ed9f086,en,Telangana,Hyderabad,parent,Class 8 Pass,Below ₹1 Lakh,5,True,2024-09-10T17:51:42
+636169fd-c019-48d6-b290-cccc7b0532dc,te,Rajasthan,Udaipur,learner,Class 10 Pass,Below ₹1 Lakh,2,True,2024-05-10T02:52:29
+d8a53ef5-54bb-4537-9f91-e941a3df1d72,hi,Madhya Pradesh,Jabalpur,both,Class 10 Pass,₹3 - 5 Lakhs,8,True,2024-06-20T05:48:32
+56d52e61-4efc-4c7a-a6b6-ca4a8c28ae56,en,Rajasthan,Jaipur,both,Class 12 Pass,Below ₹1 Lakh,6,True,2024-08-06T08:52:52
+8e6abb79-9af0-4874-860a-0eb52abf897c,en,Madhya Pradesh,Indore,both,Class 12 Pass,Below ₹1 Lakh,8,True,2024-08-01T17:01:00
+a2d132ce-b6d9-4c47-8805-df210b05c742,en,Madhya Pradesh,Indore,learner,Class 10 Pass,₹3 - 5 Lakhs,4,True,2024-08-10T12:31:38
+d281e579-de20-4a9d-8b5e-8fa2954b0533,en,Madhya Pradesh,Gwalior,learner,Class 8 Pass,₹1 - 3 Lakhs,3,True,2024-02-19T07:29:04
+633718ad-3093-48f4-b4c6-3c00c7b618cb,hi,Telangana,Hyderabad,parent,Class 10 Pass,₹3 - 5 Lakhs,12,True,2024-01-20T00:31:06
+d45f6abe-2ef1-4f15-abe9-9769829fcc15,hi,Rajasthan,Jodhpur,parent,Class 8 Pass,Below ₹1 Lakh,4,True,2024-08-20T13:12:18
+1934650e-bf9b-4fa3-ad2c-d5a68b3d05a9,te,Telangana,Warangal,learner,Class 12 Pass,Below ₹1 Lakh,8,True,2024-05-21T01:09:33
+5baaabb5-f7a5-4347-90be-dc00761a5864,hi,Telangana,Karimnagar,learner,Class 10 Pass,₹3 - 5 Lakhs,4,True,2024-06-26T20:42:27
+49b87f9d-4cdf-43fc-b456-035f2e2704ad,te,Madhya Pradesh,Indore,both,Class 8 Pass,₹3 - 5 Lakhs,11,True,2024-02-11T16:14:17
+1a53fc0c-4951-4a37-8e61-14244f76b13a,en,Telangana,Warangal,parent,Class 10 Pass,₹1 - 3 Lakhs,1,True,2024-04-30T00:36:51
+6812c5dc-8623-4e6a-b41f-b68b62a33a66,en,Rajasthan,Jaipur,both,Class 10 Pass,₹1 - 3 Lakhs,4,True,2024-02-15T16:47:11
+65a3151c-2d28-4264-bd9c-eb156856f858,hi,Rajasthan,Udaipur,both,Class 8 Pass,₹3 - 5 Lakhs,3,True,2024-07-01T23:20:20
+7f539473-3db3-4d0f-a5e0-5428e89f89a1,en,Rajasthan,Udaipur,both,Class 8 Pass,₹1 - 3 Lakhs,12,True,2024-02-26T11:02:33
+3c06afb0-69ea-4d78-aa9f-f65cfb499eac,te,Telangana,Warangal,learner,Class 8 Pass,₹1 - 3 Lakhs,9,True,2024-04-27T10:50:19
+a319a54f-dfff-43b5-9a8f-8242e1410fd1,hi,Telangana,Karimnagar,parent,Class 10 Pass,₹1 - 3 Lakhs,11,True,2024-07-09T22:02:36
+197d28f3-4182-4e99-96f1-e80b76c4e872,te,Madhya Pradesh,Indore,both,Class 10 Pass,₹1 - 3 Lakhs,11,True,2024-02-08T21:32:09
+ad6cd9f3-2746-4abd-95fb-ea457408a103,te,Rajasthan,Jodhpur,parent,Class 8 Pass,Below ₹1 Lakh,11,True,2024-08-07T22:25:02
+59eb57d0-d913-4e7f-9725-58a485166381,en,Madhya Pradesh,Bhopal,parent,Class 10 Pass,₹3 - 5 Lakhs,12,True,2024-05-15T15:10:11
+7845950d-ea97-4cde-a6a2-7538be58b6da,hi,Telangana,Karimnagar,parent,Class 12 Pass,₹1 - 3 Lakhs,1,True,2024-06-05T11:44:49
+cf366ba3-3a1c-486b-ab92-59de5b335cf7,te,Telangana,Hyderabad,learner,Class 12 Pass,₹1 - 3 Lakhs,12,True,2024-07-31T23:37:09
+3ba69f3e-e03e-433d-9764-5481148484cb,te,Madhya Pradesh,Indore,parent,Class 8 Pass,₹1 - 3 Lakhs,11,True,2024-03-08T06:27:39
+27469ae3-81eb-4f7a-8969-3062975d8a32,hi,Telangana,Karimnagar,both,Class 8 Pass,₹3 - 5 Lakhs,10,True,2024-02-09T19:16:35
+872874e6-71f0-4742-9ff3-09bebbe18b5f,hi,Telangana,Karimnagar,parent,Class 8 Pass,Below ₹1 Lakh,2,True,2024-01-20T22:36:16
+fab4f5c3-4476-43b1-9eab-de625608970f,en,Telangana,Karimnagar,both,Class 8 Pass,₹3 - 5 Lakhs,3,True,2024-01-03T08:17:00
+496cab57-c0dc-4866-bc03-4ee0e5c05403,te,Madhya Pradesh,Indore,learner,Class 8 Pass,₹3 - 5 Lakhs,8,True,2024-05-27T08:54:31
+a344b2fa-04b8-4249-86d2-bf52868bc9a4,hi,Madhya Pradesh,Jabalpur,parent,Class 10 Pass,₹1 - 3 Lakhs,9,True,2024-05-21T12:41:25
+384fedb7-f10a-4cee-985d-022c96751f19,te,Telangana,Hyderabad,learner,Class 10 Pass,₹3 - 5 Lakhs,3,True,2024-03-05T07:43:32
+602c2b3f-6be5-4bdb-9467-60ed3ccbf37a,te,Madhya Pradesh,Indore,learner,Class 8 Pass,Below ₹1 Lakh,10,True,2024-06-11T22:45:46
+8fac74fa-ea51-420b-b383-13228135a516,te,Rajasthan,Jaipur,learner,Class 12 Pass,₹3 - 5 Lakhs,3,True,2024-07-19T02:39:27
+e0332156-c285-46d1-b8b9-04e330ca19ba,hi,Madhya Pradesh,Gwalior,parent,Class 8 Pass,Below ₹1 Lakh,4,True,2024-06-24T11:17:19
+65831e0f-fdf5-4b29-b5cb-4df517e1af14,te,Telangana,Karimnagar,learner,Class 10 Pass,₹3 - 5 Lakhs,7,True,2024-01-31T23:20:40
+6c8a0c38-7175-4229-a449-07249e737ac0,te,Telangana,Karimnagar,parent,Class 12 Pass,₹1 - 3 Lakhs,12,True,2024-07-06T15:00:45
+16c86cd8-5b5c-4345-8976-6b41da1bbd06,hi,Rajasthan,Jaipur,both,Class 12 Pass,Below ₹1 Lakh,12,True,2024-07-17T19:36:05
+326566de-bcbb-40ea-990c-767eb28f3e6f,hi,Madhya Pradesh,Jabalpur,learner,Class 10 Pass,₹3 - 5 Lakhs,11,True,2024-06-28T02:22:22
+8f14bebb-09c8-4020-8c54-960f75e38c44,te,Madhya Pradesh,Jabalpur,both,Class 10 Pass,₹3 - 5 Lakhs,3,True,2024-06-28T19:31:58
+8767c8df-bdb9-4ebe-9a30-054ff4056046,te,Madhya Pradesh,Gwalior,both,Class 8 Pass,₹3 - 5 Lakhs,4,True,2024-01-25T05:50:14
+837b2f4b-790c-49a6-9d4c-1bd33e70ae20,hi,Telangana,Karimnagar,parent,Class 8 Pass,₹1 - 3 Lakhs,7,True,2024-09-16T10:46:08
+99b175a4-f504-4229-844f-18695a8d2dbb,te,Telangana,Karimnagar,both,Class 8 Pass,₹3 - 5 Lakhs,2,True,2024-02-26T11:32:07
+8cb1e30a-f36d-45c4-a430-341b1d0f09b2,te,Rajasthan,Udaipur,learner,Class 8 Pass,₹3 - 5 Lakhs,10,True,2024-04-03T15:35:00
+0937a569-fdd3-4661-830e-52c8e639272b,hi,Madhya Pradesh,Bhopal,both,Class 10 Pass,₹1 - 3 Lakhs,4,True,2024-03-13T01:02:07
+68118522-0691-417f-bbb5-ab417deda003,en,Madhya Pradesh,Jabalpur,parent,Class 10 Pass,₹3 - 5 Lakhs,8,True,2024-02-18T14:19:22
+cdf0af7c-cc5b-4a0d-b5eb-80951bbf7b7b,en,Madhya Pradesh,Gwalior,learner,Class 8 Pass,₹3 - 5 Lakhs,3,True,2024-09-06T09:09:50
+c30a2ef3-1c4e-40a6-ad87-0fac11816b40,te,Rajasthan,Jodhpur,parent,Class 8 Pass,₹3 - 5 Lakhs,3,True,2024-06-30T18:25:46
+f6a2767e-0218-48b8-8f3c-99e2d563b1fc,hi,Rajasthan,Jaipur,learner,Class 12 Pass,₹3 - 5 Lakhs,10,True,2024-08-15T08:07:22
+025a0688-6634-465c-994f-5dcc5cf856b7,hi,Madhya Pradesh,Jabalpur,parent,Class 12 Pass,Below ₹1 Lakh,3,True,2024-09-20T21:52:15
+a0b48554-60be-4106-ba1e-d9c6bafd3cfb,en,Rajasthan,Jaipur,learner,Class 8 Pass,₹3 - 5 Lakhs,1,True,2024-02-28T03:19:06
+a098a8b0-a236-4548-8c51-df2bbde7d4f5,te,Telangana,Warangal,both,Class 10 Pass,Below ₹1 Lakh,11,True,2024-02-01T04:13:17
+b3d6baad-e5eb-45ec-ba70-fa60aedde8ca,en,Rajasthan,Jodhpur,both,Class 12 Pass,₹3 - 5 Lakhs,1,True,2024-05-22T07:21:45
+c8259956-e3b4-4f38-b3d2-1f0e59ebd3f5,hi,Telangana,Hyderabad,parent,Class 12 Pass,₹3 - 5 Lakhs,11,True,2024-08-18T19:22:53
+fa62140e-16b2-4dd7-b412-96ca2e54ddb5,en,Rajasthan,Jodhpur,learner,Class 12 Pass,Below ₹1 Lakh,9,True,2024-04-20T14:22:36
+963de4fd-57f3-4316-a962-032ac564cbbc,te,Rajasthan,Jaipur,learner,Class 10 Pass,Below ₹1 Lakh,8,True,2024-09-08T22:43:20
+63eb8ba4-b210-480e-a564-31d6711afa88,hi,Madhya Pradesh,Bhopal,both,Class 12 Pass,Below ₹1 Lakh,9,True,2024-08-25T20:52:08
+1713f605-9bf1-4a54-ac84-6fe6271e09b7,te,Madhya Pradesh,Bhopal,both,Class 8 Pass,₹3 - 5 Lakhs,11,True,2024-03-02T14:40:45
+1d1713ad-2902-4c2b-a838-c24b72439c6a,hi,Madhya Pradesh,Jabalpur,parent,Class 8 Pass,₹3 - 5 Lakhs,7,True,2024-03-28T08:14:06
+99e1490a-0f7f-438d-98cd-82d250445cc1,te,Rajasthan,Jodhpur,learner,Class 12 Pass,Below ₹1 Lakh,1,True,2024-03-17T12:34:06
+5b845b6a-20ec-4ead-9742-1a23d6a08675,te,Rajasthan,Jodhpur,learner,Class 12 Pass,Below ₹1 Lakh,1,True,2024-01-02T09:00:34
+40fb2043-0d50-4276-a758-f643a151ba15,hi,Madhya Pradesh,Gwalior,learner,Class 10 Pass,₹3 - 5 Lakhs,8,True,2024-03-12T18:08:04
+b95f5ef7-61d5-4da4-9682-cbc3e01e7abc,hi,Rajasthan,Jaipur,learner,Class 12 Pass,Below ₹1 Lakh,11,True,2024-05-13T17:44:08
+fe58c096-6900-4c84-a02c-f7f4739db76b,en,Telangana,Hyderabad,both,Class 10 Pass,Below ₹1 Lakh,2,True,2024-04-06T13:54:25
+aa9c6df7-4b01-4611-bfa8-5373f0261fb7,hi,Telangana,Karimnagar,learner,Class 8 Pass,₹3 - 5 Lakhs,9,True,2024-09-20T23:18:12
+aaea3a56-e860-435e-a773-bf7b59b70ae7,te,Rajasthan,Jodhpur,parent,Class 10 Pass,₹3 - 5 Lakhs,9,True,2024-07-27T07:02:08
+358d3ba3-58ae-4f6c-b183-0792f24db94d,en,Rajasthan,Udaipur,parent,Class 10 Pass,₹1 - 3 Lakhs,9,True,2024-06-28T12:15:22
+14a470d4-9d8f-40e2-b6eb-0f6df10982b7,te,Rajasthan,Jodhpur,both,Class 8 Pass,Below ₹1 Lakh,10,True,2024-02-21T18:56:28
+2dc6b97d-f7d5-4f83-bc9d-25415f6b65d6,hi,Telangana,Hyderabad,parent,Class 10 Pass,Below ₹1 Lakh,2,True,2024-09-24T08:33:29
+8aeecc4c-d75d-4b90-99d3-3293d9ddf2e3,hi,Rajasthan,Jaipur,learner,Class 10 Pass,₹1 - 3 Lakhs,7,True,2024-09-01T17:49:43
+40cab9c8-4862-4db7-a536-7f6a15e31c76,te,Madhya Pradesh,Jabalpur,learner,Class 10 Pass,₹1 - 3 Lakhs,8,True,2024-08-09T20:58:47
+2281e343-c86e-47db-8278-491bff731d54,hi,Telangana,Warangal,parent,Class 12 Pass,₹3 - 5 Lakhs,5,True,2024-06-27T15:53:40
+02e672f2-3aaa-4b6a-9524-e92cdb5df137,en,Rajasthan,Jaipur,parent,Class 8 Pass,Below ₹1 Lakh,9,True,2024-05-01T18:13:23
+415b985d-d573-4c45-8382-9d6a0fc047f0,te,Rajasthan,Udaipur,parent,Class 10 Pass,₹3 - 5 Lakhs,1,True,2024-01-09T17:36:34
+67020ced-3162-4660-a435-618e472a4998,te,Madhya Pradesh,Gwalior,learner,Class 8 Pass,₹3 - 5 Lakhs,7,True,2024-04-24T19:43:28
+f0b3bab9-74fb-42b4-8f7c-c7605b2e1372,en,Madhya Pradesh,Indore,parent,Class 10 Pass,₹1 - 3 Lakhs,12,True,2024-05-01T22:44:08
+98fe248b-b746-4fe5-8165-cb8908c732cf,en,Rajasthan,Jodhpur,parent,Class 8 Pass,Below ₹1 Lakh,5,True,2024-02-28T14:50:20
+12f75a51-2f1d-41f4-beab-68e8337253a6,en,Rajasthan,Jodhpur,parent,Class 12 Pass,₹3 - 5 Lakhs,4,True,2024-09-13T12:30:51
+88b7594e-9e0f-455d-8cb4-ea9725670d1a,te,Telangana,Karimnagar,parent,Class 8 Pass,₹3 - 5 Lakhs,11,True,2024-02-22T17:32:41
+23575a45-33c4-4771-8a74-dea58253150f,hi,Madhya Pradesh,Jabalpur,both,Class 10 Pass,₹3 - 5 Lakhs,6,True,2024-05-03T16:14:14
+7126c99a-8f0a-42b5-888f-1ecac0d8cfec,te,Madhya Pradesh,Indore,both,Class 10 Pass,Below ₹1 Lakh,6,True,2024-04-27T23:34:18
+bac375a7-b688-41af-945a-ce6f9acd479d,te,Madhya Pradesh,Gwalior,learner,Class 12 Pass,Below ₹1 Lakh,8,True,2024-08-27T21:18:20
+2026a349-5067-48b4-b4cc-744e45fe7877,hi,Madhya Pradesh,Jabalpur,parent,Class 12 Pass,₹3 - 5 Lakhs,3,True,2024-09-24T22:04:04
+3aeed3d4-562b-4b70-ae5b-865501715814,hi,Telangana,Hyderabad,learner,Class 12 Pass,₹1 - 3 Lakhs,3,True,2024-02-21T05:38:41
+ca96b726-b403-4a50-a6a0-f1dffbf02bae,en,Rajasthan,Jaipur,learner,Class 12 Pass,₹3 - 5 Lakhs,9,True,2024-03-23T07:18:55
+fba56ec5-1e15-4c1a-a9fe-f91ebdd8573b,en,Madhya Pradesh,Bhopal,learner,Class 10 Pass,₹1 - 3 Lakhs,4,True,2024-06-20T11:28:11
+7a3fde37-ad92-40ae-92d2-22c4ddd7871d,en,Telangana,Warangal,learner,Class 8 Pass,₹3 - 5 Lakhs,4,True,2024-05-18T15:46:47
+1241fc7d-f394-4ad7-97d7-dcacae4c1f55,te,Madhya Pradesh,Indore,both,Class 8 Pass,₹3 - 5 Lakhs,10,True,2024-04-09T18:48:38
+0767575a-9fbe-4f2f-9f95-02ca0d902a30,te,Telangana,Hyderabad,both,Class 10 Pass,Below ₹1 Lakh,10,True,2024-07-30T13:55:55
+de4f9817-fbc2-4165-a95d-3ae7c37fcacd,en,Telangana,Karimnagar,both,Class 12 Pass,₹3 - 5 Lakhs,4,True,2024-08-14T10:43:58
+767e4419-dd76-45ea-8b31-737e97da6ac2,hi,Madhya Pradesh,Indore,both,Class 12 Pass,₹3 - 5 Lakhs,8,True,2024-06-21T01:57:56
+2cf36ce8-93ce-41e9-9f89-3436b267a999,hi,Telangana,Karimnagar,learner,Class 10 Pass,Below ₹1 Lakh,11,True,2024-05-30T00:28:40
+d9a499c4-f93e-41d2-bfac-ab12298c9f9f,en,Telangana,Hyderabad,parent,Class 8 Pass,₹1 - 3 Lakhs,9,True,2024-02-04T12:33:33
+2d8687ca-e90b-4cf1-9c30-a98bc6fa5a92,te,Rajasthan,Jodhpur,learner,Class 8 Pass,₹1 - 3 Lakhs,1,True,2024-01-18T07:17:08
+ca4ee239-fb0f-487c-8dcf-89e63617839b,hi,Rajasthan,Jodhpur,both,Class 12 Pass,₹1 - 3 Lakhs,5,True,2024-02-15T08:10:01
+93332ff0-656b-4b49-a60e-74e2ef0a2c62,te,Rajasthan,Jodhpur,learner,Class 12 Pass,Below ₹1 Lakh,5,True,2024-05-14T20:48:45
+4d624fdf-7e71-48f7-8b36-e717a6739a1c,te,Madhya Pradesh,Indore,learner,Class 8 Pass,₹1 - 3 Lakhs,11,True,2024-01-10T11:43:21
+84229e01-f57b-4b68-8761-263a816edcbf,en,Madhya Pradesh,Gwalior,both,Class 8 Pass,Below ₹1 Lakh,9,True,2024-02-20T17:41:51
+36794355-0e2a-4e69-bb47-cec98b4a319f,te,Madhya Pradesh,Bhopal,both,Class 12 Pass,₹3 - 5 Lakhs,11,True,2024-06-01T21:08:33
+8410b611-499b-4d94-b119-cd456e83055d,en,Rajasthan,Jaipur,parent,Class 8 Pass,₹1 - 3 Lakhs,11,True,2024-06-21T06:49:13
+0420dfe1-f2b8-4e40-984d-c84df1b3b496,te,Telangana,Warangal,parent,Class 12 Pass,Below ₹1 Lakh,10,True,2024-03-26T03:44:09
+807cc884-1128-4fe9-b068-60aff30b5fcf,en,Telangana,Hyderabad,learner,Class 12 Pass,Below ₹1 Lakh,5,True,2024-06-17T04:32:49
+dba0afa8-9f28-4894-a827-c6fbc6e1cfc5,en,Madhya Pradesh,Gwalior,both,Class 10 Pass,₹1 - 3 Lakhs,6,True,2024-05-10T22:57:45
+844a0304-8134-469d-a658-76f99529cee9,te,Madhya Pradesh,Gwalior,both,Class 10 Pass,₹1 - 3 Lakhs,6,True,2024-06-06T03:00:41
+2a110c18-8268-48e8-8fdd-4e0e10973002,te,Madhya Pradesh,Gwalior,parent,Class 8 Pass,₹3 - 5 Lakhs,1,True,2024-09-19T03:14:21
+afa6f29f-dc82-4df1-af40-1710d02d1947,en,Madhya Pradesh,Gwalior,both,Class 12 Pass,₹3 - 5 Lakhs,9,True,2024-03-31T15:56:03
+9df820c0-8f55-4cd3-9f92-a9e06865ae84,hi,Rajasthan,Udaipur,learner,Class 8 Pass,₹1 - 3 Lakhs,9,True,2024-04-13T17:33:14
+4772126a-b248-446d-bda0-71fbc13cfbb3,en,Telangana,Warangal,parent,Class 10 Pass,Below ₹1 Lakh,8,True,2024-01-19T03:46:10
+286bdbea-eed9-407b-a5af-a32e6073b24e,en,Rajasthan,Jaipur,parent,Class 12 Pass,₹1 - 3 Lakhs,1,True,2024-02-06T12:04:16
+50e1134b-09ad-4f3e-b90a-5c0b925afa81,hi,Madhya Pradesh,Jabalpur,both,Class 12 Pass,₹3 - 5 Lakhs,7,True,2024-03-21T00:00:41
+e9f8b325-2ef3-4722-a09a-529686bf97fb,en,Rajasthan,Udaipur,both,Class 10 Pass,₹1 - 3 Lakhs,6,True,2024-04-26T07:57:42
+f79deb41-0ce0-41c4-a053-3ea77d7ae50d,en,Madhya Pradesh,Indore,parent,Class 10 Pass,₹3 - 5 Lakhs,6,True,2024-09-19T21:47:40
+4987e744-d23d-4248-856d-86e30978e30b,hi,Telangana,Hyderabad,both,Class 12 Pass,₹1 - 3 Lakhs,6,True,2024-05-05T18:58:38
+4f570e25-6ada-4221-931e-523820c25738,hi,Madhya Pradesh,Jabalpur,parent,Class 10 Pass,Below ₹1 Lakh,11,True,2024-03-13T01:35:52
+9b23bd84-7dfa-4384-a272-220c1aa41fb3,en,Madhya Pradesh,Indore,learner,Class 10 Pass,₹1 - 3 Lakhs,4,True,2024-09-12T04:24:11
+dd9bf18e-d1d8-456b-b48e-dec302151ca3,en,Madhya Pradesh,Jabalpur,both,Class 10 Pass,₹1 - 3 Lakhs,5,True,2024-07-21T23:32:00
+f206ea48-a3d7-4ad2-a4ec-920fb8a4a9ab,en,Madhya Pradesh,Gwalior,parent,Class 8 Pass,₹1 - 3 Lakhs,2,True,2024-02-15T22:57:46
+0799222d-151f-4aa8-aed0-094628892ad6,hi,Rajasthan,Udaipur,both,Class 8 Pass,₹1 - 3 Lakhs,11,True,2024-05-08T13:16:44
+1f6215f6-1288-45b9-97ac-e8b71a9c4bfd,en,Rajasthan,Udaipur,parent,Class 12 Pass,₹1 - 3 Lakhs,4,True,2024-06-09T08:21:04
+42e542d7-e80c-4791-a788-e1555337e474,te,Rajasthan,Jodhpur,both,Class 12 Pass,₹1 - 3 Lakhs,10,True,2024-01-08T03:32:26
+ef37567f-c661-4324-bbbc-9578fd999245,te,Telangana,Hyderabad,both,Class 8 Pass,₹1 - 3 Lakhs,11,True,2024-03-31T16:22:32
+01b732ee-acea-41b4-809b-acdc84339091,en,Rajasthan,Jaipur,both,Class 10 Pass,₹1 - 3 Lakhs,11,True,2024-09-02T16:53:52
+62dc72af-4528-4afb-a29c-27690a77ef47,te,Madhya Pradesh,Gwalior,parent,Class 12 Pass,₹1 - 3 Lakhs,8,True,2024-09-23T20:18:46
+2f2b776d-eae4-4633-bfa6-187147770e62,te,Madhya Pradesh,Gwalior,both,Class 10 Pass,₹3 - 5 Lakhs,8,True,2024-08-19T05:09:21
+1400578b-fce7-4bdd-82fd-9f0864571a20,hi,Rajasthan,Jodhpur,both,Class 10 Pass,₹3 - 5 Lakhs,4,True,2024-04-01T05:19:39
+24632480-eb05-46e7-8c47-4d53fde1db19,te,Rajasthan,Udaipur,learner,Class 8 Pass,Below ₹1 Lakh,1,True,2024-02-24T06:31:45
+4d9636fd-011b-47b7-bff1-ca7f1642f308,hi,Madhya Pradesh,Indore,parent,Class 12 Pass,₹3 - 5 Lakhs,1,True,2024-04-05T10:46:56
+051bc9a9-bfba-491a-8b61-8bf2babeeca5,hi,Telangana,Karimnagar,learner,Class 8 Pass,Below ₹1 Lakh,4,True,2024-01-03T06:40:10
+bbf6c61c-b92c-4cc8-98b1-8c5a990eb351,hi,Rajasthan,Jodhpur,both,Class 12 Pass,₹1 - 3 Lakhs,2,True,2024-05-13T01:20:30
+3c2f94aa-57e7-44b0-8045-abf0a28e7efc,en,Rajasthan,Jaipur,both,Class 12 Pass,Below ₹1 Lakh,4,True,2024-02-15T03:06:16
+bd0a215e-af8b-40eb-be60-b0ba16f1f76f,hi,Madhya Pradesh,Indore,learner,Class 12 Pass,₹1 - 3 Lakhs,7,True,2024-02-02T14:24:18
+5aa15d0b-fefc-4b66-a365-a7f5506065fe,en,Madhya Pradesh,Indore,parent,Class 10 Pass,Below ₹1 Lakh,5,True,2024-04-29T09:34:52
+4b5a2b11-6a4d-4a63-b6b7-707e5d8acabd,hi,Madhya Pradesh,Jabalpur,learner,Class 10 Pass,₹1 - 3 Lakhs,10,True,2024-03-01T16:44:56
+486f22cd-8783-4ed8-b287-99a035fb72af,hi,Telangana,Karimnagar,parent,Class 12 Pass,Below ₹1 Lakh,7,True,2024-05-09T11:00:02
+cc81a513-9b8b-401d-867d-387ff729cd14,te,Telangana,Karimnagar,both,Class 12 Pass,Below ₹1 Lakh,2,True,2024-09-26T00:14:47
+44ed6baf-f689-4e6d-9c74-d4900cbd744b,en,Madhya Pradesh,Jabalpur,both,Class 8 Pass,Below ₹1 Lakh,11,True,2024-05-29T12:47:10
+e2da0428-8289-484f-a32b-f9f22a9aadb8,en,Madhya Pradesh,Jabalpur,parent,Class 12 Pass,Below ₹1 Lakh,12,True,2024-01-21T17:37:15
+d90d0dfb-9b10-4da2-93f8-0ba04c922fa5,hi,Rajasthan,Jaipur,both,Class 10 Pass,₹1 - 3 Lakhs,12,True,2024-04-14T02:48:09
+3468e00e-0560-44a6-972d-efebde5cc133,en,Rajasthan,Jodhpur,learner,Class 10 Pass,₹1 - 3 Lakhs,2,True,2024-01-11T09:11:17
+10abc733-0897-4fc4-ae38-27673361f51f,te,Madhya Pradesh,Bhopal,both,Class 12 Pass,₹3 - 5 Lakhs,6,True,2024-06-04T15:28:51
+45e5aee1-40e1-4f8f-ae19-5327ad4ec97e,te,Madhya Pradesh,Gwalior,both,Class 8 Pass,₹3 - 5 Lakhs,5,True,2024-08-19T17:21:02
+9393b491-5c10-4a0b-a388-ad91b5bcbeed,te,Madhya Pradesh,Indore,both,Class 12 Pass,Below ₹1 Lakh,9,True,2024-08-08T20:20:08
+04b80049-314d-4a5e-b184-d49f3536eb16,hi,Madhya Pradesh,Jabalpur,both,Class 12 Pass,₹3 - 5 Lakhs,9,True,2024-03-13T22:52:58
+8a3b1e90-257c-4792-8363-bc58648361ce,en,Madhya Pradesh,Indore,both,Class 8 Pass,₹1 - 3 Lakhs,6,True,2024-01-26T07:27:43
+aab66550-07ea-4779-9bf2-f8845059a19f,hi,Madhya Pradesh,Gwalior,learner,Class 10 Pass,₹3 - 5 Lakhs,12,True,2024-03-30T05:14:56
+3caba720-b152-4d1d-97d1-6bcd18f2359d,en,Telangana,Warangal,both,Class 10 Pass,₹1 - 3 Lakhs,12,True,2024-03-29T16:33:12
+0d3343b5-5966-427f-af3c-e631609afc0d,en,Madhya Pradesh,Jabalpur,learner,Class 12 Pass,₹1 - 3 Lakhs,8,True,2024-08-01T00:11:59
+2e16444d-82df-40ff-9ea6-b09f387d1d11,te,Telangana,Karimnagar,learner,Class 10 Pass,₹3 - 5 Lakhs,3,True,2024-09-19T20:58:11
+5ff71798-9128-4458-b7d7-e3bf2ade641c,en,Madhya Pradesh,Indore,learner,Class 10 Pass,₹1 - 3 Lakhs,8,True,2024-04-12T13:36:31
+720a84fa-7058-4baa-a8ed-a16ccecff044,te,Madhya Pradesh,Gwalior,parent,Class 10 Pass,₹3 - 5 Lakhs,11,True,2024-03-27T07:04:35
+f4998525-0c3d-4836-966b-c106c316b539,en,Telangana,Karimnagar,learner,Class 8 Pass,₹3 - 5 Lakhs,9,True,2024-01-13T01:16:26
+f1a02470-ef00-4a7d-b0e4-36f0472469f1,te,Rajasthan,Udaipur,both,Class 12 Pass,₹3 - 5 Lakhs,4,True,2024-04-04T06:06:16
+8573c795-6e6b-4340-a261-b410ddcc26eb,en,Telangana,Hyderabad,learner,Class 12 Pass,Below ₹1 Lakh,2,True,2024-09-19T02:21:31
+c73e1d72-80f5-4ca0-acae-75c91349dcc0,te,Madhya Pradesh,Indore,parent,Class 10 Pass,Below ₹1 Lakh,6,True,2024-05-12T06:34:48
+96c5b5f8-aff1-46a0-ae69-3887b5778667,hi,Rajasthan,Udaipur,parent,Class 8 Pass,Below ₹1 Lakh,1,True,2024-09-28T18:06:06
+ead12a0f-2bb6-4862-8c3b-ff45b0297796,te,Rajasthan,Jaipur,both,Class 12 Pass,₹1 - 3 Lakhs,6,True,2024-01-12T02:44:32
+de469e71-02c9-432a-b658-61d5cdf1cb65,en,Madhya Pradesh,Jabalpur,parent,Class 12 Pass,₹1 - 3 Lakhs,11,True,2024-03-14T14:18:44
+1e8968f3-8138-4192-9b23-702d7cb86a05,te,Rajasthan,Jodhpur,parent,Class 10 Pass,₹3 - 5 Lakhs,1,True,2024-06-19T22:39:23
+0af522f9-abe5-44e9-8caf-1df24fc10eff,en,Rajasthan,Jaipur,both,Class 10 Pass,₹3 - 5 Lakhs,9,True,2024-01-03T02:57:13
+3899363d-bd28-4cfb-a66a-0a32771f6013,en,Madhya Pradesh,Indore,learner,Class 8 Pass,₹1 - 3 Lakhs,1,True,2024-05-27T13:31:09
+63d4903a-007c-48c3-9141-31beec045e6a,en,Madhya Pradesh,Gwalior,both,Class 10 Pass,₹1 - 3 Lakhs,10,True,2024-01-30T23:15:14
+cf45a0ba-b679-467d-9fc5-251475e7dc5f,te,Rajasthan,Jodhpur,both,Class 12 Pass,Below ₹1 Lakh,12,True,2024-09-08T11:34:53
+80eb4ad5-a546-4a2e-8245-321df8a3ac6f,te,Madhya Pradesh,Gwalior,both,Class 12 Pass,₹3 - 5 Lakhs,12,True,2024-04-18T02:12:13
+65b3f20e-1149-44b3-a8dd-115bbd8fb737,hi,Madhya Pradesh,Indore,learner,Class 10 Pass,₹3 - 5 Lakhs,3,True,2024-04-15T22:29:04
+3ef490bc-5fd4-4d5c-ab83-f7710ea96d1b,te,Rajasthan,Jaipur,parent,Class 10 Pass,₹1 - 3 Lakhs,12,True,2024-03-13T05:24:55
+0714aadb-d4ce-4e8e-90ff-172b04011bcf,en,Madhya Pradesh,Indore,learner,Class 10 Pass,₹1 - 3 Lakhs,7,True,2024-08-08T23:57:15
+aabf6bc7-85b1-43bd-9a46-59bac6840938,te,Rajasthan,Udaipur,learner,Class 12 Pass,₹1 - 3 Lakhs,8,True,2024-09-16T01:10:35
+ff9cdeba-ff32-4b71-a003-ec6832dc5254,hi,Madhya Pradesh,Gwalior,learner,Class 8 Pass,₹3 - 5 Lakhs,12,True,2024-04-26T06:29:14
+8e7a4a8e-80cc-4a11-b73e-3341b72bb195,hi,Rajasthan,Jodhpur,parent,Class 12 Pass,₹1 - 3 Lakhs,1,True,2024-01-25T05:20:29
+3e66983c-d5a7-406b-8c4e-a4234104db89,hi,Madhya Pradesh,Bhopal,parent,Class 8 Pass,₹3 - 5 Lakhs,1,True,2024-01-30T19:13:53
+9a0a1134-8899-42cb-b25b-4ccdc94065b0,te,Madhya Pradesh,Gwalior,parent,Class 10 Pass,₹3 - 5 Lakhs,7,True,2024-06-08T16:17:21
+1bae5c2f-f948-4cb3-868a-257edec3a13a,en,Madhya Pradesh,Indore,both,Class 8 Pass,₹1 - 3 Lakhs,11,True,2024-09-28T09:32:24
+372e9c95-1ee7-45d2-850f-3d0345f18ef1,en,Rajasthan,Udaipur,both,Class 12 Pass,₹1 - 3 Lakhs,12,True,2024-01-28T17:33:32
+a05ff35a-ef1a-4f91-a083-4601d969f56b,te,Madhya Pradesh,Bhopal,learner,Class 12 Pass,₹1 - 3 Lakhs,12,True,2024-06-12T06:30:23
+2bfbc9bc-bdb4-45b6-a0df-26713e4f98fb,hi,Rajasthan,Jodhpur,parent,Class 12 Pass,₹3 - 5 Lakhs,5,True,2024-05-09T17:42:01
+c379ab3c-05f5-4671-b99c-ad0d5f343863,en,Madhya Pradesh,Bhopal,parent,Class 8 Pass,₹3 - 5 Lakhs,9,True,2024-04-10T13:09:01
+76104411-249f-47aa-9f24-fdca9d214362,hi,Telangana,Karimnagar,learner,Class 10 Pass,Below ₹1 Lakh,1,True,2024-05-16T19:00:28
+a1ab6b57-7927-45ac-8218-cb49afe19a57,hi,Madhya Pradesh,Indore,parent,Class 8 Pass,₹3 - 5 Lakhs,6,True,2024-07-11T03:58:41
+2b7d45ce-09d7-48cd-9c35-109c7e796b88,hi,Rajasthan,Jaipur,learner,Class 12 Pass,Below ₹1 Lakh,9,True,2024-01-25T06:37:35
+deb6a38b-6741-4715-b398-327d54d87a58,hi,Madhya Pradesh,Indore,learner,Class 8 Pass,₹1 - 3 Lakhs,5,True,2024-05-12T12:10:54
+40629c5d-28c9-49c6-a1e7-08d4ac1b4f32,te,Rajasthan,Jaipur,both,Class 10 Pass,₹1 - 3 Lakhs,7,True,2024-02-05T22:22:02
+87837bf1-fe9d-4c75-8be7-3c3003382a8b,te,Telangana,Hyderabad,learner,Class 8 Pass,₹1 - 3 Lakhs,2,True,2024-03-04T15:29:58
+14359ed6-f553-4fe9-89db-caf3b32c6ba7,hi,Rajasthan,Udaipur,both,Class 10 Pass,₹3 - 5 Lakhs,9,True,2024-05-11T21:58:53
+c30b115a-281d-4c43-999b-ea19410aa3fb,hi,Madhya Pradesh,Bhopal,learner,Class 12 Pass,₹3 - 5 Lakhs,10,True,2024-08-04T23:56:37
+31a50d06-4b70-449a-b15f-e14a29c720de,en,Telangana,Karimnagar,both,Class 12 Pass,Below ₹1 Lakh,6,True,2024-01-03T16:20:05
+85894325-198c-4534-92cb-53b605f6af0a,te,Rajasthan,Udaipur,learner,Class 12 Pass,₹1 - 3 Lakhs,4,True,2024-05-03T02:13:22
+30a681ff-ad7a-413d-b095-59e134cd5dfa,en,Telangana,Karimnagar,parent,Class 10 Pass,₹3 - 5 Lakhs,3,True,2024-08-23T10:03:06
+ee3e6e78-3478-4b28-98ef-8729635f7002,te,Telangana,Hyderabad,learner,Class 12 Pass,Below ₹1 Lakh,6,True,2024-05-04T10:26:55
+ef3611d5-b76c-4baf-aad7-ec1649f68918,hi,Madhya Pradesh,Gwalior,learner,Class 10 Pass,₹1 - 3 Lakhs,1,True,2024-02-16T01:48:11
+a2923112-80f0-4344-b623-fbfb61cc9c3d,hi,Madhya Pradesh,Bhopal,both,Class 8 Pass,₹1 - 3 Lakhs,11,True,2024-02-16T14:22:35
+cb5bd35a-e87a-48c9-8a5c-ee2c355a80d9,hi,Madhya Pradesh,Jabalpur,both,Class 12 Pass,₹1 - 3 Lakhs,1,True,2024-04-29T19:48:28
+7efa81bb-0710-41ea-a103-f7e8189b115a,en,Rajasthan,Udaipur,learner,Class 12 Pass,₹1 - 3 Lakhs,2,True,2024-04-06T02:13:42
+4caa4ec2-b780-4e0a-b115-66d2b7a7ec75,hi,Telangana,Hyderabad,learner,Class 10 Pass,₹3 - 5 Lakhs,6,True,2024-07-08T11:26:42
+1d7f84ca-d035-451d-a09c-ba320a7b9a7a,en,Madhya Pradesh,Jabalpur,learner,Class 10 Pass,Below ₹1 Lakh,11,True,2024-05-12T17:20:59
+8bd55d39-d2b2-41aa-96a9-c0c861dc630b,te,Madhya Pradesh,Jabalpur,both,Class 10 Pass,Below ₹1 Lakh,9,True,2024-04-15T03:09:48
+b80c569d-7f82-4915-89fe-ca69ef7da914,te,Rajasthan,Jodhpur,parent,Class 12 Pass,₹1 - 3 Lakhs,10,True,2024-07-03T10:50:25
+56af6afa-a2e5-49b1-8624-4eed9089128f,en,Rajasthan,Jodhpur,parent,Class 8 Pass,₹3 - 5 Lakhs,11,True,2024-01-07T04:38:26
+c18cf9e0-0ea6-4b81-819e-72763be5cf02,en,Madhya Pradesh,Indore,both,Class 12 Pass,₹3 - 5 Lakhs,6,True,2024-09-04T19:43:15
+b20af4dd-00e4-4d7b-a296-2f486e418593,hi,Madhya Pradesh,Jabalpur,both,Class 12 Pass,Below ₹1 Lakh,4,True,2024-01-10T14:33:44
+3c70ea99-41f3-4fd6-8c96-862f8e660a9a,hi,Telangana,Warangal,both,Class 12 Pass,Below ₹1 Lakh,12,True,2024-03-04T17:53:10
+97eaf6e6-e289-48ed-9a08-4253f6447fd2,hi,Madhya Pradesh,Jabalpur,both,Class 10 Pass,₹3 - 5 Lakhs,2,True,2024-03-14T13:29:20
+1ef6913d-e929-4873-a9bc-730155d3389e,en,Madhya Pradesh,Indore,parent,Class 8 Pass,Below ₹1 Lakh,7,True,2024-04-15T00:20:27
+591fa452-f54e-4838-8f57-acc85da184a7,te,Telangana,Hyderabad,both,Class 12 Pass,₹3 - 5 Lakhs,12,True,2024-08-21T03:11:34
+b90de919-bec5-4ffc-872e-128006b00672,en,Rajasthan,Jodhpur,learner,Class 12 Pass,₹1 - 3 Lakhs,6,True,2024-08-12T14:41:11
+49dcc7d3-d2c2-4792-9a54-4dfb836199b4,en,Rajasthan,Jaipur,parent,Class 12 Pass,₹3 - 5 Lakhs,12,True,2024-04-12T13:30:58
+e6b40a49-25de-4df2-aa16-ebd306a67699,en,Rajasthan,Jaipur,parent,Class 10 Pass,₹1 - 3 Lakhs,11,True,2024-04-19T22:25:39
+bc17adca-9aec-4b95-9ff0-d60aa6af7399,en,Rajasthan,Jodhpur,learner,Class 8 Pass,₹1 - 3 Lakhs,9,True,2024-06-19T09:08:05
+49524b55-6c2f-4352-bb8b-f9babbf68923,en,Telangana,Karimnagar,parent,Class 12 Pass,₹1 - 3 Lakhs,9,True,2024-03-29T02:53:00
+c3e7e367-b0c3-4f66-a651-d3cbe469562c,en,Telangana,Hyderabad,both,Class 12 Pass,₹1 - 3 Lakhs,7,True,2024-09-24T05:37:30
+1b54468b-4a1b-4b1f-b3bf-ff75bdbfb2a1,hi,Madhya Pradesh,Jabalpur,both,Class 10 Pass,₹1 - 3 Lakhs,7,True,2024-09-24T17:23:22
+9d22f876-d36c-48d3-a184-62f547ba82f5,hi,Telangana,Hyderabad,both,Class 10 Pass,Below ₹1 Lakh,4,True,2024-03-26T20:47:17
+f7922882-aa0c-446b-b81b-467fce89f4c7,hi,Telangana,Hyderabad,parent,Class 10 Pass,₹3 - 5 Lakhs,10,True,2024-09-15T11:42:31
+9372b69f-c111-4f0c-840a-7ef9f402e992,hi,Madhya Pradesh,Indore,both,Class 8 Pass,₹1 - 3 Lakhs,8,True,2024-07-24T11:10:46
+c64ac47e-3d7e-40ef-bcb6-b7af8b4a6bb1,te,Rajasthan,Jodhpur,parent,Class 12 Pass,₹3 - 5 Lakhs,6,True,2024-06-17T06:08:36
+9ecb0eb8-20b3-400e-ba79-8808565436eb,hi,Madhya Pradesh,Indore,learner,Class 10 Pass,₹1 - 3 Lakhs,8,True,2024-09-20T11:11:25
+c95ddb4d-7e6f-4922-ab95-110b86776be1,te,Rajasthan,Udaipur,learner,Class 10 Pass,₹3 - 5 Lakhs,7,True,2024-09-12T02:30:05
+c52f8202-f3af-44c4-af29-a20974b78fde,hi,Telangana,Karimnagar,learner,Class 12 Pass,Below ₹1 Lakh,9,True,2024-06-24T05:32:57
+6fae7ebc-4056-4352-a4d6-08015093d9a2,en,Madhya Pradesh,Jabalpur,both,Class 12 Pass,₹3 - 5 Lakhs,2,True,2024-09-16T00:30:07
+11183f72-d631-4775-9f4c-460c514da6d7,hi,Telangana,Warangal,both,Class 10 Pass,₹3 - 5 Lakhs,9,True,2024-01-20T01:18:58
+1e7bb510-981e-45a2-9b0b-5b55fd5cffbd,hi,Madhya Pradesh,Gwalior,both,Class 10 Pass,₹1 - 3 Lakhs,10,True,2024-03-08T02:35:53
+9257a37e-761b-4453-a905-afbc53a1a858,hi,Madhya Pradesh,Indore,parent,Class 8 Pass,Below ₹1 Lakh,2,True,2024-09-05T01:30:18
+e79f86f8-0f73-4aba-bfe6-a79863913173,hi,Madhya Pradesh,Bhopal,learner,Class 8 Pass,₹1 - 3 Lakhs,8,True,2024-06-02T19:36:16
+6fc7df04-b39a-431a-9396-9bc5a38b3306,hi,Madhya Pradesh,Indore,both,Class 12 Pass,₹3 - 5 Lakhs,12,True,2024-06-20T03:47:34
+14f95d42-bf90-4779-b778-05f3d5729c11,en,Madhya Pradesh,Bhopal,parent,Class 8 Pass,Below ₹1 Lakh,11,True,2024-01-26T05:52:03
+ca8b445f-366a-42d4-8434-216ef0d99647,en,Telangana,Karimnagar,both,Class 10 Pass,₹1 - 3 Lakhs,9,True,2024-05-02T00:19:41
+e711a537-a609-4f05-b439-023ff2596824,te,Rajasthan,Jaipur,parent,Class 10 Pass,₹1 - 3 Lakhs,11,True,2024-03-07T20:43:22
+181ff55e-e132-4274-8ef4-1bea4020df0c,en,Telangana,Hyderabad,learner,Class 10 Pass,₹1 - 3 Lakhs,3,True,2024-06-21T15:05:35
+e8ad3792-7cc7-4b75-9739-4be7b4d28209,en,Rajasthan,Jaipur,learner,Class 8 Pass,₹1 - 3 Lakhs,1,True,2024-05-08T08:28:32
+da9e6d63-60c7-4206-8bb1-8934e1c31f19,en,Madhya Pradesh,Indore,parent,Class 8 Pass,Below ₹1 Lakh,3,True,2024-07-08T02:27:21
+83b08df2-894b-42c2-8505-42ffd93dfe1c,hi,Madhya Pradesh,Indore,both,Class 8 Pass,₹3 - 5 Lakhs,12,True,2024-08-29T23:23:57
+4cb2a5ee-9024-49c4-bce2-5d7c97656191,hi,Madhya Pradesh,Jabalpur,learner,Class 8 Pass,₹3 - 5 Lakhs,4,True,2024-05-31T20:13:11
+a61d4963-1dbd-4e92-815b-cf9519749558,en,Telangana,Karimnagar,learner,Class 10 Pass,₹3 - 5 Lakhs,6,True,2024-02-09T23:37:42
+023a1289-a3b8-47dc-82f4-b8905a5ffd16,hi,Rajasthan,Udaipur,both,Class 12 Pass,₹1 - 3 Lakhs,12,True,2024-05-05T10:35:52
+b50efb96-cc14-44ed-98ed-225d3724c3d6,hi,Madhya Pradesh,Gwalior,learner,Class 8 Pass,₹3 - 5 Lakhs,6,True,2024-06-28T20:02:35
+2f378118-878a-41ca-bb20-304f3e5a11ce,hi,Telangana,Hyderabad,parent,Class 12 Pass,₹3 - 5 Lakhs,5,True,2024-08-19T19:02:30
+527fa978-1a48-4393-a39e-95e1de64df58,te,Telangana,Warangal,parent,Class 8 Pass,Below ₹1 Lakh,1,True,2024-03-19T16:51:12
+3379405c-9956-4268-beeb-f5fc50f94fe6,te,Rajasthan,Udaipur,parent,Class 12 Pass,Below ₹1 Lakh,6,True,2024-09-01T13:31:37
+d3efdd92-9c73-4b98-bcf9-1b5e9a448a82,en,Telangana,Karimnagar,learner,Class 8 Pass,₹3 - 5 Lakhs,7,True,2024-05-23T04:54:22
+af3ae37c-b9a8-4d2f-b5d1-f790a94b7373,te,Telangana,Warangal,learner,Class 12 Pass,₹3 - 5 Lakhs,2,True,2024-07-10T09:52:56
+b91b5b10-7f17-4705-86d1-6113bf15f4d1,hi,Telangana,Karimnagar,parent,Class 12 Pass,₹1 - 3 Lakhs,10,True,2024-03-16T09:09:22
+584be2e2-aef8-4a68-9cbc-0fa09d8b4bc3,hi,Rajasthan,Jodhpur,parent,Class 12 Pass,Below ₹1 Lakh,3,True,2024-07-02T10:11:16
+cd040325-d865-4e37-b414-9944298b6226,hi,Rajasthan,Jaipur,parent,Class 10 Pass,Below ₹1 Lakh,8,True,2024-06-06T06:11:31
+f68ba13b-796f-498d-8182-37e0663a022c,te,Rajasthan,Jaipur,learner,Class 10 Pass,₹1 - 3 Lakhs,9,True,2024-02-08T21:22:59
+1fefa0d9-19ab-46e7-a357-7190fc4378db,hi,Madhya Pradesh,Gwalior,both,Class 10 Pass,₹3 - 5 Lakhs,9,True,2024-03-09T19:45:53
+21a44e14-2e69-46d8-9ef6-82d72b442343,hi,Rajasthan,Udaipur,both,Class 10 Pass,₹1 - 3 Lakhs,9,True,2024-02-20T15:04:51
+899a95c5-0a9c-4c81-9533-988759856b61,te,Telangana,Hyderabad,learner,Class 10 Pass,₹1 - 3 Lakhs,4,True,2024-04-25T20:36:07
+c0e2b056-fe30-4bf5-92f8-1baa17b5053c,en,Madhya Pradesh,Gwalior,learner,Class 8 Pass,₹1 - 3 Lakhs,9,True,2024-06-01T10:12:09
+ab194b5f-7797-465d-a74b-dd86cb7d1c60,te,Rajasthan,Udaipur,parent,Class 12 Pass,₹3 - 5 Lakhs,5,True,2024-04-13T01:16:28
+5adcdeda-d3bf-409b-a841-b924d03565c3,te,Madhya Pradesh,Jabalpur,both,Class 8 Pass,Below ₹1 Lakh,5,True,2024-06-06T18:01:42
+6a9fea6d-d928-405c-be46-20f91dec915d,te,Madhya Pradesh,Jabalpur,both,Class 12 Pass,₹1 - 3 Lakhs,10,True,2024-05-03T12:57:24
+7dc01bf7-fce2-4d01-b3e4-2e82844e39c3,hi,Madhya Pradesh,Bhopal,learner,Class 12 Pass,Below ₹1 Lakh,8,True,2024-02-03T09:37:03
+2754d250-e68d-4e15-83ea-9cb981c0744b,hi,Rajasthan,Jodhpur,learner,Class 12 Pass,₹3 - 5 Lakhs,5,True,2024-05-26T07:34:51
+0703c169-dfaa-47e8-a905-90c28e898669,en,Madhya Pradesh,Jabalpur,learner,Class 10 Pass,₹1 - 3 Lakhs,9,True,2024-08-29T21:51:23
+f19c58dc-9380-4853-824d-d3bc09c73844,te,Rajasthan,Jodhpur,both,Class 8 Pass,₹1 - 3 Lakhs,11,True,2024-03-27T14:41:02
+a64cb243-b1e9-4bac-9377-abab5825b8f0,te,Madhya Pradesh,Gwalior,both,Class 8 Pass,Below ₹1 Lakh,11,True,2024-01-31T03:49:56
+165c106b-b8fd-47c0-8599-8046bd48c658,te,Madhya Pradesh,Indore,learner,Class 10 Pass,₹3 - 5 Lakhs,9,True,2024-07-25T20:56:23
+bdd78ecc-58e7-41cb-990c-75f465ac8115,hi,Telangana,Hyderabad,both,Class 12 Pass,₹1 - 3 Lakhs,9,True,2024-06-07T00:53:34
+ac6b495c-9551-4fe6-ad5e-415069a1941e,en,Rajasthan,Jodhpur,learner,Class 10 Pass,₹3 - 5 Lakhs,3,True,2024-07-31T18:49:32
+3117e17d-0b2b-4393-97ca-14026ac0e1e2,te,Telangana,Hyderabad,both,Class 10 Pass,Below ₹1 Lakh,3,True,2024-01-31T16:52:37
+9674fe0c-f901-4a37-8c0e-637d1f243099,hi,Madhya Pradesh,Indore,both,Class 12 Pass,₹1 - 3 Lakhs,5,True,2024-07-10T14:57:34
+c845525f-53c9-4167-8465-7fca26a190f5,en,Telangana,Hyderabad,parent,Class 8 Pass,₹3 - 5 Lakhs,6,True,2024-02-05T09:16:54
+94a4d308-d129-4f4f-a627-24081180eb07,en,Rajasthan,Jodhpur,parent,Class 10 Pass,₹1 - 3 Lakhs,11,True,2024-07-29T19:52:34
+d2a86999-ed72-4a2e-8280-1e56aa761d7d,hi,Telangana,Warangal,learner,Class 8 Pass,₹1 - 3 Lakhs,5,True,2024-04-26T14:20:07
+6a4a72f1-f73c-43fe-bf68-a8c50b857c24,en,Madhya Pradesh,Indore,parent,Class 8 Pass,₹1 - 3 Lakhs,9,True,2024-05-06T06:41:28
+835ba36c-4ef3-4c84-afc7-c5b84e5be8ec,te,Madhya Pradesh,Gwalior,learner,Class 10 Pass,₹3 - 5 Lakhs,8,True,2024-05-22T22:58:41
+d74f812a-233d-4154-bc33-60cc0e2fc4d1,te,Rajasthan,Jodhpur,parent,Class 12 Pass,₹1 - 3 Lakhs,5,True,2024-07-06T06:14:20
+f3e7fba0-d5b6-4811-8aad-71c154865d08,te,Telangana,Hyderabad,both,Class 10 Pass,₹1 - 3 Lakhs,11,True,2024-02-07T16:05:22
+375316ac-dc97-4054-9cfa-be61e2d2aee1,hi,Telangana,Hyderabad,learner,Class 12 Pass,₹3 - 5 Lakhs,1,True,2024-07-14T06:58:19
+94af182d-64dd-4fb2-92b3-1eb7fd389232,te,Madhya Pradesh,Indore,parent,Class 12 Pass,₹3 - 5 Lakhs,6,True,2024-03-27T19:08:33
+664810aa-f915-42bf-9b92-cb2c26fe60ea,en,Rajasthan,Jaipur,learner,Class 12 Pass,₹3 - 5 Lakhs,8,True,2024-08-18T10:48:16
+3a50bd87-660e-4ac1-b3d8-65e1f15832b2,en,Madhya Pradesh,Bhopal,both,Class 12 Pass,₹1 - 3 Lakhs,6,True,2024-04-16T13:58:30
+d32c61b4-2540-43c9-be68-0caf6ac1ea48,te,Rajasthan,Udaipur,learner,Class 12 Pass,₹3 - 5 Lakhs,1,True,2024-09-11T06:23:12
+85e10d73-a101-43d9-95ef-9ba2e89d7c35,en,Rajasthan,Jodhpur,parent,Class 8 Pass,₹1 - 3 Lakhs,4,True,2024-02-24T18:33:20
+5f6ffbcd-e933-466c-acf4-7a468059cfc1,en,Madhya Pradesh,Bhopal,both,Class 8 Pass,₹3 - 5 Lakhs,7,True,2024-02-05T01:29:03
+cd6b8189-3df2-4696-80fb-83873550af59,hi,Madhya Pradesh,Jabalpur,both,Class 10 Pass,₹1 - 3 Lakhs,9,True,2024-07-18T14:41:56
+289700ea-07f2-46ea-bab3-28318cc13f6d,te,Madhya Pradesh,Gwalior,parent,Class 12 Pass,₹3 - 5 Lakhs,1,True,2024-07-21T04:22:13
+33887e1a-18db-446b-a820-46aef5910d85,en,Telangana,Hyderabad,learner,Class 10 Pass,₹3 - 5 Lakhs,9,True,2024-04-20T05:45:47
+cdb15e7b-a65c-432c-908c-5e1d2881aa8f,en,Rajasthan,Jodhpur,both,Class 8 Pass,₹3 - 5 Lakhs,12,True,2024-02-25T02:40:45
+91eb90c9-83c7-49bc-aaec-a4250e49dbdb,te,Rajasthan,Udaipur,parent,Class 8 Pass,₹1 - 3 Lakhs,12,True,2024-01-19T12:31:25
+9e170905-5c5f-4cfb-9d39-ef2ea31bc10f,te,Madhya Pradesh,Indore,both,Class 12 Pass,₹3 - 5 Lakhs,5,True,2024-06-01T06:41:34
+2aa680b7-db78-412b-b652-d19fe03b0603,te,Madhya Pradesh,Gwalior,parent,Class 10 Pass,₹3 - 5 Lakhs,10,True,2024-02-12T05:57:34
+70d71e6f-d9ff-417b-bbd3-071f5ddb0e38,en,Rajasthan,Udaipur,both,Class 8 Pass,₹1 - 3 Lakhs,4,True,2024-07-11T23:09:10
+c75f6b1d-0a39-4c7b-9bfc-8dd5865142e8,te,Rajasthan,Jodhpur,learner,Class 8 Pass,₹1 - 3 Lakhs,1,True,2024-02-11T04:35:19
+ac141ea9-cea3-4254-8b43-e21f9a2426f6,hi,Madhya Pradesh,Gwalior,learner,Class 12 Pass,₹3 - 5 Lakhs,10,True,2024-07-10T15:56:40
+43c680ea-d93b-4197-adf9-8bfe26db9bb0,en,Telangana,Warangal,learner,Class 10 Pass,Below ₹1 Lakh,5,True,2024-07-16T09:38:09
+3337bf13-83b6-4918-aea1-2ff446fc8225,en,Rajasthan,Udaipur,parent,Class 8 Pass,Below ₹1 Lakh,1,True,2024-08-16T02:01:31
+a4d9832f-0aad-4d26-8c30-1527de25502c,en,Madhya Pradesh,Indore,parent,Class 12 Pass,₹1 - 3 Lakhs,12,True,2024-01-08T16:18:12
+0fa2ea66-3574-4e9a-b757-ddf01d6fbf9a,hi,Telangana,Warangal,parent,Class 12 Pass,Below ₹1 Lakh,12,True,2024-05-04T01:51:42
+22e09c55-5a80-43db-a0b0-18cbdbe38fd6,en,Rajasthan,Jaipur,parent,Class 10 Pass,₹3 - 5 Lakhs,5,True,2024-04-06T01:16:15
+29bb96c5-6a95-4f05-affd-85cacd73e7e0,en,Madhya Pradesh,Indore,both,Class 12 Pass,Below ₹1 Lakh,1,True,2024-08-24T15:45:08
+842b387d-f904-482f-82f6-b7c3af4c6d2d,hi,Madhya Pradesh,Indore,learner,Class 12 Pass,₹3 - 5 Lakhs,6,True,2024-04-25T19:32:22
+c5837364-1631-442c-b145-ea827d074b19,hi,Madhya Pradesh,Gwalior,learner,Class 10 Pass,₹1 - 3 Lakhs,8,True,2024-02-27T05:50:19
+2d374859-14f0-4123-8776-2cb0dbc0d157,hi,Madhya Pradesh,Bhopal,both,Class 12 Pass,Below ₹1 Lakh,5,True,2024-03-15T02:16:55
