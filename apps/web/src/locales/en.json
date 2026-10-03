@@ -129,5 +129,7 @@
   "why_this_number": "Why this number?",
   "source_evidence_title": "Official Evidence & Source",
   "source_evidence_desc": "Verified government data backing this number",
-  "btn_got_it": "Understood"
+  "btn_got_it": "Understood",
+  "error_invalid_phone": "Please enter a valid 10-digit phone number.",
+  "error_consent_required": "Please consent to callback-number storage or leave the number blank."
 }

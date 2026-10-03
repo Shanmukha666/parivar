@@ -21,11 +21,14 @@ const defaultState: AppState = {
   sessionId: null,
   profile: {
     state: 'Telangana',
-    district: 'Adilabad',
+    district: 'Warangal',
     classPassed: 'Class 10 Pass',
     income: '₹1 - 3 Lakhs',
     role: 'both',
-    interests: [],
+    consent: true,
+    selectedTradeId: 1,
+    selectedTradeName: 'Electrician',
+    interests: ['electrical', 'mechanical'],
   },
   isHydrated: false,
 };
@@ -34,9 +37,9 @@ let globalState: AppState = { ...defaultState };
 
 if (typeof window !== 'undefined') {
   try {
-    const saved = sessionStorage.getItem('parivar_path_state');
+    const saved = localStorage.getItem('parivar_path_state') || sessionStorage.getItem('parivar_path_state');
     if (saved) {
-      globalState = { ...JSON.parse(saved), isHydrated: true };
+      globalState = { ...defaultState, ...JSON.parse(saved), isHydrated: true };
     }
   } catch (e) {
     console.error('Failed to load state', e);
@@ -48,11 +51,15 @@ let listeners: Array<(state: AppState) => void> = [];
 function setGlobalState(newState: Partial<AppState>) {
   globalState = { ...globalState, ...newState };
   if (typeof window !== 'undefined') {
-    sessionStorage.setItem('parivar_path_state', JSON.stringify({
+    const payload = JSON.stringify({
       language: globalState.language,
       sessionId: globalState.sessionId,
       profile: globalState.profile,
-    }));
+    });
+    try {
+      localStorage.setItem('parivar_path_state', payload);
+      sessionStorage.setItem('parivar_path_state', payload);
+    } catch {}
   }
   listeners.forEach(l => l(globalState));
 }

@@ -10,7 +10,7 @@ import TextToSpeech from '../../components/TextToSpeech';
 import { ChevronRight } from 'lucide-react';
 
 const stateDistricts: Record<string, string[]> = {
-  Telangana: ['Adilabad', 'Karimnagar', 'Hyderabad'],
+  Telangana: ['Warangal', 'Adilabad', 'Karimnagar', 'Hyderabad'],
 };
 
 export default function ProfilePage() {
@@ -19,7 +19,7 @@ export default function ProfilePage() {
   const t = useTranslation(language);
 
   const [state, setState] = useState('Telangana');
-  const [district, setDistrict] = useState('Adilabad');
+  const [district, setDistrict] = useState('Warangal');
   const [role, setRole] = useState('both');
   const [classPassed, setClassPassed] = useState('Class 10 Pass');
   const [income, setIncome] = useState('₹1 - 3 Lakhs');

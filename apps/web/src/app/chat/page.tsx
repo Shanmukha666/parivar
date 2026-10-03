@@ -52,7 +52,7 @@ export default function ChatPage() {
           const newSess = await createSession({
             lang: language || 'en',
             state: profile.state || 'Telangana',
-            district: profile.district || 'Adilabad',
+            district: profile.district || 'Warangal',
             user_role: profile.role || 'both',
             learner_class: profile.classPassed || 'Class 10 Pass',
             income_bracket: profile.income || '₹1 - 3 Lakhs',
@@ -361,11 +361,11 @@ export default function ChatPage() {
                   const input = document.getElementById('callback-phone') as HTMLInputElement;
                   const val = input?.value || '';
                   if (val && !/^\d{10}$/.test(val)) {
-                    alert('Please enter a valid 10-digit phone number.');
+                    alert(t('error_invalid_phone'));
                     return;
                   }
                   if (val && !callbackConsent) {
-                    alert('Please consent to callback-number storage or leave the number blank.');
+                    alert(t('error_consent_required'));
                     return;
                   }
                   handleManualEscalate(val);

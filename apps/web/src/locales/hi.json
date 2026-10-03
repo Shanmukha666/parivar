@@ -129,5 +129,7 @@
   "why_this_number": "यह संख्या कहाँ से आई?",
   "source_evidence_title": "आधिकारिक प्रमाण और स्रोत",
   "source_evidence_desc": "सरकारी आंकड़ों से सत्यापित",
-  "btn_got_it": "समझ गया"
+  "btn_got_it": "समझ गया",
+  "error_invalid_phone": "कृपया 10 अंकों का मोबाइल नंबर दर्ज करें।",
+  "error_consent_required": "कृपया कॉलबैक नंबर रखने की सहमति दें या नंबर खाली छोड़ दें।"
 }

@@ -129,5 +129,7 @@
   "why_this_number": "ఈ సంఖ్య ఎందుకు?",
   "source_evidence_title": "అధికారిక ఆధారాలు & మూలం",
   "source_evidence_desc": "ధృవీకరించబడిన ప్రభుత్వ డేటా",
-  "btn_got_it": "అర్థమైంది"
+  "btn_got_it": "అర్థమైంది",
+  "error_invalid_phone": "దయచేసి 10 అంకెల ఫోన్ నంబర్ నమోదు చేయండి.",
+  "error_consent_required": "కాల్ కోసం సమ్మతి ఇవ్వండి లేదా నంబర్ ఖాళీగా ఉంచండి."
 }
