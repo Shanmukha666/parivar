@@ -5,12 +5,15 @@ from sqlalchemy import select, func, and_, or_, distinct
 from typing import Optional, Dict, Any, List
 import io
 import csv
+import json
 
 from app.database import get_db
 from app.models.models import Session, Message, MessageAnalysis, Escalation, Event, Trade
 from app.core.prompts import ADMIN_INSIGHT_PROMPT
+from app.routers.auth import require_role
+import os
 
-router = APIRouter()
+router = APIRouter(dependencies=[Depends(require_role(["admin"]))])
 
 @router.get("/metrics")
 async def get_metrics(
@@ -72,15 +75,11 @@ async def get_metrics(
     obj_res = await db.execute(obj_stmt)
     objection_counts = {cat: count for cat, count in obj_res.all() if cat and cat != "none"}
 
-    # Ensure all primary categories exist in dict
     for cat in ["income", "safety", "status", "job_security", "degree_pref", "cost"]:
         if cat not in objection_counts:
             objection_counts[cat] = 0
 
     # 6. District resistance index calculation
-    # Formula (PRD 1.9):
-    # resistance_index = 0.5 * share_neg_start + 0.3 * escalation_rate + 0.2 * (1 - mean_shift_norm)
-    # Normalise to 0 to 100.
     dist_stmt = select(distinct(Session.district), Session.state)
     if state:
         dist_stmt = dist_stmt.where(func.lower(Session.state) == state.lower())
@@ -92,11 +91,9 @@ async def get_metrics(
         if not d_name:
             continue
         
-        # District session count
         d_sess_stmt = select(func.count(Session.id)).where(Session.district == d_name)
         d_sess = (await db.execute(d_sess_stmt)).scalar() or 0
 
-        # K-anonymity check (hide or flag < 10)
         if d_sess < 10:
             district_heatmap.append({
                 "district": d_name,
@@ -107,7 +104,6 @@ async def get_metrics(
             })
             continue
 
-        # District escalations
         d_esc_stmt = (
             select(func.count(Escalation.id))
             .join(Session, Escalation.session_id == Session.id)
@@ -116,8 +112,6 @@ async def get_metrics(
         d_esc = (await db.execute(d_esc_stmt)).scalar() or 0
         d_esc_rate = d_esc / max(d_sess, 1)
 
-        # Negative start sentiment share
-        # Look at the first parent message analysis per session
         d_neg_start_stmt = (
             select(func.avg(MessageAnalysis.sentiment))
             .join(Message, MessageAnalysis.message_id == Message.id)
@@ -125,18 +119,15 @@ async def get_metrics(
             .where(Session.district == d_name, Message.speaker == "parent")
         )
         d_avg_sent = (await db.execute(d_neg_start_stmt)).scalar()
-        d_avg_sent = float(d_avg_sent) if d_avg_sent is not None else 0.0
+        d_avg_sent = float(d_avg_sent) if d_avg_sent is not None else None
 
-        # Higher negative sentiment means higher negative start share
-        share_neg_start = max(0.0, min(1.0, (0.5 - d_avg_sent)))
-        
-        # Mean shift normalised: assume target shift is +0.3
-        mean_sentiment_shift_norm = max(0.0, min(1.0, (d_avg_sent + 1.0) / 2.0))
+        share_neg_start = max(0.0, min(1.0, (0.5 - d_avg_sent))) if d_avg_sent is not None else None
+        mean_sentiment_shift_norm = max(0.0, min(1.0, (d_avg_sent + 1.0) / 2.0)) if d_avg_sent is not None else None
 
         r_index = (
-            0.5 * share_neg_start +
+            0.5 * (share_neg_start or 0.0) +
             0.3 * d_esc_rate +
-            0.2 * (1.0 - mean_sentiment_shift_norm)
+            0.2 * (1.0 - (mean_sentiment_shift_norm or 0.0))
         ) * 100.0
 
         district_heatmap.append({
@@ -146,22 +137,45 @@ async def get_metrics(
             "resistance_index": round(r_index, 1),
             "share_neg_start": round(share_neg_start, 2),
             "escalation_rate": round(d_esc_rate, 2),
-            "mean_sentiment": round(d_avg_sent, 2)
+            "mean_sentiment": round(d_avg_sent, 2) if d_avg_sent is not None else None
         })
 
-    # Sort heatmap by highest resistance first
     district_heatmap.sort(key=lambda x: (x["resistance_index"] or 0), reverse=True)
 
     # 7. Funnel
     funnel = {
         "sessions": total_sessions,
-        "trades_viewed": max(total_trades_viewed, int(total_sessions * 0.85)),
-        "summary_shared": max(total_summary_shares, int(total_sessions * 0.42)),
+        "trades_viewed": total_trades_viewed,
+        "summary_shared": total_summary_shares,
         "escalated": total_escalations
     }
 
     # 8. Avg sentiment shift overall
-    avg_sentiment_shift = 0.32  # Realistic target from PRD (+0.3)
+    sessions_stmt = select(Session.id)
+    if conds:
+        sessions_stmt = sessions_stmt.where(and_(*conds))
+    sess_ids_res = await db.execute(sessions_stmt)
+    sess_ids = sess_ids_res.scalars().all()
+    
+    total_shift = 0.0
+    shift_count = 0
+    for sid in sess_ids:
+        # Get first and last parent message sentiment
+        stmt = (
+            select(MessageAnalysis.sentiment)
+            .join(Message, MessageAnalysis.message_id == Message.id)
+            .where(Message.session_id == sid, Message.speaker == "parent")
+            .order_by(Message.created_at)
+        )
+        res = await db.execute(stmt)
+        sents = res.scalars().all()
+        if len(sents) >= 4:
+            first = sum(float(value) for value in sents[:2]) / 2
+            last = sum(float(value) for value in sents[-2:]) / 2
+            total_shift += last - first
+            shift_count += 1
+            
+    avg_sentiment_shift = round(total_shift / shift_count, 2) if shift_count > 0 else None
 
     return {
         "total_sessions": total_sessions,
@@ -179,20 +193,46 @@ async def get_insights(
     district: Optional[str] = Query(None),
     db: AsyncSession = Depends(get_db)
 ):
-    # Generates 3 concrete, data-backed insights per PRD section 6.6
     metrics = await get_metrics(state=state, district=district, db=db)
+    
+    # Check if we can use real LLM for insights
+    api_key = os.getenv("ANTHROPIC_API_KEY")
+    if api_key:
+        try:
+            import anthropic
+            client = anthropic.AsyncAnthropic(api_key=api_key)
+            prompt = ADMIN_INSIGHT_PROMPT.format(metrics_json=json.dumps(metrics, default=str))
+            response = await client.messages.create(
+                model="claude-sonnet-4-20250514",
+                max_tokens=200,
+                messages=[{"role": "user", "content": prompt}]
+            )
+            text = response.content[0].text
+            insights = [line.strip().strip("-*123. ") for line in text.split("\n") if line.strip()]
+            return {"insights": insights[:3], "weak_signal": metrics.get("total_sessions", 0) < 30}
+        except Exception:
+            pass
+
+    # Fallback basic logic
     total_sess = metrics.get("total_sessions", 0)
     weak_signal = total_sess < 30
-
     objections = metrics.get("objections", {})
     top_obj = max(objections.items(), key=lambda x: x[1])[0] if objections else "status"
-
     prefix = "Signal is weak due to small sample size (<30). " if weak_signal else ""
+    
+    top_district = "your district"
+    highest_esc = 0
+    if metrics.get("heatmap"):
+        top_d = metrics["heatmap"][0]
+        top_district = top_d["district"]
+        highest_esc = int(top_d.get("escalation_rate", 0) * 100)
+
+    avg_shift = metrics.get("avg_sentiment_shift", 0.0)
 
     insights = [
         f"{prefix}Parental resistance in {district or state or 'target districts'} is primarily driven by {top_obj.replace('_', ' ')} concerns ({objections.get(top_obj, 0)} sessions); deploy targeted localized video testimonials featuring local alumni.",
-        f"{prefix}The district resistance index peaks in Warangal and Gwalior with escalation rates exceeding 25%; equip local ITI counsellors with proactive callback toolkits.",
-        f"{prefix}Sessions where parents viewed the Family Summary Card showed an average sentiment shift of +0.32; prioritize WhatsApp card sharing early in family onboarding."
+        f"{prefix}The district resistance index peaks in {top_district} with escalation rates exceeding {highest_esc}%; equip local ITI counsellors with proactive callback toolkits.",
+        f"{prefix}Sessions had an average sentiment shift of +{avg_shift}; prioritize WhatsApp card sharing early in family onboarding."
     ]
 
     return {"insights": insights, "weak_signal": weak_signal}

@@ -1,0 +1,6 @@
+{
+  "en": {"name": "English", "native": "English", "stt": "en-IN", "tts": "en-IN", "script": "Latin", "font": "Noto Sans", "tier": 1},
+  "hi": {"name": "Hindi", "native": "हिन्दी", "stt": "hi-IN", "tts": "hi-IN", "script": "Devanagari", "font": "Noto Sans Devanagari", "tier": 1},
+  "ta": {"name": "Tamil", "native": "தமிழ்", "stt": "ta-IN", "tts": "ta-IN", "script": "Tamil", "font": "Noto Sans Tamil", "tier": 1},
+  "te": {"name": "Telugu", "native": "తెలుగు", "stt": "te-IN", "tts": "te-IN", "script": "Telugu", "font": "Noto Sans Telugu", "tier": 1}
+}

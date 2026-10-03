@@ -1,0 +1,22 @@
+{
+  "en": {
+    "status": "reviewed_draft",
+    "reviewer": null,
+    "notes": "English source copy; verify final terminology before production."
+  },
+  "te": {
+    "status": "pending_native_review",
+    "reviewer": null,
+    "notes": "Telugu copy is a demo draft and must be checked by a native reviewer."
+  },
+  "hi": {
+    "status": "pending_native_review",
+    "reviewer": null,
+    "notes": "Hindi is supported for demonstration but is not native-reviewed."
+  },
+  "ta": {
+    "status": "stretch_pending",
+    "reviewer": null,
+    "notes": "Tamil is not part of the primary SIH demo path."
+  }
+}

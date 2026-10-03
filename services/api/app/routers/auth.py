@@ -2,7 +2,7 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
-from typing import Any
+from typing import Any, List
 from passlib.context import CryptContext
 try:
     import jwt
@@ -10,29 +10,27 @@ try:
 except ImportError:
     from jose import JWTError, jwt
 from datetime import datetime, timedelta
-import os
 
 from app.database import get_db
 from app.models.models import User
 from app.schemas.schemas import UserLogin, TokenResponse
+from app.config import settings
+from app.core.supabase_auth import decode_token as decode_supabase_token, to_user as to_supabase_user
 
 router = APIRouter()
 
-SECRET_KEY = os.getenv("JWT_SECRET", "parivar-jwt-secret-change-in-prod")
-ALGORITHM = "HS256"
-ACCESS_TOKEN_EXPIRE_MINUTES = 60 * 24
+SECRET_KEY = settings.JWT_SECRET
+ALGORITHM = settings.ALGORITHM
+ACCESS_TOKEN_EXPIRE_MINUTES = settings.ACCESS_TOKEN_EXPIRE_MINUTES
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="auth/login")
 
 def verify_password(plain_password: str, hashed_password: str) -> bool:
-    # Accept standard bcrypt verification or simple fallback for demo passwords
-    if hashed_password == "demo123" or plain_password == "demo123":
-        return True
     try:
         return pwd_context.verify(plain_password, hashed_password)
     except Exception:
-        return plain_password == "demo123"
+        return False
 
 def create_access_token(data: dict, expires_delta: timedelta = None) -> str:
     to_encode = data.copy()
@@ -42,16 +40,14 @@ def create_access_token(data: dict, expires_delta: timedelta = None) -> str:
 
 @router.post("/login", response_model=TokenResponse)
 async def login(data: UserLogin, db: AsyncSession = Depends(get_db)):
+    if settings.AUTH_PROVIDER == "supabase":
+        raise HTTPException(status_code=status.HTTP_410_GONE, detail="Use Supabase Auth for staff login")
+
     stmt = select(User).where(User.email == data.email)
     result = await db.execute(stmt)
     user = result.scalars().first()
 
-    # Allow demo admin/counsellor bypass if not seeded yet
     if not user:
-        if data.email in ["admin@parivarpath.in", "counsellor1@parivarpath.in"] and data.password == "demo123":
-            role = "admin" if "admin" in data.email else "counsellor"
-            token = create_access_token({"sub": data.email, "role": role})
-            return {"access_token": token, "token_type": "bearer"}
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Incorrect email or password")
 
     if not verify_password(data.password, user.password_hash):
@@ -66,6 +62,9 @@ async def get_current_user(token: str = Depends(oauth2_scheme), db: AsyncSession
         detail="Could not validate credentials",
         headers={"WWW-Authenticate": "Bearer"},
     )
+    if settings.AUTH_PROVIDER == "supabase":
+        return to_supabase_user(decode_supabase_token(token), token)
+
     try:
         payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
         email: str = payload.get("sub")
@@ -78,14 +77,23 @@ async def get_current_user(token: str = Depends(oauth2_scheme), db: AsyncSession
     result = await db.execute(stmt)
     user = result.scalars().first()
     if user is None:
-        # Fallback for demo token
-        return {"email": email, "role": payload.get("role", "admin")}
+        raise credentials_exception
     return user
+
+def require_role(allowed_roles: List[str]):
+    def role_checker(current_user: User = Depends(get_current_user)):
+        if current_user.role not in allowed_roles:
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail="Operation not permitted"
+            )
+        return current_user
+    return role_checker
+
+family_user = require_role(["family"])
 
 @router.get("/me")
 async def get_me(current_user: Any = Depends(get_current_user)):
-    if isinstance(current_user, dict):
-        return current_user
     return {
         "id": current_user.id,
         "email": current_user.email,

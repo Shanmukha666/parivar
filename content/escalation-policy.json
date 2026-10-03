@@ -1,0 +1,13 @@
+{
+  "callback_hours": "10:00-18:00 Monday-Saturday",
+  "sla": "Callback within 24 hours",
+  "assignment": "Round-robin by language and district",
+  "statuses": ["new", "assigned", "contacted", "resolved", "closed_no_response"],
+  "priority": {
+    "normal": "Family requests a counsellor",
+    "high": "Repeated unresolved objection or urgent family concern",
+    "urgent": "Distress signal detected; stop AI advice and prioritize human review"
+  },
+  "phone_policy": "Store only after explicit consent; mask in staff UI; expire 30 days after resolution",
+  "crisis_text_status": "PLACEHOLDER_PENDING_QUALIFIED_REVIEW"
+}

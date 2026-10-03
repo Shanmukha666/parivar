@@ -10,9 +10,7 @@ import TextToSpeech from '../../components/TextToSpeech';
 import { ChevronRight } from 'lucide-react';
 
 const stateDistricts: Record<string, string[]> = {
-  Telangana: ['Warangal', 'Hyderabad', 'Karimnagar'],
-  'Madhya Pradesh': ['Bhopal', 'Indore', 'Gwalior', 'Jabalpur'],
-  Rajasthan: ['Jaipur', 'Jodhpur', 'Udaipur'],
+  Telangana: ['Adilabad', 'Karimnagar', 'Hyderabad'],
 };
 
 export default function ProfilePage() {
@@ -21,7 +19,7 @@ export default function ProfilePage() {
   const t = useTranslation(language);
 
   const [state, setState] = useState('Telangana');
-  const [district, setDistrict] = useState('Warangal');
+  const [district, setDistrict] = useState('Adilabad');
   const [role, setRole] = useState('both');
   const [classPassed, setClassPassed] = useState('Class 10 Pass');
   const [income, setIncome] = useState('₹1 - 3 Lakhs');
@@ -83,8 +81,6 @@ export default function ProfilePage() {
               className="w-full p-3.5 bg-slate-50 border border-slate-300 rounded-xl text-sm font-semibold text-slate-800 focus:ring-2 focus:ring-orange-500 min-h-[48px]"
             >
               <option value="Telangana">Telangana</option>
-              <option value="Madhya Pradesh">Madhya Pradesh</option>
-              <option value="Rajasthan">Rajasthan</option>
             </select>
             <select
               value={district}

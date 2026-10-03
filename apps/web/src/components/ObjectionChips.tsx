@@ -40,6 +40,7 @@ export default function ObjectionChips({ onSelect }: { onSelect: (objection: str
         <button
           key={idx}
           onClick={() => onSelect(chip.query)}
+          aria-label={`Ask: ${chip.query}`}
           className="whitespace-nowrap px-3.5 py-2.5 bg-orange-50 hover:bg-orange-100 text-orange-900 border border-orange-200 rounded-full text-xs font-semibold shadow-sm transition-all min-h-[44px] flex items-center gap-1.5 active:scale-95"
         >
           {chip.label}

@@ -8,13 +8,18 @@ const config: Config = {
   ],
   theme: {
     extend: {
+      fontFamily: {
+        sans: ['var(--font-inter)', 'var(--font-noto-hindi)', 'var(--font-noto-telugu)', 'sans-serif'],
+      },
       colors: {
-        primary: "#f97316", // Orange 500
-        secondary: "#14b8a6", // Teal 500
+        primary: "#ea580c", // Orange 600 (better contrast than 500)
+        secondary: "#0f766e", // Teal 700
         background: "#fffbeb", // Amber 50
         textDark: "#1f2937", // Gray 800
       },
       fontSize: {
+        xs: '14px',
+        sm: '16px',
         base: '18px',
         lg: '20px',
         xl: '24px',

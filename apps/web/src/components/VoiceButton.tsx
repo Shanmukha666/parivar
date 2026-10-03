@@ -61,10 +61,10 @@ export default function VoiceButton({ onResult }: { onResult: (text: string) => 
       className={`p-3.5 rounded-xl font-bold min-h-[48px] min-w-[48px] flex items-center justify-center transition-all ${
         listening
           ? 'bg-rose-600 text-white animate-pulse shadow-lg scale-105'
-          : 'bg-orange-500 hover:bg-orange-600 text-white shadow-sm'
+          : 'bg-orange-700 hover:bg-orange-800 text-white shadow-sm'
       }`}
       title={listening ? 'Listening... Speak now' : 'Speak in your language'}
-      aria-label="Voice Input"
+      aria-label={listening ? "Stop voice input" : "Start voice input"}
     >
       {listening ? <MicOff size={22} /> : <Mic size={22} />}
     </button>

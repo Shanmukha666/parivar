@@ -11,6 +11,8 @@ redis
 httpx
 python-multipart
 python-dotenv
+PyJWT[crypto]
+supabase
 jinja2
 weasyprint
 anthropic

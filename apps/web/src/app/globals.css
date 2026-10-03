@@ -11,6 +11,61 @@
 body {
   color: rgb(var(--foreground-rgb));
   background: rgb(var(--background-start-rgb));
+  overflow-x: hidden;
+}
+
+.landing-shell {
+  position: relative;
+  background: #111714;
+  isolation: isolate;
+}
+
+.landing-shell::before {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background: radial-gradient(circle at 78% 42%, rgba(214, 243, 106, 0.12), transparent 27%), radial-gradient(circle at 7% 92%, rgba(241, 125, 57, 0.12), transparent 22%);
+  content: '';
+}
+
+.brand-mark,
+.landing-circle-button {
+  display: grid;
+  height: 38px;
+  width: 38px;
+  place-items: center;
+  border: 1px solid rgba(255,255,255,.15);
+  border-radius: 999px;
+  background: rgba(255,255,255,.06);
+}
+
+.brand-mark { border: 0; background: #d6f36a; color: #19231f; font-size: 22px; font-weight: 900; }
+.landing-title { max-width: 100%; overflow-wrap: break-word; font-size: clamp(3.4rem, 8vw, 8.2rem); font-weight: 900; letter-spacing: 0; line-height: .9; }
+.landing-title span { color: #d6f36a; }
+.language-rail { border-top: 1px solid rgba(255,255,255,.13); }
+.language-choice { border-bottom: 1px solid rgba(255,255,255,.13); border-radius: 0; }
+.language-choice:hover { padding-left: 22px; background: rgba(255,255,255,.06); }
+
+.landing-visual { position: relative; min-height: 540px; }
+.orbit { position: absolute; border: 1px solid rgba(214,243,106,.24); border-radius: 50%; transform: rotate(-22deg); }
+.orbit-one { top: 10%; left: 10%; height: 78%; width: 82%; }
+.orbit-two { top: 22%; left: 0; height: 52%; width: 100%; border-color: rgba(255,255,255,.13); }
+.path-card { position: absolute; width: min(76%, 420px); aspect-ratio: 1.38; border-radius: 28px; box-shadow: 24px 32px 60px rgba(0,0,0,.35); }
+.path-card-main { top: 19%; left: 14%; z-index: 2; padding: 26px; background: #d6f36a; color: #19231f; transform: rotate(-9deg); }
+.path-card-back { top: 28%; left: 23%; z-index: 1; padding: 28px; background: #f17d39; color: #fff7e8; transform: rotate(10deg); }
+.path-card-back strong { position: absolute; right: 28px; bottom: 20px; font-size: 86px; letter-spacing: 0; }
+.floating-note { position: absolute; right: 0; bottom: 18%; z-index: 3; padding: 14px 17px; border: 1px solid rgba(255,255,255,.15); border-radius: 15px; background: rgba(17,23,20,.82); color: rgba(255,255,255,.65); font-size: 11px; line-height: 1.5; backdrop-filter: blur(12px); }
+.floating-note strong { color: #d6f36a; font-size: 13px; }
+.note-dot { display: inline-block; height: 7px; width: 7px; margin-right: 5px; border-radius: 50%; background: #d6f36a; }
+.visual-caption { position: absolute; bottom: 8%; left: 2%; color: rgba(255,255,255,.4); font-size: 10px; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; }
+.visual-caption span { color: #d6f36a; }
+
+@media (max-width: 767px) {
+  .landing-visual { min-height: 390px; margin-top: -20px; }
+  .path-card { width: 74%; }
+  .path-card-main { top: 16%; left: 10%; }
+  .path-card-back { top: 25%; left: 18%; }
+  .floating-note { right: 1%; bottom: 10%; }
 }
 
 button {

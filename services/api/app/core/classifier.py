@@ -15,55 +15,59 @@ from app.core.prompts import CLASSIFIER_PROMPT
 
 logger = logging.getLogger(__name__)
 
+import re
+
 # ── Keyword-based fallback classifier ──────────────────────────────────
 
 OBJECTION_KEYWORDS = {
     "income": [
         "salary", "earn", "money", "income", "paisa", "kamai", "rupee", "₹",
         "kitna milega", "salary kitni", "tankhah", "jeetha", "sambhaadane",
+        "वेतन", "कमाई", "पैसे", "జీతం", "డబ్బు"
     ],
     "safety": [
         "safe", "danger", "injury", "accident", "risk", "suraksha", "khatrnak",
-        "chot", "surakshit", "bhayam", "praman",
+        "chot", "surakshit", "bhayam", "praman", "सुरक्षा", "खतरा", "భద్రత", "ప్రమాదం"
     ],
     "status": [
         "respect", "izzat", "status", "log kya kahenge", "relatives",
-        "society", "shame", "samaj", "gauravam", "pratishtita",
+        "society", "shame", "samaj", "gauravam", "pratishtita", "इज़्ज़त", "समाज", "గౌరవం"
     ],
     "job_security": [
         "job milegi", "naukri", "employment", "permanent", "stable",
-        "udyogam", "kaam", "rozgaar",
+        "udyogam", "kaam", "rozgaar", "नौकरी", "रोजगार", "ఉద్యోగం"
     ],
     "degree_pref": [
         "degree", "college", "university", "b.tech", "engineering",
-        "graduation", "padhai", "digri", "ba", "bsc", "bcom",
+        "graduation", "padhai", "digri", "ba", "bsc", "bcom", "डिग्री", "कॉलेज", "డిగ్రీ"
     ],
     "cost": [
         "cost", "fee", "fees", "expensive", "afford", "kharcha", "fees kitni",
-        "meeda", "kharchalu", "paisa lagega",
+        "meeda", "kharchalu", "paisa lagega", "खर्चा", "फीस", "ఫీజు", "ఖర్చు"
     ],
 }
 
 NEGATIVE_WORDS = [
-    "no", "nahi", "never", "bad", "worst", "useless", "waste", "bekar",
+    "no", "nahi", "never", "worst", "useless", "waste", "bekar",
     "kharab", "problem", "worried", "fear", "doubt", "ledu", "vaddu",
-    "cheppaku", "mushkil", "dikkat",
+    "cheppaku", "mushkil", "dikkat", "नहीं", "बेकार", "వద్దు", "లేదు"
 ]
 
 POSITIVE_WORDS = [
     "yes", "good", "great", "ok", "sure", "interested", "achha", "badhiya",
     "sahi", "theek", "chalega", "haan", "ji", "bagundi", "manchidi",
-    "avunu", "happy", "excited",
+    "avunu", "happy", "excited", "हाँ", "अच्छा", "అవును", "బాగుంది"
 ]
 
 REQUEST_HUMAN_WORDS = [
-    "counsellor", "counselor", "human", "person", "talk to someone",
-    "call", "phone", "real person", "insaan se", "manishi tho",
+    "counsellor", "counselor", "talk to someone",
+    "call me", "phone me", "call human", "real person", "insaan se", "manishi tho",
+    "काउंसलर", "మాట్లాడాలి"
 ]
 
 SENSITIVE_WORDS = [
     "unsafe", "accident", "injury", "family fight", "debt", "harassment",
-    "suicide", "abuse", "violence", "maar", "ladai", "hinsa",
+    "suicide", "abuse", "violence", "maar", "ladai", "hinsa", "हिंसा", "అప్పు"
 ]
 
 
@@ -71,19 +75,30 @@ def _keyword_classify(text: str, speaker: str) -> dict:
     """Fallback keyword-based classifier."""
     text_lower = text.lower()
 
+    def has_match(word_list, text):
+        for w in word_list:
+            if re.search(r'\b' + re.escape(w) + r'\b', text):
+                return True
+        return False
+
+    def count_matches(word_list, text):
+        return sum(1 for w in word_list if re.search(r'\b' + re.escape(w) + r'\b', text))
+
     # Detect objection category
     category = "none"
     for cat, keywords in OBJECTION_KEYWORDS.items():
-        for kw in keywords:
-            if kw in text_lower:
-                category = cat
-                break
-        if category != "none":
+        if has_match(keywords, text_lower):
+            category = cat
             break
 
     # Sentiment scoring
-    neg_count = sum(1 for w in NEGATIVE_WORDS if w in text_lower)
-    pos_count = sum(1 for w in POSITIVE_WORDS if w in text_lower)
+    neg_count = count_matches(NEGATIVE_WORDS, text_lower)
+    pos_count = count_matches(POSITIVE_WORDS, text_lower)
+    
+    # Specific fix: 'know nothing' -> ignore 'nothing' as purely negative sentiment
+    if "know nothing" in text_lower:
+        neg_count -= 1
+
     word_count = max(len(text_lower.split()), 1)
 
     if neg_count > pos_count:
@@ -95,9 +110,9 @@ def _keyword_classify(text: str, speaker: str) -> dict:
 
     # Intent detection
     intent = "other"
-    if any(w in text_lower for w in REQUEST_HUMAN_WORDS):
+    if has_match(REQUEST_HUMAN_WORDS, text_lower):
         intent = "request_human"
-    elif any(w in text_lower for w in SENSITIVE_WORDS):
+    elif has_match(SENSITIVE_WORDS, text_lower):
         intent = "request_human"
     elif category != "none":
         if sentiment < -0.2:

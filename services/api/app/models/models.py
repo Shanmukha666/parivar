@@ -1,21 +1,24 @@
-from sqlalchemy import Column, Integer, String, Boolean, Numeric, Date, ForeignKey, DateTime, BigInteger, Text
-from sqlalchemy.dialects.postgresql import UUID, JSONB
+from sqlalchemy import Column, Integer, String, Boolean, Numeric, Date, ForeignKey, DateTime, BigInteger, Text, JSON, Uuid
+from sqlalchemy.dialects.postgresql import UUID as PG_UUID, JSONB as PG_JSONB
 import uuid
 from app.database import Base
 from sqlalchemy.sql import func
+
+UniversalJSON = JSON().with_variant(PG_JSONB, "postgresql")
+UniversalUUID = Uuid(as_uuid=True)
 
 class Trade(Base):
     __tablename__ = "trades"
     id = Column(Integer, primary_key=True, index=True)
     name_en = Column(Text)
-    name_local = Column(JSONB)
+    name_local = Column(UniversalJSON)
     sector = Column(Text)
     nsqf_level = Column(Integer)
     duration_months = Column(Integer)
     entry_qualification = Column(Text)
     safety_notes = Column(Text)
-    job_roles = Column(JSONB) # ARRAY representation via JSONB or ARRAY(Text) - schema says TEXT[]
-    description_simple = Column(JSONB)
+    job_roles = Column(UniversalJSON)
+    description_simple = Column(UniversalJSON)
 
 class Provider(Base):
     __tablename__ = "providers"
@@ -31,10 +34,10 @@ class Provider(Base):
 class Outcome(Base):
     __tablename__ = "outcomes"
     id = Column(Integer, primary_key=True, index=True)
-    trade_id = Column(Integer, ForeignKey("trades.id"))
+    trade_id = Column(Integer, ForeignKey("trades.id"), index=True)
     provider_id = Column(Integer, ForeignKey("providers.id"))
     state = Column(Text)
-    district = Column(Text)
+    district = Column(Text, index=True)
     cohort_year = Column(Integer)
     placement_rate = Column(Numeric)
     avg_start_salary_inr = Column(Integer)
@@ -61,7 +64,7 @@ class Scheme(Base):
     id = Column(Integer, primary_key=True, index=True)
     name = Column(Text)
     state = Column(Text)
-    eligibility = Column(JSONB)
+    eligibility = Column(UniversalJSON)
     benefit = Column(Text)
     how_to_apply = Column(Text)
     source = Column(Text)
@@ -72,16 +75,16 @@ class Story(Base):
     trade_id = Column(Integer)
     district = Column(Text)
     name = Column(Text)
-    quote = Column(JSONB)
+    quote = Column(UniversalJSON)
     outcome = Column(Text)
     is_synthetic = Column(Boolean, default=True)
 
 class Session(Base):
     __tablename__ = "sessions"
-    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    id = Column(UniversalUUID, primary_key=True, default=uuid.uuid4)
     lang = Column(Text)
     state = Column(Text)
-    district = Column(Text)
+    district = Column(Text, index=True)
     user_role = Column(Text)
     learner_class = Column(Text)
     income_bracket = Column(Text)
@@ -91,8 +94,8 @@ class Session(Base):
 
 class Message(Base):
     __tablename__ = "messages"
-    id = Column(BigInteger, primary_key=True, autoincrement=True)
-    session_id = Column(UUID(as_uuid=True))
+    id = Column(Integer().with_variant(BigInteger, "postgresql"), primary_key=True, autoincrement=True)
+    session_id = Column(UniversalUUID, index=True)
     speaker = Column(Text)
     text = Column(Text)
     lang = Column(Text)
@@ -100,7 +103,7 @@ class Message(Base):
 
 class MessageAnalysis(Base):
     __tablename__ = "message_analysis"
-    message_id = Column(BigInteger, primary_key=True)
+    message_id = Column(Integer().with_variant(BigInteger, "postgresql"), primary_key=True)
     objection_category = Column(Text)
     sentiment = Column(Numeric)
     intent = Column(Text)
@@ -108,10 +111,10 @@ class MessageAnalysis(Base):
 class Escalation(Base):
     __tablename__ = "escalations"
     id = Column(Integer, primary_key=True, index=True)
-    session_id = Column(UUID(as_uuid=True))
+    session_id = Column(UniversalUUID)
     reason = Column(Text)
     summary = Column(Text)
-    status = Column(Text, default='queued')
+    status = Column(Text, default='queued', index=True)
     counsellor_id = Column(Integer)
     callback_phone = Column(Text)
     callback_slot = Column(Text)
@@ -121,10 +124,10 @@ class Escalation(Base):
 
 class Event(Base):
     __tablename__ = "events"
-    id = Column(BigInteger, primary_key=True, autoincrement=True)
-    session_id = Column(UUID(as_uuid=True))
+    id = Column(Integer().with_variant(BigInteger, "postgresql"), primary_key=True, autoincrement=True)
+    session_id = Column(UniversalUUID, index=True)
     type = Column(Text)
-    meta = Column(JSONB)
+    meta = Column(UniversalJSON)
     created_at = Column(DateTime(timezone=True), server_default=func.now())
 
 class User(Base):

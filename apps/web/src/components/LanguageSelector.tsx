@@ -15,10 +15,10 @@ export default function LanguageSelector({ lang, name, onSelect }: { lang: strin
   return (
     <button 
       onClick={handleSelect}
-      className="w-full flex items-center justify-between p-6 bg-white border-2 border-orange-200 rounded-xl shadow-sm hover:border-orange-500 active:bg-orange-50 transition-all"
+      className="language-choice group flex min-h-[58px] w-full items-center justify-between rounded-2xl border border-white/10 px-4 text-left transition-all"
     >
-      <span className="text-2xl font-semibold text-gray-800">{name}</span>
-      <span className="text-3xl">{lang === 'en' ? '🇬🇧' : lang === 'hi' ? '🇮🇳' : '🕉️'}</span>
+      <span className="text-base font-bold text-white">{name}</span>
+      <span className="flex items-center gap-2 text-sm font-bold text-white/40 transition-colors group-hover:text-[#d6f36a]">{lang.toUpperCase()} <span className="text-lg">↗</span></span>
     </button>
   );
 }

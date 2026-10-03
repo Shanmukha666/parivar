@@ -7,9 +7,10 @@ import json
 from datetime import datetime
 
 from app.database import get_db
-from app.schemas.schemas import EscalationCreate, EscalationResponse
+from app.schemas.schemas import EscalationCreate, EscalationResponse, TicketResolution
 from app.models.models import Escalation, Session, Message, Trade
 from app.core.escalation import create_escalation_ticket, get_escalation_queue, accept_ticket, resolve_ticket
+from app.routers.auth import require_role, get_current_user, family_user
 
 router = APIRouter()
 
@@ -43,7 +44,7 @@ class ConnectionManager:
 ws_manager = ConnectionManager()
 
 @router.post("/escalations", response_model=EscalationResponse)
-async def create_escalation_route(data: EscalationCreate, db: AsyncSession = Depends(get_db)):
+async def create_escalation_route(data: EscalationCreate, current_user=Depends(family_user), db: AsyncSession = Depends(get_db)):
     ticket = await create_escalation_ticket(
         session_id=str(data.session_id),
         reason=data.reason,
@@ -53,7 +54,7 @@ async def create_escalation_route(data: EscalationCreate, db: AsyncSession = Dep
     )
     return ticket
 
-@router.get("/counsellor/queue")
+@router.get("/counsellor/queue", dependencies=[Depends(require_role(["counsellor", "admin"]))])
 async def get_queue(db: AsyncSession = Depends(get_db)):
     # Join with session and trade to give complete context to the counsellor
     stmt = (
@@ -89,17 +90,16 @@ async def get_queue(db: AsyncSession = Depends(get_db)):
         })
     return queue_list
 
-@router.post("/counsellor/{id}/accept")
-async def accept_ticket_route(id: int, counsellor_id: int = 1, db: AsyncSession = Depends(get_db)):
-    ticket = await accept_ticket(id, counsellor_id, db)
+@router.post("/counsellor/{id}/accept", dependencies=[Depends(require_role(["counsellor", "admin"]))])
+async def accept_ticket_route(id: int, current_user=Depends(require_role(["counsellor", "admin"])), db: AsyncSession = Depends(get_db)):
+    ticket = await accept_ticket(id, current_user.id, db)
     if not ticket:
         raise HTTPException(status_code=404, detail="Ticket not found")
     return {"status": "active", "ticket_id": ticket.id}
 
-@router.post("/counsellor/{id}/resolve")
-async def resolve_ticket_route(id: int, payload: dict = {}, db: AsyncSession = Depends(get_db)):
-    note = payload.get("resolution_note", "Resolved via counsellor consultation")
-    ticket = await resolve_ticket(id, note, db)
+@router.post("/counsellor/{id}/resolve", dependencies=[Depends(require_role(["counsellor", "admin"]))])
+async def resolve_ticket_route(id: int, payload: TicketResolution, current_user=Depends(require_role(["counsellor", "admin"])), db: AsyncSession = Depends(get_db)):
+    ticket = await resolve_ticket(id, payload.resolution_note, db)
     if not ticket:
         raise HTTPException(status_code=404, detail="Ticket not found")
     return {"status": "resolved", "ticket_id": ticket.id}

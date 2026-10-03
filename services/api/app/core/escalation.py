@@ -7,7 +7,7 @@ import json
 import logging
 import os
 from datetime import datetime
-from typing import List, Optional
+from typing import List, Optional, Any
 
 from sqlalchemy import select, func
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -57,11 +57,13 @@ async def check_escalation_triggers(
         return True, "AI could not provide verified data after two attempts"
 
     # Trigger 2: 3 consecutive negative parent messages
+    import uuid
+    sid = uuid.UUID(str(session_id)) if not isinstance(session_id, uuid.UUID) else session_id
     stmt = (
         select(Message, MessageAnalysis)
         .join(MessageAnalysis, Message.id == MessageAnalysis.message_id)
         .where(
-            Message.session_id == session_id,
+            Message.session_id == sid,
             Message.speaker == "parent",
         )
         .order_by(Message.created_at.desc())
@@ -87,22 +89,24 @@ async def check_escalation_triggers(
 
 
 async def generate_escalation_summary(
-    session_id: str,
+    session_id: Any,
     reason: str,
     db: AsyncSession,
     api_key: Optional[str] = None,
 ) -> str:
     """Generate an auto-summary of the session for the counsellor."""
+    import uuid
+    sid = uuid.UUID(str(session_id)) if not isinstance(session_id, uuid.UUID) else session_id
 
     # Get session info
-    stmt = select(Session).where(Session.id == session_id)
+    stmt = select(Session).where(Session.id == sid)
     result = await db.execute(stmt)
     session = result.scalars().first()
 
     # Get message history
     stmt = (
         select(Message)
-        .where(Message.session_id == session_id)
+        .where(Message.session_id == sid)
         .order_by(Message.created_at)
     )
     result = await db.execute(stmt)
@@ -151,18 +155,20 @@ async def generate_escalation_summary(
 
 
 async def create_escalation_ticket(
-    session_id: str,
+    session_id: Any,
     reason: str,
     db: AsyncSession,
     callback_phone: Optional[str] = None,
     callback_slot: Optional[str] = None,
 ) -> Escalation:
     """Create an escalation ticket and add to queue."""
+    import uuid
+    sid = uuid.UUID(str(session_id)) if not isinstance(session_id, uuid.UUID) else session_id
 
-    summary = await generate_escalation_summary(session_id, reason, db)
+    summary = await generate_escalation_summary(sid, reason, db)
 
     ticket = Escalation(
-        session_id=session_id,
+        session_id=sid,
         reason=reason,
         summary=summary,
         status="queued",

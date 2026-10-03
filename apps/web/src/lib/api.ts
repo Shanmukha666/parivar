@@ -1,3 +1,6 @@
+import type { Source } from './types';
+import { supabase } from './supabase';
+
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
 
 export interface SessionPayload {
@@ -8,6 +11,7 @@ export interface SessionPayload {
   learner_class: string;
   income_bracket: string;
   consent: boolean;
+  selected_trade_id?: number;
 }
 
 export interface ChatTurnRequest {
@@ -19,16 +23,16 @@ export interface ChatTurnRequest {
 
 export interface ChatTurnResponse {
   reply: string;
-  citations: string[];
+  citations: Array<string | Source>;
   suggested_chips: string[];
   escalate: boolean;
   escalate_reason?: string;
 }
 
 export async function createSession(payload: SessionPayload) {
-  const res = await fetch(`${API_BASE_URL}/sessions`, {
+  const res = await fetch('/api/sessions', {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
+    headers: await getSupabaseAuthHeaders(),
     body: JSON.stringify(payload),
   });
   if (!res.ok) throw new Error('Failed to create session');
@@ -36,9 +40,9 @@ export async function createSession(payload: SessionPayload) {
 }
 
 export async function sendChatMessage(data: ChatTurnRequest): Promise<ChatTurnResponse> {
-  const res = await fetch(`${API_BASE_URL}/chat`, {
+  const res = await fetch('/api/chat', {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
+    headers: await getSupabaseAuthHeaders(),
     body: JSON.stringify(data),
   });
   if (!res.ok) throw new Error('Failed to send message');
@@ -46,36 +50,31 @@ export async function sendChatMessage(data: ChatTurnRequest): Promise<ChatTurnRe
 }
 
 export async function fetchTrades(district?: string, interest?: string, state?: string) {
-  const params = new URLSearchParams();
-  if (district) params.append('district', district);
-  if (interest) params.append('interest', interest);
-  if (state) params.append('state', state);
-
-  const res = await fetch(`${API_BASE_URL}/trades?${params.toString()}`);
-  if (!res.ok) throw new Error('Failed to fetch trades');
-  return res.json();
+  if (!supabase) throw new Error('Supabase is not configured');
+  const { data, error } = await supabase.from('trades').select('*').order('id');
+  if (error) throw error;
+  return data || [];
 }
 
 export async function fetchTradeDetail(id: number | string) {
-  const res = await fetch(`${API_BASE_URL}/trades/${id}`);
-  if (!res.ok) throw new Error('Failed to fetch trade detail');
-  return res.json();
+  if (!supabase) throw new Error('Supabase is not configured');
+  const { data, error } = await supabase.from('trades').select('*').eq('id', id).single();
+  if (error) throw error;
+  return data;
 }
 
 export async function fetchTradeOutcomes(id: number | string, district?: string, state?: string) {
-  const params = new URLSearchParams();
-  if (district) params.append('district', district);
-  if (state) params.append('state', state);
-
-  const res = await fetch(`${API_BASE_URL}/trades/${id}/outcomes?${params.toString()}`);
-  if (!res.ok) throw new Error('Failed to fetch outcomes');
-  return res.json();
+  if (!supabase) throw new Error('Supabase is not configured');
+  const { data, error } = await supabase.from('outcomes').select('*').eq('trade_id', id).eq('state', state || 'Telangana').eq('district', district || 'Adilabad').order('cohort_year', { ascending: false }).limit(1).maybeSingle();
+  if (error) throw error;
+  return data ? { ...data, found: true, scope_label: `${data.district} district` } : { found: false };
 }
 
 export async function fetchTradePathway(id: number | string) {
-  const res = await fetch(`${API_BASE_URL}/trades/${id}/pathway`);
-  if (!res.ok) throw new Error('Failed to fetch pathway');
-  return res.json();
+  if (!supabase) throw new Error('Supabase is not configured');
+  const { data, error } = await supabase.from('pathways').select('*').eq('from_trade_id', id).order('step_order');
+  if (error) throw error;
+  return { found: Boolean(data?.length), steps: data || [] };
 }
 
 export async function fetchTradeStory(id: number | string, district?: string) {
@@ -88,23 +87,19 @@ export async function fetchTradeStory(id: number | string, district?: string) {
 }
 
 export async function fetchProviders(district?: string, state?: string) {
-  const params = new URLSearchParams();
-  if (district) params.append('district', district);
-  if (state) params.append('state', state);
-
-  const res = await fetch(`${API_BASE_URL}/providers?${params.toString()}`);
-  if (!res.ok) throw new Error('Failed to fetch providers');
-  return res.json();
+  if (!supabase) throw new Error('Supabase is not configured');
+  let query = supabase.from('providers').select('*').eq('state', state || 'Telangana');
+  if (district) query = query.eq('district', district);
+  const { data, error } = await query.order('name').limit(20);
+  if (error) throw error;
+  return data || [];
 }
 
 export async function fetchSchemes(state?: string, income_bracket?: string) {
-  const params = new URLSearchParams();
-  if (state) params.append('state', state);
-  if (income_bracket) params.append('income_bracket', income_bracket);
-
-  const res = await fetch(`${API_BASE_URL}/schemes?${params.toString()}`);
-  if (!res.ok) throw new Error('Failed to fetch schemes');
-  return res.json();
+  if (!supabase) throw new Error('Supabase is not configured');
+  const { data, error } = await supabase.from('schemes').select('*').or(`state.eq.${state || 'Telangana'},state.is.null`);
+  if (error) throw error;
+  return data || [];
 }
 
 export async function fetchAdminMetrics(filters?: { state?: string; district?: string; trade_id?: number }) {
@@ -113,7 +108,7 @@ export async function fetchAdminMetrics(filters?: { state?: string; district?: s
   if (filters?.district) params.append('district', filters.district);
   if (filters?.trade_id) params.append('trade_id', filters.trade_id.toString());
 
-  const res = await fetch(`${API_BASE_URL}/admin/metrics?${params.toString()}`);
+  const res = await fetch(`/api/admin/metrics?${params.toString()}`, { headers: await getSupabaseAuthHeaders() });
   if (!res.ok) throw new Error('Failed to fetch metrics');
   return res.json();
 }
@@ -123,32 +118,51 @@ export async function fetchAdminInsights(state?: string, district?: string) {
   if (state) params.append('state', state);
   if (district) params.append('district', district);
 
-  const res = await fetch(`${API_BASE_URL}/admin/insights?${params.toString()}`);
+  const res = await fetch(`/api/admin/insights?${params.toString()}`, { headers: await getSupabaseAuthHeaders() });
   if (!res.ok) throw new Error('Failed to fetch insights');
   return res.json();
 }
 
 export async function fetchCounsellorQueue() {
-  const res = await fetch(`${API_BASE_URL}/counsellor/queue`);
+  const res = await fetch('/api/counsellor/queue', { headers: await getSupabaseAuthHeaders() });
   if (!res.ok) throw new Error('Failed to fetch counsellor queue');
   return res.json();
 }
 
 export async function acceptTicket(ticketId: number) {
-  const res = await fetch(`${API_BASE_URL}/counsellor/${ticketId}/accept`, {
+  const res = await fetch(`/api/counsellor/${ticketId}/accept`, {
     method: 'POST',
+    headers: await getSupabaseAuthHeaders(),
   });
   if (!res.ok) throw new Error('Failed to accept ticket');
   return res.json();
 }
 
 export async function resolveTicket(ticketId: number, resolutionNote: string) {
-  const res = await fetch(`${API_BASE_URL}/counsellor/${ticketId}/resolve`, {
+  const res = await fetch(`/api/counsellor/${ticketId}/resolve`, {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
+    headers: await getSupabaseAuthHeaders(),
     body: JSON.stringify({ resolution_note: resolutionNote }),
   });
   if (!res.ok) throw new Error('Failed to resolve ticket');
+  return res.json();
+}
+
+export async function sendCounsellorMessage(sessionId: string, text: string, lang: string = 'en') {
+  const res = await fetch('/api/counsellor/messages', {
+    method: 'POST',
+    headers: await getSupabaseAuthHeaders(),
+    body: JSON.stringify({ session_id: sessionId, text, lang }),
+  });
+  if (!res.ok) throw new Error('Failed to send counsellor message');
+  return res.json();
+}
+
+export async function fetchSessionMessages(sessionId: string) {
+  const res = await fetch(`/api/counsellor/messages?session_id=${sessionId}`, {
+    headers: await getSupabaseAuthHeaders(),
+  });
+  if (!res.ok) throw new Error('Failed to fetch messages');
   return res.json();
 }
 
@@ -156,11 +170,13 @@ export async function createManualEscalation(data: {
   session_id: string;
   reason: string;
   callback_phone?: string;
+  callback_phone_consent?: boolean;
   callback_slot?: string;
 }) {
-  const res = await fetch(`${API_BASE_URL}/escalations`, {
+  const headers = await getSupabaseAuthHeaders();
+  const res = await fetch('/api/escalations', {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
+    headers,
     body: JSON.stringify(data),
   });
   if (!res.ok) throw new Error('Failed to create escalation');
@@ -168,11 +184,47 @@ export async function createManualEscalation(data: {
 }
 
 export async function getSummaryCardHtml(sessionId: string) {
+  const headers = await getSupabaseAuthHeaders();
   const res = await fetch(`${API_BASE_URL}/summary-card`, {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
+    headers,
     body: JSON.stringify({ session_id: sessionId }),
   });
   if (!res.ok) throw new Error('Failed to generate summary card');
   return res.text();
+}
+
+export async function login(role: string, phone: string, pin: string) {
+  const res = await fetch(`${API_BASE_URL}/auth/login`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ role, phone, pin }),
+  });
+  if (!res.ok) throw new Error('Login failed');
+  return res.json();
+}
+
+export async function patchSession(id: string, data: any) {
+  const res = await fetch(`/api/sessions/${id}`, {
+    method: 'PATCH',
+    headers: await getSupabaseAuthHeaders(),
+    body: JSON.stringify(data),
+  });
+  if (!res.ok) throw new Error('Failed to update session');
+  return res.json();
+}
+
+export function getAuthHeaders() {
+  return {
+    'Content-Type': 'application/json',
+    ...(supabase ? {} : {})
+  };
+}
+
+export async function getSupabaseAuthHeaders() {
+  const { data } = await supabase?.auth.getSession() ?? { data: { session: null } };
+  return {
+    'Content-Type': 'application/json',
+    ...(data.session?.access_token ? { Authorization: `Bearer ${data.session.access_token}` } : {}),
+  };
 }

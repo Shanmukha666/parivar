@@ -30,9 +30,9 @@ logger = logging.getLogger(__name__)
 MAX_TOOL_LOOPS = 5  # Prevent infinite tool-calling loops
 
 
-def _build_system_prompt(session: Session, trade_name: str = "Not selected") -> str:
+def _build_system_prompt(session: Session, trade_name: str, tool_results: Dict[str, Any] = None) -> str:
     """Build the system prompt with session context."""
-    return SYSTEM_PROMPT.format(
+    prompt = SYSTEM_PROMPT.format(
         lang=session.lang or "en",
         state=session.state or "Unknown",
         district=session.district or "Unknown",
@@ -40,15 +40,20 @@ def _build_system_prompt(session: Session, trade_name: str = "Not selected") -> 
         income_bracket=session.income_bracket or "Unknown",
         trade=trade_name,
     )
+    if tool_results:
+        prompt += f"\n\nVERIFIED_DATA:\n{json.dumps(tool_results, default=str)}"
+    return prompt
 
 
 async def _get_conversation_history(
-    session_id: str, db: AsyncSession, limit: int = 20
+    session_id: Any, db: AsyncSession, limit: int = 20
 ) -> List[dict]:
     """Retrieve recent conversation history for the session."""
+    import uuid
+    sid = uuid.UUID(str(session_id)) if not isinstance(session_id, uuid.UUID) else session_id
     stmt = (
         select(Message)
-        .where(Message.session_id == session_id)
+        .where(Message.session_id == sid)
         .order_by(Message.created_at.desc())
         .limit(limit)
     )
@@ -81,8 +86,11 @@ async def _call_llm_with_tools(
     """
     key = api_key or os.getenv("ANTHROPIC_API_KEY")
 
+    if not key and os.getenv("DEMO_MODE", "false").lower() != "true":
+        raise RuntimeError("LLM provider is not configured")
+
     if not key:
-        # Mock LLM for hackathon demo
+        # Explicitly opt-in demo mode only.
         return _mock_llm_response(messages, tool_results_all)
 
     import anthropic
@@ -329,12 +337,14 @@ async def handle_turn(
     Flow (PRD 3.2):
     1. Store message
     2. Run classifier (async)
-    3. Build system prompt with profile
-    4. Call LLM with tools
-    5-6. Execute tool calls, loop
-    7. Validate numbers
-    8. Check escalation triggers
-    9. Return response
+    3. Get trade name for prompt
+    4. Pre-fetch relevant tool data based on classification
+    5. Build system prompt with profile and data
+    6. Call LLM with tools
+    7. Execute tool calls, loop
+    8. Validate numbers
+    9. Check escalation triggers
+    10. Return response
     """
 
     # ── Step 1: Store incoming message ──
@@ -362,8 +372,6 @@ async def handle_turn(
         if trade:
             trade_name = trade.name_en
 
-    system_prompt = _build_system_prompt(session, trade_name)
-
     # ── Step 4: Build message history ──
     history = await _get_conversation_history(str(session.id), db)
 
@@ -375,27 +383,29 @@ async def handle_turn(
         from app.core.tools import get_outcomes, get_pathway, get_story, find_providers, get_schemes
 
         outcomes = await get_outcomes(
-            session.selected_trade_id, session.state or "", db, session.district
+            session.selected_trade_id, session.state or "", db=db, district=session.district
         )
         tool_results_all["outcomes"] = outcomes
 
-        pathway = await get_pathway(session.selected_trade_id, db)
+        pathway = await get_pathway(session.selected_trade_id, db=db)
         tool_results_all["pathway"] = pathway
 
         story_result = await get_story(
-            session.selected_trade_id, db, session.district
+            session.selected_trade_id, db=db, district=session.district
         )
         tool_results_all["story"] = story_result
 
         providers = await find_providers(
-            session.selected_trade_id, session.state or "", db, session.district
+            session.selected_trade_id, session.state or "", db=db, district=session.district
         )
         tool_results_all["providers"] = providers
 
         schemes_result = await get_schemes(
-            session.state or "", db, session.income_bracket
+            session.state or "", db=db, income_bracket=session.income_bracket
         )
         tool_results_all["schemes"] = schemes_result
+
+    system_prompt = _build_system_prompt(session, trade_name, tool_results_all)
 
     # ── Steps 4-6: Call LLM with tool-calling loop ──
     llm_response = await _call_llm_with_tools(

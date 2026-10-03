@@ -16,6 +16,7 @@ logger = logging.getLogger(__name__)
 async def get_outcomes(
     trade_id: int,
     state: str,
+    *,
     db: AsyncSession,
     district: Optional[str] = None,
 ) -> Dict[str, Any]:
@@ -81,7 +82,7 @@ async def get_outcomes(
     }
 
 
-async def get_pathway(trade_id: int, db: AsyncSession) -> Dict[str, Any]:
+async def get_pathway(trade_id: int, *, db: AsyncSession) -> Dict[str, Any]:
     """Get career ladder with NSQF levels, further education and typical roles."""
     stmt = (
         select(Pathway)
@@ -122,6 +123,7 @@ async def get_pathway(trade_id: int, db: AsyncSession) -> Dict[str, Any]:
 async def find_providers(
     trade_id: int,
     state: str,
+    *,
     db: AsyncSession,
     district: Optional[str] = None,
 ) -> Dict[str, Any]:
@@ -193,6 +195,7 @@ async def find_providers(
 
 async def get_schemes(
     state: str,
+    *,
     db: AsyncSession,
     income_bracket: Optional[str] = None,
     trade_id: Optional[int] = None,
@@ -233,6 +236,7 @@ async def get_schemes(
 
 async def get_story(
     trade_id: int,
+    *,
     db: AsyncSession,
     district: Optional[str] = None,
 ) -> Dict[str, Any]:
@@ -268,6 +272,7 @@ async def get_story(
 async def recommend_trades(
     interests: List[str],
     state: str,
+    *,
     db: AsyncSession,
     learner_class: Optional[str] = None,
     district: Optional[str] = None,
@@ -344,6 +349,17 @@ async def recommend_trades(
         ],
     }
 
+async def escalate_to_human(
+    reason: str,
+    *,
+    db: AsyncSession,
+) -> Dict[str, Any]:
+    return {
+        "found": True,
+        "tool_result_id": "escalate_to_human",
+        "escalated": True,
+        "reason": reason
+    }
 
 # ── Tool dispatcher ────────────────────────────────────────────────────
 
@@ -354,6 +370,7 @@ TOOL_FUNCTIONS = {
     "get_schemes": get_schemes,
     "get_story": get_story,
     "recommend_trades": recommend_trades,
+    "escalate_to_human": escalate_to_human,
 }
 
 
@@ -401,6 +418,10 @@ async def execute_tool(
             "state": tool_input.get("state"),
             "learner_class": tool_input.get("learner_class"),
             "district": tool_input.get("district"),
+        })
+    elif tool_name == "escalate_to_human":
+        kwargs.update({
+            "reason": tool_input.get("reason"),
         })
 
     try:

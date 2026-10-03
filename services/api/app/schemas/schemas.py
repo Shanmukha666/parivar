@@ -1,15 +1,20 @@
-from pydantic import BaseModel, UUID4
-from typing import List, Optional, Any, Dict
+from pydantic import BaseModel, UUID4, Field
+from typing import List, Optional, Any, Dict, Literal
 from datetime import datetime
+import re
 
 class SessionCreate(BaseModel):
-    lang: str
-    state: str
-    district: str
-    user_role: str
-    learner_class: str
-    income_bracket: str
-    consent: bool
+    lang: Literal["en", "hi", "te"]
+    state: str = Field(..., min_length=2, max_length=40)
+    district: str = Field(..., min_length=2, max_length=40)
+    user_role: Literal["learner", "parent", "both"]
+    learner_class: str = Field(..., min_length=1, max_length=30)
+    income_bracket: str = Field(..., min_length=1, max_length=30)
+    consent: Literal[True]
+    selected_trade_id: Optional[int] = None
+
+class SessionUpdate(BaseModel):
+    selected_trade_id: int = Field(..., gt=0)
 
 class SessionResponse(BaseModel):
     id: UUID4
@@ -20,12 +25,13 @@ class SessionResponse(BaseModel):
     learner_class: str
     income_bracket: str
     created_at: datetime
+    selected_trade_id: Optional[int] = None
 
 class ChatRequest(BaseModel):
     session_id: UUID4
-    speaker: str
-    text: str
-    lang: str
+    speaker: Literal["learner", "parent"]
+    text: str = Field(..., min_length=1, max_length=1000)
+    lang: Literal["en", "hi", "te"]
 
 class ChatResponse(BaseModel):
     reply: str
@@ -56,14 +62,17 @@ class SchemeResponse(BaseModel):
 
 class EscalationCreate(BaseModel):
     session_id: UUID4
-    reason: str
-    callback_phone: Optional[str] = None
-    callback_slot: Optional[str] = None
+    reason: str = Field(..., max_length=1000)
+    callback_phone: Optional[str] = Field(None, pattern=r"^[6-9][0-9]{9}$")
+    callback_slot: Optional[str] = Field(None, max_length=80)
 
 class EscalationResponse(BaseModel):
     id: int
     session_id: UUID4
     status: str
+
+class TicketResolution(BaseModel):
+    resolution_note: str = Field("Resolved via counsellor consultation", max_length=2000)
 
 class AdminMetrics(BaseModel):
     total_sessions: int

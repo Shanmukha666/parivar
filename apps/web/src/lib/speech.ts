@@ -32,3 +32,5 @@ export function stopSpeaking() {
     window.speechSynthesis.cancel();
   }
 }
+
+export { speakText as speak };

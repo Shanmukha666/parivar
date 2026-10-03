@@ -1,0 +1,7 @@
+{
+  "iti": { "term": "ITI", "telugu": "ఐటీఐ", "usage": "Keep the acronym; explain it as industrial training institute on first mention." },
+  "nsqf": { "term": "NSQF", "telugu": "ఎన్‌ఎస్‌క్యూఎఫ్", "usage": "Use with a short progression explanation." },
+  "placement": { "term": "placement", "telugu": "ఉద్యోగం పొందిన వారి శాతం", "usage": "Prefer the plain-language phrase for parents." },
+  "apprenticeship": { "term": "apprenticeship", "telugu": "అప్రెంటిస్ శిక్షణ", "usage": "Explain as paid or supervised workplace learning only when verified." },
+  "counsellor": { "term": "counsellor", "telugu": "కెరీర్ సలహాదారు", "usage": "Use for human support, not as a synonym for the AI assistant." }
+}

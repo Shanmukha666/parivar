@@ -1,7 +1,8 @@
 'use client';
 
 import { useState, useEffect, useRef } from 'react';
-import { fetchCounsellorQueue, acceptTicket, resolveTicket } from '../../../lib/api';
+import { fetchCounsellorQueue, acceptTicket, resolveTicket, fetchSessionMessages, sendCounsellorMessage } from '../../../lib/api';
+import { supabase } from '../../../lib/supabase';
 import { CheckCircle2, Phone, AlertCircle, Clock, Send, User, MapPin } from 'lucide-react';
 
 interface QueueItem {
@@ -47,45 +48,8 @@ export default function CounsellorDashboard() {
         setSelectedTicket(data[0]);
       }
     } catch (e) {
-      // Fallback mock queue for demonstration if backend is not yet populated
-      const mockQueue: QueueItem[] = [
-        {
-          id: 1,
-          session_id: '00000000-0000-0000-0000-000000000001',
-          reason: 'Parent has severe status doubts regarding vocational degree equivalence',
-          summary: 'Family Profile: Warangal, Class 10 Pass, ₹1-3L income.\nTrade: Electrician.\nObjection: Father insisted college degree is superior.\nCurrent Status: AI explained lateral entry to polytechnic, but parent requested counsellor reassurance.',
-          status: 'queued',
-          created_at: new Date().toISOString(),
-          callback_phone: '9876543210',
-          family_profile: {
-            district: 'Warangal',
-            state: 'Telangana',
-            role: 'both',
-            learner_class: 'Class 10 Pass',
-            income_bracket: '₹1 - 3 Lakhs',
-            trade_name: 'Electrician'
-          }
-        },
-        {
-          id: 2,
-          session_id: '00000000-0000-0000-0000-000000000002',
-          reason: 'Parent worry about high training costs and private debt',
-          summary: 'Family in Gwalior seeking fee assistance for CNC Operator course.',
-          status: 'active',
-          created_at: new Date().toISOString(),
-          callback_phone: '9845012345',
-          family_profile: {
-            district: 'Gwalior',
-            state: 'Madhya Pradesh',
-            role: 'parent',
-            learner_class: 'Class 10 Pass',
-            income_bracket: 'Below ₹1 Lakh',
-            trade_name: 'CNC Operator'
-          }
-        }
-      ];
-      setQueue(mockQueue);
-      if (!selectedTicket) setSelectedTicket(mockQueue[0]);
+      setQueue([]);
+      setSelectedTicket(null);
     } finally {
       setLoading(false);
     }
@@ -97,51 +61,85 @@ export default function CounsellorDashboard() {
     return () => clearInterval(interval);
   }, []);
 
-  // Connect WebSocket when selected ticket changes
+  // Load live messages and subscribe via Supabase Realtime
   useEffect(() => {
-    if (!selectedTicket) return;
+    if (!selectedTicket?.session_id) return;
 
-    if (wsRef.current) {
-      wsRef.current.close();
-    }
-
-    try {
-      const ws = new WebSocket(`ws://localhost:8000/ws/session/${selectedTicket.session_id}`);
-      wsRef.current = ws;
-
-      ws.onmessage = (event) => {
-        try {
-          const msg = JSON.parse(event.data);
-          setChatMessages((prev) => [...prev, msg]);
-        } catch (e) {
-          setChatMessages((prev) => [...prev, { speaker: 'family', text: event.data }]);
+    // 1. Initial fetch of session messages
+    fetchSessionMessages(selectedTicket.session_id)
+      .then((msgs) => {
+        if (Array.isArray(msgs)) {
+          setChatMessages(msgs.map((m: any) => ({
+            speaker: m.speaker,
+            text: m.text,
+            timestamp: m.created_at,
+          })));
         }
-      };
+      })
+      .catch(() => {});
 
-      // Set initial sample chat transcript
-      setChatMessages([
-        { speaker: 'learner', text: 'I really want to take the Electrician course, but my father is hesitant.' },
-        { speaker: 'parent', text: 'We worried people will think he could not get into a real college.' },
-        { speaker: 'ai', text: 'In Warangal, 78% of electrician graduates get placed with average starting pay of ₹16,500.' }
-      ]);
+    // 2. Realtime channel subscription
+    let channel: any = null;
+    try {
+      if (supabase) {
+        channel = supabase
+          .channel(`session-${selectedTicket.session_id}`)
+          .on(
+            'postgres_changes',
+            {
+              event: 'INSERT',
+              schema: 'public',
+              table: 'messages',
+              filter: `session_id=eq.${selectedTicket.session_id}`,
+            },
+            (payload) => {
+              const newMsg = payload.new as any;
+              setChatMessages((prev) => {
+                if (prev.some((m) => m.text === newMsg.text && m.speaker === newMsg.speaker)) {
+                  return prev;
+                }
+                return [...prev, { speaker: newMsg.speaker, text: newMsg.text, timestamp: newMsg.created_at }];
+              });
+            }
+          )
+          .subscribe();
+      }
     } catch (e) {
-      console.error(e);
+      console.error('Realtime subscription error:', e);
     }
+
+    // 3. Fallback polling interval every 5 seconds
+    const pollInterval = setInterval(() => {
+      fetchSessionMessages(selectedTicket.session_id)
+        .then((msgs) => {
+          if (Array.isArray(msgs)) {
+            setChatMessages(msgs.map((m: any) => ({
+              speaker: m.speaker,
+              text: m.text,
+              timestamp: m.created_at,
+            })));
+          }
+        })
+        .catch(() => {});
+    }, 5000);
 
     return () => {
-      if (wsRef.current) wsRef.current.close();
+      clearInterval(pollInterval);
+      if (channel && supabase) {
+        supabase.removeChannel(channel);
+      }
     };
-  }, [selectedTicket?.id]);
+  }, [selectedTicket?.session_id]);
 
   const handleAccept = async (id: number) => {
     try {
       await acceptTicket(id);
       loadQueue();
       if (selectedTicket) {
-        setSelectedTicket({ ...selectedTicket, status: 'active' });
+        setSelectedTicket({ ...selectedTicket, status: 'assigned' });
       }
     } catch (e) {
-      if (selectedTicket) setSelectedTicket({ ...selectedTicket, status: 'active' });
+      if (selectedTicket) setSelectedTicket({ ...selectedTicket, status: 'assigned' });
     }
   };
 
@@ -157,16 +155,23 @@ export default function CounsellorDashboard() {
     }
   };
 
-  const sendLiveMessage = () => {
-    if (!chatInput.trim() || !wsRef.current) return;
-    const msgObj = { speaker: 'counsellor', text: chatInput };
-    try {
-      wsRef.current.send(JSON.stringify(msgObj));
-    } catch (e) {
-      // Local fallback
-    }
-    setChatMessages((prev) => [...prev, msgObj]);
+  const sendLiveMessage = async () => {
+    if (!chatInput.trim() || !selectedTicket) return;
+    const textToSend = chatInput.trim();
     setChatInput('');
+
+    const optimisticMsg: ChatMessage = {
+      speaker: 'counsellor',
+      text: textToSend,
+      timestamp: new Date().toISOString(),
+    };
+    setChatMessages((prev) => [...prev, optimisticMsg]);
+
+    try {
+      await sendCounsellorMessage(selectedTicket.session_id, textToSend);
+    } catch (e) {
+      console.error('Failed to send counsellor message', e);
+    }
   };
 
   return (
@@ -292,7 +297,7 @@ export default function CounsellorDashboard() {
                   </h3>
                   <div className="bg-amber-50 border border-amber-200 p-4 rounded-xl text-xs text-amber-900 space-y-1.5">
                     <p>• <strong>Emphasize progression:</strong> Explain how ITI graduates enter polytechnic diploma laterally without repeating 11th/12th.</p>
-                    <p>• <strong>Share local proof:</strong> Cite 78% placement in {selectedTicket.family_profile?.district || 'district'} with average ₹16,500 starting pay.</p>
+                    <p>• <strong>Share local proof:</strong> Open the source card shown to the family and repeat only its displayed figures and demo/verification label.</p>
                     <p>• <strong>Financial reassurance:</strong> Remind them that PMKVY/ITI courses have zero tuition fee for low-income brackets.</p>
                   </div>
                 </div>

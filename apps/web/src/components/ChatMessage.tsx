@@ -2,13 +2,14 @@
 
 import SourceBadge from './SourceBadge';
 import TextToSpeech from './TextToSpeech';
+import type { Source } from '../lib/types';
 
 interface ChatMessageProps {
   message: {
     id: string;
     speaker: 'learner' | 'parent' | 'ai' | 'counsellor' | string;
     content: string;
-    citations?: string[];
+    citations?: Array<string | Source>;
   };
 }
 

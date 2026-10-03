@@ -39,10 +39,12 @@ export default function TradesPage() {
   const { language, profile, setSelectedTrade } = useStore();
   const [trades, setTrades] = useState<TradeItem[]>([]);
   const [loading, setLoading] = useState(true);
+  const [loadError, setLoadError] = useState(false);
 
   useEffect(() => {
     async function loadTrades() {
       try {
+        setLoadError(false);
         const interestsStr = (profile.interests || []).join(',');
         const data = await fetchTrades(profile.district, interestsStr, profile.state);
         if (data && data.length > 0) {
@@ -51,51 +53,8 @@ export default function TradesPage() {
           throw new Error('No trades returned');
         }
       } catch (e) {
-        // Fallback realistic list
-        setTrades([
-          {
-            id: 1,
-            name_en: 'Electrician',
-            sector: 'Electrical',
-            nsqf_level: 4,
-            duration_months: 24,
-            entry_qualification: 'Class 10 Pass',
-            description_simple: {
-              en: 'Install and repair domestic & industrial wiring and motors',
-              hi: 'बिजली की वायरिंग और मशीनों की मरम्मत करना',
-              te: 'విద్యుత్ వైరింగ్ మరియు యంత్రాలను మరమ్మతు చేయడం',
-            },
-            job_roles: ['House Wireman', 'Industrial Electrician', 'Maintenance Tech'],
-          },
-          {
-            id: 6,
-            name_en: 'Solar Technician',
-            sector: 'Green Energy',
-            nsqf_level: 4,
-            duration_months: 12,
-            entry_qualification: 'Class 10 Pass',
-            description_simple: {
-              en: 'Install rooftop solar systems, batteries and inverters',
-              hi: 'छत पर सोलर पैनल और इन्वर्टर लगाना',
-              te: 'పైకప్పుపై సోలార్ ప్యానెల్స్ మరియు ఇన్వర్టర్ల ఏర్పాటు',
-            },
-            job_roles: ['Rooftop Installer', 'PV Maintenance Tech'],
-          },
-          {
-            id: 7,
-            name_en: 'CNC Operator',
-            sector: 'Manufacturing',
-            nsqf_level: 4,
-            duration_months: 12,
-            entry_qualification: 'Class 10 Pass',
-            description_simple: {
-              en: 'Operate computer-controlled cutting and machining tools',
-              hi: 'कंप्यूटर से चलने वाली मशीनों को संचालित करना',
-              te: 'కంప్యూటర్ ఆధారిత యంత్రాలను నడపడం',
-            },
-            job_roles: ['CNC Milling Operator', 'Machinist'],
-          },
-        ]);
+        setTrades([]);
+        setLoadError(true);
       } finally {
         setLoading(false);
       }
@@ -117,7 +76,7 @@ export default function TradesPage() {
         <div>
           <h1 className="text-2xl font-black text-slate-900">Recommended Pathways</h1>
           <p className="text-xs text-slate-500">
-            Selected for {profile.district || 'Warangal'} based on {profile.classPassed || 'Class 10 Pass'}
+            Selected for {profile.district || 'Adilabad'} based on {profile.classPassed || 'Class 10 Pass'}
           </p>
         </div>
       </div>
@@ -128,8 +87,14 @@ export default function TradesPage() {
             <div key={i} className="h-36 bg-slate-200 animate-pulse rounded-2xl" />
           ))}
         </div>
+      ) : loadError ? (
+        <div className="rounded-2xl border border-red-200 bg-red-50 p-6 text-center text-red-800">
+          <p className="font-bold">Verified trade data is unavailable.</p>
+          <button onClick={() => window.location.reload()} className="mt-4 rounded-xl bg-red-700 px-4 py-3 font-bold text-white">Retry</button>
+        </div>
       ) : (
         <div className="space-y-3 flex-1 overflow-y-auto pb-6">
+          {trades.length === 0 && <p className="rounded-2xl border border-slate-200 bg-white p-6 text-center text-slate-600">Verified trade data is unavailable for this profile.</p>}
           {trades.map((trade) => {
             const icon = tradeIcons[trade.name_en] || '⚡';
             const localName = trade.name_local?.[language] || '';
@@ -167,11 +132,9 @@ export default function TradesPage() {
                 <p className="text-xs text-slate-600 mt-3 line-clamp-2">{desc}</p>
 
                 <div className="mt-3 pt-3 border-t border-slate-100 flex items-center justify-between text-xs">
-                  <span className="font-semibold text-slate-700">
-                    Typical Starting: <strong className="text-orange-600">₹15,000 - ₹20,000/mo</strong>
-                  </span>
-                  <span className="text-emerald-600 font-bold flex items-center gap-1">
-                    <ShieldCheck size={14} /> 78% Placement
+                  <span className="font-semibold text-slate-500">Select to view verified local outcomes</span>
+                  <span className="text-slate-500 font-bold flex items-center gap-1">
+                    <ShieldCheck size={14} /> Source shown on detail
                   </span>
                 </div>
               </div>

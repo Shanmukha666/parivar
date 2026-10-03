@@ -16,8 +16,13 @@ export interface ChatMessage {
 
 export interface Source {
   name: string;
-  year: string;
+  year?: string;
   verified: boolean;
+  is_synthetic?: boolean;
+  sample_size?: number;
+  scope?: string;
+  verified_on?: string | null;
+  evidence_url?: string | null;
 }
 
 export interface Trade {

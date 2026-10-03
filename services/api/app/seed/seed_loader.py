@@ -2,9 +2,13 @@ import csv
 import json
 import os
 import sys
+import uuid
 from datetime import datetime
 from sqlalchemy import create_engine, text
 from sqlalchemy.orm import sessionmaker
+
+if sys.platform == "win32":
+    sys.stdout.reconfigure(encoding="utf-8")
 
 # Ensure app package is in sys.path
 current_dir = os.path.dirname(os.path.abspath(__file__))
@@ -39,6 +43,16 @@ def parse_datetime(val):
         return None
     try:
         return datetime.fromisoformat(val)
+    except Exception:
+        return None
+
+def parse_uuid(val):
+    if not val or val == "":
+        return None
+    if isinstance(val, uuid.UUID):
+        return val
+    try:
+        return uuid.UUID(str(val))
     except Exception:
         return None
 
@@ -181,7 +195,7 @@ def load_data(db_url: str):
             reader = csv.DictReader(f)
             for r in reader:
                 sess = Session(
-                    id=r["id"],
+                    id=parse_uuid(r["id"]),
                     lang=r["lang"],
                     state=r["state"],
                     district=r["district"],
@@ -202,7 +216,7 @@ def load_data(db_url: str):
             for r in reader:
                 m = Message(
                     id=int(r["id"]),
-                    session_id=r["session_id"],
+                    session_id=parse_uuid(r["session_id"]),
                     speaker=r["speaker"],
                     text=r["text"],
                     lang=r["lang"],
@@ -232,7 +246,7 @@ def load_data(db_url: str):
             for r in reader:
                 e = Escalation(
                     id=int(r["id"]),
-                    session_id=r["session_id"],
+                    session_id=parse_uuid(r["session_id"]),
                     reason=r["reason"],
                     summary=r["summary"],
                     status=r["status"],
@@ -253,7 +267,7 @@ def load_data(db_url: str):
             for r in reader:
                 ev = Event(
                     id=int(r["id"]),
-                    session_id=r["session_id"],
+                    session_id=parse_uuid(r["session_id"]),
                     type=r["type"],
                     meta=parse_json(r["meta"]),
                     created_at=parse_datetime(r["created_at"])
@@ -266,10 +280,14 @@ def load_data(db_url: str):
         with open(os.path.join(current_dir, "users.csv"), encoding="utf-8") as f:
             reader = csv.DictReader(f)
             for r in reader:
+                pw = r["password_hash"]
+                if not pw.startswith(("$2a$", "$2b$", "$2y$")):
+                    raise ValueError(f"Refusing to seed plaintext or placeholder password for {r['email']}")
+                
                 u = User(
                     id=int(r["id"]),
                     email=r["email"],
-                    password_hash=r["password_hash"],
+                    password_hash=pw,
                     role=r["role"]
                 )
                 db.add(u)
@@ -286,5 +304,5 @@ def load_data(db_url: str):
         db.close()
 
 if __name__ == "__main__":
-    url = sys.argv[1] if len(sys.argv) > 1 else os.getenv("DATABASE_URL_SYNC", "postgresql://parivar:parivar_dev_2024@localhost:5432/parivar_path")
+    url = sys.argv[1] if len(sys.argv) > 1 else "sqlite:///C:/Users/SIREESHA DASARI/OneDrive/Desktop/Vocational/parivar-path/services/api/parivar.db"
     load_data(url)

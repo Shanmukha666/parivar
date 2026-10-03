@@ -38,33 +38,10 @@ export default function AdminDashboard() {
       const insData = await fetchAdminInsights(selectedState || undefined, selectedDistrict || undefined);
       setInsights(insData.insights || []);
     } catch (e) {
-      // Fallback mock metrics conforming to PRD specs
-      setMetrics({
-        total_sessions: 300,
-        avg_sentiment_shift: 0.32,
-        escalation_rate: 0.17,
-        total_summary_shares: 184,
-        objections: {
-          income: 76,
-          status: 68,
-          job_security: 54,
-          degree_pref: 45,
-          safety: 34,
-          cost: 23
-        },
-        funnel: {
-          sessions: 300,
-          trades_viewed: 255,
-          summary_shared: 184,
-          escalated: 51
-        },
-        heatmap: []
-      });
-      setInsights([
-        "Parental resistance in Warangal is primarily driven by social status concerns (68 sessions); deploy targeted localized video testimonials featuring local alumni.",
-        "The district resistance index peaks in Warangal and Gwalior with escalation rates exceeding 25%; equip local ITI counsellors with proactive callback toolkits.",
-        "Sessions where parents viewed the Family Summary Card showed an average sentiment shift of +0.32; prioritize WhatsApp card sharing early in family onboarding."
-      ]);
+      console.error('Failed to load dashboard data', e);
+      // No fallback mock data, just leave metrics empty
+      setMetrics(null);
+      setInsights([]);
     } finally {
       setLoading(false);
     }
@@ -115,8 +92,6 @@ export default function AdminDashboard() {
           >
             <option value="">All States</option>
             <option value="Telangana">Telangana</option>
-            <option value="Madhya Pradesh">Madhya Pradesh</option>
-            <option value="Rajasthan">Rajasthan</option>
           </select>
 
           {/* District Filter */}
@@ -128,24 +103,9 @@ export default function AdminDashboard() {
             <option value="">All Districts</option>
             {selectedState === 'Telangana' && (
               <>
-                <option value="Warangal">Warangal</option>
+                <option value="Adilabad">Adilabad</option>
                 <option value="Hyderabad">Hyderabad</option>
                 <option value="Karimnagar">Karimnagar</option>
-              </>
-            )}
-            {selectedState === 'Madhya Pradesh' && (
-              <>
-                <option value="Bhopal">Bhopal</option>
-                <option value="Indore">Indore</option>
-                <option value="Gwalior">Gwalior</option>
-                <option value="Jabalpur">Jabalpur</option>
-              </>
-            )}
-            {selectedState === 'Rajasthan' && (
-              <>
-                <option value="Jaipur">Jaipur</option>
-                <option value="Jodhpur">Jodhpur</option>
-                <option value="Udaipur">Udaipur</option>
               </>
             )}
           </select>
@@ -161,31 +121,37 @@ export default function AdminDashboard() {
         </div>
       </div>
 
+      {(!metrics && !loading) && (
+        <div className="bg-red-50 border border-red-200 text-red-700 p-4 rounded-2xl font-semibold">
+          Failed to load dashboard data. Please try again.
+        </div>
+      )}
+
       {/* KPI Row (PRD 1.6 & 7) */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         <KPICard
           title="Total Family Sessions"
-          value={metrics ? metrics.total_sessions.toString() : '300'}
-          trend="+18% vs last month"
-          good
+          value={metrics ? metrics.total_sessions.toString() : 'Unavailable'}
+          trend={metrics ? 'From recorded sessions' : 'No verified metrics loaded'}
+          good={Boolean(metrics)}
         />
         <KPICard
           title="Avg Sentiment Shift"
-          value={metrics ? `+${metrics.avg_sentiment_shift}` : '+0.32'}
-          trend="Target +0.3 met"
-          good
+          value={metrics?.avg_sentiment_shift != null ? `+${metrics.avg_sentiment_shift}` : 'Unavailable'}
+          trend={metrics ? 'Computed from parent messages' : 'No verified metrics loaded'}
+          good={Boolean(metrics)}
         />
         <KPICard
           title="Escalation Rate"
-          value={metrics ? `${Math.round(metrics.escalation_rate * 100)}%` : '17%'}
-          trend="51 cases escalated"
-          good={false}
+          value={metrics ? `${Math.round(metrics.escalation_rate * 100)}%` : 'Unavailable'}
+          trend={metrics ? 'From recorded escalations' : 'No verified metrics loaded'}
+          good={Boolean(metrics)}
         />
         <KPICard
           title="Summary Cards Shared"
-          value={metrics ? metrics.total_summary_shares.toString() : '184'}
-          trend="61% share rate"
-          good
+          value={metrics ? metrics.total_summary_shares.toString() : 'Unavailable'}
+          trend={metrics ? 'From recorded shares' : 'No verified metrics loaded'}
+          good={Boolean(metrics)}
         />
       </div>
 
