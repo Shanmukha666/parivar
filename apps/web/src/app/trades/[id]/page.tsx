@@ -8,6 +8,8 @@ import WhyThisNumber from '../../../components/WhyThisNumber';
 import { fetchTradeDetail, fetchTradeOutcomes, fetchTradePathway, fetchProviders, patchSession } from '../../../lib/api';
 import { useStore } from '../../../lib/store';
 import { formatCurrency, useTranslation } from '../../../lib/i18n';
+import { LoadingSpinner } from '../../../components/ui/LoadingSpinner';
+import { ErrorMessage } from '../../../components/ui/ErrorMessage';
 
 export default function TradeDetail({ params }: { params: { id: string } }) {
   const router = useRouter();
@@ -20,10 +22,12 @@ export default function TradeDetail({ params }: { params: { id: string } }) {
   const [pathway, setPathway] = useState<any>(null);
   const [providers, setProviders] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     async function loadData() {
       try {
+        setError(null);
         const [tr, out, pw, prov] = await Promise.all([
           fetchTradeDetail(tradeId).catch(() => null),
           fetchTradeOutcomes(tradeId, profile.district, profile.state).catch(() => null),
@@ -50,12 +54,37 @@ export default function TradeDetail({ params }: { params: { id: string } }) {
         setOutcomes(out);
         setPathway(pw);
         setProviders(prov);
+      } catch (err: any) {
+        setError(err.message || 'Failed to load trade data');
       } finally {
         setLoading(false);
       }
     }
     loadData();
-  }, [tradeId]);
+  }, [tradeId, profile.district, profile.state, sessionId, setSelectedTrade]);
+
+  if (loading) {
+    return (
+      <div className="flex flex-col min-h-screen bg-slate-50 max-w-xl mx-auto justify-center items-center">
+        <LoadingSpinner message="Loading verified trade details..." />
+      </div>
+    );
+  }
+
+  if (error || !trade) {
+    return (
+      <div className="flex flex-col min-h-screen bg-slate-50 max-w-xl mx-auto p-6">
+        <ErrorMessage 
+          title="Failed to Load Details"
+          message={error || 'Trade details are unavailable at the moment.'}
+          onRetry={() => window.location.reload()}
+        />
+        <button onClick={() => router.back()} className="mt-4 text-orange-600 font-bold hover:underline">
+          &larr; Go Back
+        </button>
+      </div>
+    );
+  }
 
   return (
     <div className="flex flex-col min-h-screen bg-slate-50 max-w-xl mx-auto">

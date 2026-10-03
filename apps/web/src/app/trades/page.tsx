@@ -5,7 +5,10 @@ import { useRouter } from 'next/navigation';
 import { fetchTrades } from '../../lib/api';
 import { useStore } from '../../lib/store';
 import ProgressDots from '../../components/ProgressDots';
-import { Sparkles, ArrowRight, ShieldCheck, Award } from 'lucide-react';
+import { Sparkles, ArrowRight, ShieldCheck } from 'lucide-react';
+import { LoadingSpinner } from '../../components/ui/LoadingSpinner';
+import { ErrorMessage } from '../../components/ui/ErrorMessage';
+import { EmptyState } from '../../components/ui/EmptyState';
 
 interface TradeItem {
   id: number;
@@ -50,7 +53,7 @@ export default function TradesPage() {
         if (data && data.length > 0) {
           setTrades(data);
         } else {
-          throw new Error('No trades returned');
+          setTrades([]);
         }
       } catch (e) {
         setTrades([]);
@@ -60,7 +63,7 @@ export default function TradesPage() {
       }
     }
     loadTrades();
-  }, [profile.district, profile.state]);
+  }, [profile.district, profile.state, profile.interests]);
 
   const handleSelectTrade = (trade: TradeItem) => {
     setSelectedTrade(trade.id, trade.name_en);
@@ -82,66 +85,73 @@ export default function TradesPage() {
       </div>
 
       {loading ? (
-        <div className="space-y-4 flex-1">
-          {[1, 2, 3].map((i) => (
-            <div key={i} className="h-36 bg-slate-200 animate-pulse rounded-2xl" />
-          ))}
+        <div className="flex-1 flex justify-center items-center">
+          <LoadingSpinner message="Finding verified pathways..." />
         </div>
       ) : loadError ? (
-        <div className="rounded-2xl border border-red-200 bg-red-50 p-6 text-center text-red-800">
-          <p className="font-bold">Verified trade data is unavailable.</p>
-          <button onClick={() => window.location.reload()} className="mt-4 rounded-xl bg-red-700 px-4 py-3 font-bold text-white">Retry</button>
-        </div>
+        <ErrorMessage 
+          title="Data Unavailable" 
+          message="Verified trade data is currently unavailable."
+          onRetry={() => window.location.reload()} 
+        />
       ) : (
         <div className="space-y-3 flex-1 overflow-y-auto pb-6">
-          {trades.length === 0 && <p className="rounded-2xl border border-slate-200 bg-white p-6 text-center text-slate-600">Verified trade data is unavailable for this profile.</p>}
-          {trades.map((trade) => {
-            const icon = tradeIcons[trade.name_en] || '⚡';
-            const localName = trade.name_local?.[language] || '';
-            const desc = trade.description_simple?.[language] || trade.description_simple?.en || '';
+          {trades.length === 0 ? (
+            <EmptyState 
+              title="No Pathways Found" 
+              description="Verified trade data is unavailable for this profile." 
+              icon={<ShieldCheck size={48} />}
+            />
+          ) : (
+            trades.map((trade) => {
+              const icon = tradeIcons[trade.name_en] || '⚡';
+              const localName = trade.name_local?.[language] || '';
+              const desc = trade.description_simple?.[language] || trade.description_simple?.en || '';
 
-            return (
-              <div
-                key={trade.id}
-                onClick={() => handleSelectTrade(trade)}
-                className="bg-white p-5 rounded-2xl border-2 border-slate-200 hover:border-orange-500 cursor-pointer shadow-sm hover:shadow-md transition-all group"
-              >
-                <div className="flex items-start justify-between">
-                  <div className="flex items-center gap-3">
-                    <span className="text-3xl p-2 bg-orange-50 rounded-xl group-hover:scale-110 transition-transform">
-                      {icon}
-                    </span>
-                    <div>
-                      <h2 className="text-lg font-black text-slate-900 group-hover:text-orange-600 transition-colors">
-                        {trade.name_en} {localName && <span className="text-sm font-semibold text-slate-500">({localName})</span>}
-                      </h2>
-                      <div className="flex items-center gap-2 mt-0.5 text-xs text-slate-500">
-                        <span>{trade.duration_months} Months</span>
-                        <span>•</span>
-                        <span>NSQF Level {trade.nsqf_level}</span>
-                        <span>•</span>
-                        <span className="text-emerald-700 font-semibold">High Demand</span>
+              return (
+                <div
+                  key={trade.id}
+                  onClick={() => handleSelectTrade(trade)}
+                  className="bg-white p-5 rounded-2xl border-2 border-slate-200 hover:border-orange-500 cursor-pointer shadow-sm hover:shadow-md transition-all group"
+                >
+                  <div className="flex items-start justify-between">
+                    <div className="flex items-center gap-3">
+                      <span className="text-3xl p-2 bg-orange-50 rounded-xl group-hover:scale-110 transition-transform">
+                        {icon}
+                      </span>
+                      <div>
+                        <h2 className="text-lg font-black text-slate-900 group-hover:text-orange-600 transition-colors">
+                          {trade.name_en} {localName && <span className="text-sm font-semibold text-slate-500">({localName})</span>}
+                        </h2>
+                        <div className="flex items-center gap-2 mt-0.5 text-xs text-slate-500">
+                          <span>{trade.duration_months} Months</span>
+                          <span>•</span>
+                          <span>NSQF Level {trade.nsqf_level}</span>
+                          <span>•</span>
+                          <span className="text-emerald-700 font-semibold">High Demand</span>
+                        </div>
                       </div>
                     </div>
+                    <div className="p-2 bg-slate-50 rounded-xl text-slate-400 group-hover:bg-orange-500 group-hover:text-white transition-all">
+                      <ArrowRight size={18} />
+                    </div>
                   </div>
-                  <div className="p-2 bg-slate-50 rounded-xl text-slate-400 group-hover:bg-orange-500 group-hover:text-white transition-all">
-                    <ArrowRight size={18} />
+
+                  <p className="text-xs text-slate-600 mt-3 line-clamp-2">{desc}</p>
+
+                  <div className="mt-3 pt-3 border-t border-slate-100 flex items-center justify-between text-xs">
+                    <span className="font-semibold text-slate-500">Select to view verified local outcomes</span>
+                    <span className="text-slate-500 font-bold flex items-center gap-1">
+                      <ShieldCheck size={14} /> Source shown on detail
+                    </span>
                   </div>
                 </div>
-
-                <p className="text-xs text-slate-600 mt-3 line-clamp-2">{desc}</p>
-
-                <div className="mt-3 pt-3 border-t border-slate-100 flex items-center justify-between text-xs">
-                  <span className="font-semibold text-slate-500">Select to view verified local outcomes</span>
-                  <span className="text-slate-500 font-bold flex items-center gap-1">
-                    <ShieldCheck size={14} /> Source shown on detail
-                  </span>
-                </div>
-              </div>
-            );
-          })}
+              );
+            })
+          )}
         </div>
       )}
     </div>
   );
 }
+

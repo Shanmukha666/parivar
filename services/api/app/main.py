@@ -6,8 +6,10 @@ import logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
+from typing import AsyncGenerator
+
 @asynccontextmanager
-async def lifespan(app: FastAPI):
+async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
     logger.info("Parivar Path API starting up...")
     yield
     logger.info("Parivar Path API shutting down...")
@@ -37,5 +39,5 @@ app.include_router(admin.router, prefix="/admin", tags=["admin"])
 app.include_router(summary.router, tags=["summary"])
 
 @app.get("/health")
-async def health_check():
+async def health_check() -> dict[str, str]:
     return {"status": "ok"}

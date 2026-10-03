@@ -1,7 +1,6 @@
 from pydantic import BaseModel, UUID4, Field, model_validator, field_validator
 from typing import List, Optional, Any, Dict, Literal
 from datetime import datetime
-import re
 
 class SessionCreate(BaseModel):
     lang: Literal["en", "hi", "te", "ta"]
@@ -64,16 +63,6 @@ class JointAnswerRequest(BaseModel):
             raise ValueError("answers cannot be blank")
         return value
 
-class TradeResponse(BaseModel):
-    id: int
-    name_en: str
-    sector: str
-
-class OutcomeResponse(BaseModel):
-    placement_rate: Optional[float]
-    avg_start_salary_inr: Optional[int]
-    sample_size: Optional[int]
-
 class MetricIngest(BaseModel):
     trade_id: int = Field(..., gt=0)
     provider_id: Optional[int] = Field(None, gt=0)
@@ -118,17 +107,6 @@ class MetricIngest(BaseModel):
         ):
             raise ValueError("percentage metrics must be between 0 and 100")
         return self
-
-class PathwayResponse(BaseModel):
-    steps: List[Dict[str, Any]]
-
-class ProviderResponse(BaseModel):
-    id: int
-    name: str
-
-class SchemeResponse(BaseModel):
-    id: int
-    name: str
 
 class EscalationCreate(BaseModel):
     session_id: UUID4

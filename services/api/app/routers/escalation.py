@@ -5,6 +5,9 @@ from typing import List, Dict
 import uuid
 import json
 from datetime import datetime
+import logging
+
+logger = logging.getLogger(__name__)
 
 from app.database import get_db, AsyncSessionLocal
 from app.schemas.schemas import EscalationCreate, EscalationResponse, TicketResolution
@@ -22,6 +25,7 @@ from app.core.supabase_auth import decode_token, to_user
 from app.core.rate_limit import enforce_rate_limit
 
 router = APIRouter()
+RATE_LIMIT_ESCALATION = 5
 
 # In-memory WebSocket connection manager for live family <-> counsellor chat
 class ConnectionManager:
@@ -47,14 +51,14 @@ class ConnectionManager:
             for connection in self.active_connections[session_id]:
                 try:
                     await connection.send_json(message_data)
-                except Exception:
-                    pass
+                except Exception as e:
+                    logger.warning(f"WebSocket broadcast failed: {e}")
 
 ws_manager = ConnectionManager()
 
 @router.post("/escalations", response_model=EscalationResponse)
 async def create_escalation_route(data: EscalationCreate, current_user=Depends(family_user), db: AsyncSession = Depends(get_db)):
-    enforce_rate_limit(f"escalation:{current_user.id}", 5)
+    enforce_rate_limit(f"escalation:{current_user.id}", RATE_LIMIT_ESCALATION)
     session_result = await db.execute(
         select(Session).where(Session.id == data.session_id, Session.owner_id == current_user.id)
     )
@@ -189,7 +193,8 @@ async def websocket_endpoint(websocket: WebSocket, id: uuid.UUID):
         return
     try:
         user = to_user(decode_token(token), token)
-    except Exception:
+    except Exception as e:
+        logger.warning(f"WebSocket token decode failed: {e}")
         await websocket.close(code=4401)
         return
 

@@ -12,11 +12,7 @@ from dataclasses import dataclass
 from typing import Any
 
 NUMBER_RE = re.compile(r"(?<![A-Za-z])(?:₹\s*)?(\d[\d,]*(?:\.\d+)?)")
-QUANTITATIVE_KEYS = {
-    "placement_rate", "starting_earnings", "earnings_after_period",
-    "self_employment_rate", "duration_months", "provider_statistic",
-    "nsqf_level",
-}
+
 EVIDENCE_CONFIDENCE_THRESHOLD = float(os.getenv("EVIDENCE_CONFIDENCE_THRESHOLD", "0.6"))
 
 

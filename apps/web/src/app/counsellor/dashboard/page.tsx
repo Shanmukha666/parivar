@@ -69,7 +69,7 @@ export default function CounsellorDashboard() {
     fetchSessionMessages(selectedTicket.session_id)
       .then((msgs) => {
         if (Array.isArray(msgs)) {
-          setChatMessages(msgs.map((m: any) => ({
+          setChatMessages(msgs.map((m: { speaker: string; text: string; created_at: string }) => ({
             speaker: m.speaker,
             text: m.text,
             timestamp: m.created_at,
@@ -79,7 +79,7 @@ export default function CounsellorDashboard() {
       .catch(() => {});
 
     // 2. Realtime channel subscription
-    let channel: any = null;
+    let channel: any = null; // Left as any because RealtimeChannel import might not be available easily without knowing Supabase version
     try {
       if (supabase) {
         channel = supabase
@@ -93,7 +93,7 @@ export default function CounsellorDashboard() {
               filter: `session_id=eq.${selectedTicket.session_id}`,
             },
             (payload) => {
-              const newMsg = payload.new as any;
+              const newMsg = payload.new as { speaker: string; text: string; created_at: string };
               setChatMessages((prev) => {
                 if (prev.some((m) => m.text === newMsg.text && m.speaker === newMsg.speaker)) {
                   return prev;
@@ -113,7 +113,7 @@ export default function CounsellorDashboard() {
       fetchSessionMessages(selectedTicket.session_id)
         .then((msgs) => {
           if (Array.isArray(msgs)) {
-            setChatMessages(msgs.map((m: any) => ({
+            setChatMessages(msgs.map((m: { speaker: string; text: string; created_at: string }) => ({
               speaker: m.speaker,
               text: m.text,
               timestamp: m.created_at,

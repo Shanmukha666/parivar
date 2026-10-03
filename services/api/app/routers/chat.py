@@ -14,9 +14,13 @@ from app.core.tools import get_outcomes
 
 router = APIRouter()
 
+RATE_LIMIT_SESSION = 10
+RATE_LIMIT_CHAT = 30
+RATE_LIMIT_JOINT = 20
+
 @router.post("/sessions", response_model=SessionResponse)
 async def create_session(session_data: SessionCreate, current_user=Depends(family_user), db: AsyncSession = Depends(get_db)):
-    enforce_rate_limit(f"session:{current_user.id}", 10)
+    enforce_rate_limit(f"session:{current_user.id}", RATE_LIMIT_SESSION)
     new_id = uuid.uuid4()
     session = Session(
         id=new_id,
@@ -53,7 +57,7 @@ async def update_session(id: uuid.UUID, session_data: SessionUpdate, current_use
 # TODO: Add rate limiting here
 @router.post("/chat", response_model=ChatResponse)
 async def send_message(chat_req: ChatRequest, current_user=Depends(family_user), db: AsyncSession = Depends(get_db)):
-    enforce_rate_limit(f"chat:{current_user.id}", 30)
+    enforce_rate_limit(f"chat:{current_user.id}", RATE_LIMIT_CHAT)
     stmt = select(Session).where(Session.id == chat_req.session_id, Session.owner_id == current_user.id)
     result = await db.execute(stmt)
     session = result.scalars().first()
@@ -71,7 +75,7 @@ async def submit_joint_answer(
     db: AsyncSession = Depends(get_db),
 ):
     """Collect private answers, compare only after both complete, and ground discussion."""
-    enforce_rate_limit(f"joint:{current_user.id}", 20)
+    enforce_rate_limit(f"joint:{current_user.id}", RATE_LIMIT_JOINT)
     result = await db.execute(
         select(Session).where(
             Session.id == answer_req.session_id,

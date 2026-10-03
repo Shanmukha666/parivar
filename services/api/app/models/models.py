@@ -1,5 +1,5 @@
-from sqlalchemy import Column, Integer, String, Boolean, Numeric, Date, ForeignKey, DateTime, BigInteger, Text, JSON, Uuid
-from sqlalchemy.dialects.postgresql import UUID as PG_UUID, JSONB as PG_JSONB
+from sqlalchemy import Column, Integer, Boolean, Numeric, Date, ForeignKey, DateTime, BigInteger, Text, JSON, Uuid
+from sqlalchemy.dialects.postgresql import JSONB as PG_JSONB
 import uuid
 from app.database import Base
 from sqlalchemy.sql import func
@@ -175,7 +175,7 @@ class MessageAnalysis(Base):
 class Escalation(Base):
     __tablename__ = "escalations"
     id = Column(Integer, primary_key=True, index=True)
-    session_id = Column(UniversalUUID)
+    session_id = Column(UniversalUUID, index=True)
     reason = Column(Text)
     concern_category = Column(Text)
     summary = Column(Text)

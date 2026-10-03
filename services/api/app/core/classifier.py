@@ -17,41 +17,6 @@ logger = logging.getLogger(__name__)
 
 import re
 
-# ── Keyword-based fallback classifier ──────────────────────────────────
-
-OBJECTION_KEYWORDS = {
-    "income": [
-        "salary", "earn", "money", "income", "paisa", "kamai", "rupee", "₹",
-        "kitna milega", "salary kitni", "tankhah", "jeetha", "sambhaadane",
-        "वेतन", "कमाई", "पैसे", "జీతం", "డబ్బు", "சம்பளம்", "வருமானம்", "பணம்"
-    ],
-    "safety": [
-        "safe", "danger", "injury", "accident", "risk", "suraksha", "khatrnak",
-        "chot", "surakshit", "bhayam", "praman", "सुरक्षा", "खतरा", "భద్రత", "ప్రమాదం",
-        "பாதுகாப்பு", "ஆபத்து", "காயம்"
-    ],
-    "status": [
-        "respect", "izzat", "status", "log kya kahenge", "relatives",
-        "society", "shame", "samaj", "gauravam", "pratishtita", "इज़्ज़त", "समाज", "గౌరవం",
-        "மரியாதை", "அந்தஸ்து", "கௌரவம்"
-    ],
-    "job_security": [
-        "job milegi", "naukri", "employment", "permanent", "stable", "placement",
-        "udyogam", "kaam", "rozgaar", "नौकरी", "रोजगार", "प्लेसमेंट", "ఉద్యోగం", "ప్లేస్‌మెంట్",
-        "வேலை", "நிரந்தர வேலை", "தொழில்", "வேலைவாய்ப்பு"
-    ],
-    "degree_pref": [
-        "degree", "college", "university", "b.tech", "engineering",
-        "graduation", "padhai", "digri", "ba", "bsc", "bcom", "डिग्री", "कॉलेज", "డిగ్రీ",
-        "பட்டப்படிப்பு", "கல்லூரி", "டிப்ளமோ"
-    ],
-    "cost": [
-        "cost", "fee", "fees", "expensive", "afford", "kharcha", "fees kitni",
-        "meeda", "kharchalu", "paisa lagega", "खर्चा", "फीस", "ఫీజు", "ఖర్చు",
-        "கட்டணம்", "செலவு", "பணம் தேவை"
-    ],
-}
-
 CONCERN_CATEGORIES = (
     "income_potential",
     "job_security",
@@ -121,8 +86,14 @@ HIGH_INTENSITY_MARKERS = (
     "மிகவும் பயமாக", "அவசரம்", "கிடைக்குமா",
 )
 
+# ── Keyword-based fallback classifier ──────────────────────────────────
+
 def _contains(text: str, phrase: str) -> bool:
-    return phrase.lower() in text.lower()
+    text_lower = text.lower()
+    phrase_lower = phrase.lower()
+    if not phrase_lower.isascii():
+        return phrase_lower in text_lower
+    return bool(re.search(r'\b' + re.escape(phrase_lower) + r'\b', text_lower))
 
 
 def classify_concerns(text: str, speaker: str = "parent") -> dict:
@@ -177,32 +148,22 @@ def _keyword_classify(text: str, speaker: str) -> dict:
     """Fallback keyword-based classifier."""
     text_lower = text.lower()
 
-    def has_match(word_list, text):
-        for w in word_list:
-            if not w.isascii():
-                if w in text:
-                    return True
-            else:
-                if re.search(r'\b' + re.escape(w) + r'\b', text):
-                    return True
-        return False
-
     def count_matches(word_list, text):
-        cnt = 0
-        for w in word_list:
-            if not w.isascii():
-                if w in text:
-                    cnt += 1
-            else:
-                if re.search(r'\b' + re.escape(w) + r'\b', text):
-                    cnt += 1
-        return cnt
+        return sum(1 for w in word_list if _contains(text, w))
 
     # Detect objection category
     category = "none"
-    for cat, keywords in OBJECTION_KEYWORDS.items():
-        if has_match(keywords, text_lower):
-            category = cat
+    objection_map = {
+        "income_potential": "income",
+        "safety": "safety",
+        "social_perception_status": "status",
+        "job_security": "job_security",
+        "further_education": "degree_pref",
+        "family_affordability": "cost",
+    }
+    for concern_cat, obj_cat in objection_map.items():
+        if any(_contains(text_lower, w) for w in CONCERN_KEYWORDS[concern_cat]):
+            category = obj_cat
             break
 
     # Sentiment scoring
@@ -224,9 +185,9 @@ def _keyword_classify(text: str, speaker: str) -> dict:
 
     # Intent detection
     intent = "other"
-    if has_match(REQUEST_HUMAN_WORDS, text_lower):
+    if any(_contains(text_lower, w) for w in REQUEST_HUMAN_WORDS):
         intent = "request_human"
-    elif has_match(SENSITIVE_WORDS, text_lower):
+    elif any(_contains(text_lower, w) for w in SENSITIVE_WORDS):
         intent = "request_human"
     elif category != "none":
         if sentiment < -0.2:

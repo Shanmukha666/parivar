@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends, Query, Response
 from fastapi.responses import PlainTextResponse
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy import select, func, and_, or_, distinct
+from sqlalchemy import select, func, and_, distinct
 from typing import Optional, Dict, Any, List
 import io
 import csv
@@ -11,9 +11,13 @@ from app.database import get_db
 from app.models.models import Session, Message, MessageAnalysis, Escalation, Event, Trade
 from app.core.prompts import ADMIN_INSIGHT_PROMPT
 from app.routers.auth import require_role
-import os
+import logging
+logger = logging.getLogger(__name__)
 
 router = APIRouter(dependencies=[Depends(require_role(["admin"]))])
+
+MIN_SESSIONS_INSIGHTS = 30
+MIN_SESSIONS_HEATMAP = 10
 
 @router.get("/metrics")
 async def get_metrics(
@@ -94,13 +98,13 @@ async def get_metrics(
         d_sess_stmt = select(func.count(Session.id)).where(Session.district == d_name)
         d_sess = (await db.execute(d_sess_stmt)).scalar() or 0
 
-        if d_sess < 10:
+        if d_sess < MIN_SESSIONS_HEATMAP:
             district_heatmap.append({
                 "district": d_name,
                 "state": s_name,
                 "session_count": d_sess,
                 "resistance_index": None,
-                "note": "Sample too small (< 10 sessions)"
+                "note": f"Sample too small (< {MIN_SESSIONS_HEATMAP} sessions)"
             })
             continue
 
@@ -209,16 +213,17 @@ async def get_insights(
             )
             text = response.content[0].text
             insights = [line.strip().strip("-*123. ") for line in text.split("\n") if line.strip()]
-            return {"insights": insights[:3], "weak_signal": metrics.get("total_sessions", 0) < 30}
-        except Exception:
+            return {"insights": insights[:3], "weak_signal": metrics.get("total_sessions", 0) < MIN_SESSIONS_INSIGHTS}
+        except Exception as e:
+            logger.warning(f"LLM insights generation failed: {e}")
             pass
 
     # Fallback basic logic
     total_sess = metrics.get("total_sessions", 0)
-    weak_signal = total_sess < 30
+    weak_signal = total_sess < MIN_SESSIONS_INSIGHTS
     objections = metrics.get("objections", {})
     top_obj = max(objections.items(), key=lambda x: x[1])[0] if objections else "status"
-    prefix = "Signal is weak due to small sample size (<30). " if weak_signal else ""
+    prefix = f"Signal is weak due to small sample size (<{MIN_SESSIONS_INSIGHTS}). " if weak_signal else ""
     
     top_district = "your district"
     highest_esc = 0
