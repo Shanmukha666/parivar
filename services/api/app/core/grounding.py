@@ -72,6 +72,7 @@ def validate_reply(reply: str, tool_results: dict[str, Any]) -> tuple[bool, list
         value = record.get("value", record.get("metric_value"))
         if isinstance(value, (int, float)):
             allowed.add(float(value))
+            allowed.add(float(round(value)))
         elif isinstance(value, str):
             allowed.update(float(n.replace(",", "")) for n in NUMBER_RE.findall(value))
         if record.get("year"):
