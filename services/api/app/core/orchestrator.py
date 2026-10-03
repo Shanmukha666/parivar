@@ -46,10 +46,23 @@ def _build_system_prompt(session: Session, trade_name: str, tool_results: Dict[s
     return prompt
 
 
+import re
+
+_EMAIL_RE = re.compile(r"[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}")
+_PHONE_RE = re.compile(r"\b[6-9]\d{9}\b")
+
+def redact_personal_data(text: str) -> str:
+    """Mask email addresses and Indian 10-digit mobile numbers."""
+    if not text:
+        return text
+    text = _EMAIL_RE.sub("[email protected]", text)
+    text = _PHONE_RE.sub("[phone protected]", text)
+    return text
+
 async def _get_conversation_history(
     session_id: Any, db: AsyncSession, limit: int = 20
 ) -> List[dict]:
-    """Retrieve recent conversation history for the session."""
+    """Retrieve recent conversation history for the session with PII masked."""
     import uuid
     sid = uuid.UUID(str(session_id)) if not isinstance(session_id, uuid.UUID) else session_id
     stmt = (
@@ -69,7 +82,7 @@ async def _get_conversation_history(
             label = "Parent" if msg.speaker == "parent" else "Learner"
             history.append({
                 "role": "user",
-                "content": f"[{label}]: {msg.text}",
+                "content": f"[{label}]: {redact_personal_data(msg.text)}",
             })
     return history
 

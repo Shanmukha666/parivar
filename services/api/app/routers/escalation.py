@@ -189,7 +189,7 @@ async def websocket_endpoint(websocket: WebSocket, id: uuid.UUID):
         return
     try:
         user = to_user(decode_token(token), token)
-    except HTTPException:
+    except Exception:
         await websocket.close(code=4401)
         return
 
@@ -199,9 +199,20 @@ async def websocket_endpoint(websocket: WebSocket, id: uuid.UUID):
         if not session:
             await websocket.close(code=4404)
             return
-        if user.role == "family" and str(session.owner_id) != user.id:
+        if user.role == "family" and str(session.owner_id) != str(user.id):
             await websocket.close(code=4403)
             return
+        if user.role == "counsellor":
+            esc_res = await db.execute(
+                select(Escalation).where(
+                    Escalation.session_id == id,
+                    Escalation.counsellor_id == user.id,
+                    Escalation.status.in_(["assigned", "contacted"]),
+                )
+            )
+            if esc_res.scalars().first() is None:
+                await websocket.close(code=4403)
+                return
         if user.role not in {"family", "counsellor", "admin"}:
             await websocket.close(code=4403)
             return
@@ -211,10 +222,21 @@ async def websocket_endpoint(websocket: WebSocket, id: uuid.UUID):
     try:
         while True:
             raw_data = await websocket.receive_text()
+            if len(raw_data) > 4096:
+                await websocket.send_json({"error": "Message exceeds maximum permitted size"})
+                continue
             try:
                 data = json.loads(raw_data)
             except Exception:
-                data = {"text": raw_data, "speaker": "unknown"}
+                data = {"text": raw_data}
+
+            # Enforce verified speaker identity based on authenticated user role
+            if user.role == "counsellor":
+                data["speaker"] = "counsellor"
+            elif user.role == "admin":
+                data["speaker"] = "admin"
+            else:
+                data["speaker"] = data.get("speaker") if data.get("speaker") in {"learner", "parent"} else "learner"
 
             data["timestamp"] = datetime.utcnow().isoformat()
             # Broadcast to all parties in this session (e.g. family and counsellor)

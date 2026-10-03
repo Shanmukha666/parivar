@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { createSupabaseServerClient } from '../../../lib/supabase-server';
+import { enforceRateLimit } from '../../../lib/rate-limit';
 
 const DISTRICTS = new Set(['Adilabad', 'Karimnagar', 'Hyderabad']);
 
@@ -7,6 +8,10 @@ export async function POST(request: Request) {
   const supabase = await createSupabaseServerClient();
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) return NextResponse.json({ error: 'Authentication required' }, { status: 401 });
+
+  if (!enforceRateLimit(`session:${user.id}`, 10)) {
+    return NextResponse.json({ error: 'Too many requests' }, { status: 429, headers: { 'Retry-After': '60' } });
+  }
 
   const body = await request.json();
   if (!['en', 'hi', 'te', 'ta'].includes(body.lang) || body.state !== 'Telangana' || !DISTRICTS.has(body.district) || body.consent !== true) {

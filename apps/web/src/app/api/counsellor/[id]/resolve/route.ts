@@ -26,12 +26,12 @@ export async function POST(
     })
     .eq('id', ticketId)
     .eq('counsellor_id', user.id)
-    .in('status', ['assigned', 'contacted'])
+    .eq('status', 'contacted')
     .select()
     .single();
 
-  if (error) {
-    return NextResponse.json({ error: error.message }, { status: 500 });
+  if (error || !data) {
+    return NextResponse.json({ error: error?.message || 'Ticket must be contacted before resolution' }, { status: error ? 500 : 409 });
   }
 
   return NextResponse.json(data);
