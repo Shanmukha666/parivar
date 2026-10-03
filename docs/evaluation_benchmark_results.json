@@ -1,0 +1,165 @@
+{
+  "summary": {
+    "total_cases": 60,
+    "overall_passed_cases": 60,
+    "overall_pass_rate_pct": 100.0,
+    "grounding_pass_rate_pct": 100.0,
+    "citation_correctness_pct": 100.0,
+    "numerical_accuracy_pct": 100.0,
+    "language_correctness_pct": 100.0,
+    "refusal_to_fabricate_pct": 100.0,
+    "escalation_correctness_pct": 100.0,
+    "concern_classification_pct": 100.0,
+    "response_relevance_pct": 100.0
+  },
+  "by_language": {
+    "en": {
+      "count": 22,
+      "passed": 22,
+      "pass_rate_pct": 100.0
+    },
+    "hi": {
+      "count": 16,
+      "passed": 16,
+      "pass_rate_pct": 100.0
+    },
+    "te": {
+      "count": 11,
+      "passed": 11,
+      "pass_rate_pct": 100.0
+    },
+    "ta": {
+      "count": 11,
+      "passed": 11,
+      "pass_rate_pct": 100.0
+    }
+  },
+  "by_category": {
+    "adversarial": {
+      "count": 4,
+      "passed": 4,
+      "pass_rate_pct": 100.0
+    },
+    "citation_correctness": {
+      "count": 1,
+      "passed": 1,
+      "pass_rate_pct": 100.0
+    },
+    "conflicting_data": {
+      "count": 3,
+      "passed": 3,
+      "pass_rate_pct": 100.0
+    },
+    "counsellor_escalation": {
+      "count": 5,
+      "passed": 5,
+      "pass_rate_pct": 100.0
+    },
+    "disagreement": {
+      "count": 3,
+      "passed": 3,
+      "pass_rate_pct": 100.0
+    },
+    "english": {
+      "count": 22,
+      "passed": 22,
+      "pass_rate_pct": 100.0
+    },
+    "fabricated_stats": {
+      "count": 3,
+      "passed": 3,
+      "pass_rate_pct": 100.0
+    },
+    "family_affordability": {
+      "count": 1,
+      "passed": 1,
+      "pass_rate_pct": 100.0
+    },
+    "further_study": {
+      "count": 4,
+      "passed": 4,
+      "pass_rate_pct": 100.0
+    },
+    "grounding": {
+      "count": 2,
+      "passed": 2,
+      "pass_rate_pct": 100.0
+    },
+    "hindi": {
+      "count": 16,
+      "passed": 16,
+      "pass_rate_pct": 100.0
+    },
+    "income": {
+      "count": 7,
+      "passed": 7,
+      "pass_rate_pct": 100.0
+    },
+    "job_security": {
+      "count": 6,
+      "passed": 6,
+      "pass_rate_pct": 100.0
+    },
+    "missing_data": {
+      "count": 4,
+      "passed": 4,
+      "pass_rate_pct": 100.0
+    },
+    "multilingual": {
+      "count": 4,
+      "passed": 4,
+      "pass_rate_pct": 100.0
+    },
+    "provider_quality": {
+      "count": 4,
+      "passed": 4,
+      "pass_rate_pct": 100.0
+    },
+    "refusal_to_fabricate": {
+      "count": 11,
+      "passed": 11,
+      "pass_rate_pct": 100.0
+    },
+    "safety": {
+      "count": 6,
+      "passed": 6,
+      "pass_rate_pct": 100.0
+    },
+    "social_status": {
+      "count": 4,
+      "passed": 4,
+      "pass_rate_pct": 100.0
+    },
+    "synthetic_rejection": {
+      "count": 1,
+      "passed": 1,
+      "pass_rate_pct": 100.0
+    },
+    "tamil": {
+      "count": 11,
+      "passed": 11,
+      "pass_rate_pct": 100.0
+    },
+    "telugu": {
+      "count": 11,
+      "passed": 11,
+      "pass_rate_pct": 100.0
+    },
+    "unknown_question": {
+      "count": 3,
+      "passed": 3,
+      "pass_rate_pct": 100.0
+    },
+    "unsupported_placement": {
+      "count": 3,
+      "passed": 3,
+      "pass_rate_pct": 100.0
+    },
+    "unsupported_salary": {
+      "count": 3,
+      "passed": 3,
+      "pass_rate_pct": 100.0
+    }
+  },
+  "cases_count": 60
+}

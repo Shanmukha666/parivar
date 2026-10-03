@@ -23,27 +23,32 @@ OBJECTION_KEYWORDS = {
     "income": [
         "salary", "earn", "money", "income", "paisa", "kamai", "rupee", "₹",
         "kitna milega", "salary kitni", "tankhah", "jeetha", "sambhaadane",
-        "वेतन", "कमाई", "पैसे", "జీతం", "డబ్బు"
+        "वेतन", "कमाई", "पैसे", "జీతం", "డబ్బు", "சம்பளம்", "வருமானம்", "பணம்"
     ],
     "safety": [
         "safe", "danger", "injury", "accident", "risk", "suraksha", "khatrnak",
-        "chot", "surakshit", "bhayam", "praman", "सुरक्षा", "खतरा", "భద్రత", "ప్రమాదం"
+        "chot", "surakshit", "bhayam", "praman", "सुरक्षा", "खतरा", "భద్రత", "ప్రమాదం",
+        "பாதுகாப்பு", "ஆபத்து", "காயம்"
     ],
     "status": [
         "respect", "izzat", "status", "log kya kahenge", "relatives",
-        "society", "shame", "samaj", "gauravam", "pratishtita", "इज़्ज़त", "समाज", "గౌరవం"
+        "society", "shame", "samaj", "gauravam", "pratishtita", "इज़्ज़त", "समाज", "గౌరవం",
+        "மரியாதை", "அந்தஸ்து", "கௌரவம்"
     ],
     "job_security": [
-        "job milegi", "naukri", "employment", "permanent", "stable",
-        "udyogam", "kaam", "rozgaar", "नौकरी", "रोजगार", "ఉద్యోగం"
+        "job milegi", "naukri", "employment", "permanent", "stable", "placement",
+        "udyogam", "kaam", "rozgaar", "नौकरी", "रोजगार", "प्लेसमेंट", "ఉద్యోగం", "ప్లేస్‌మెంట్",
+        "வேலை", "நிரந்தர வேலை", "தொழில்", "வேலைவாய்ப்பு"
     ],
     "degree_pref": [
         "degree", "college", "university", "b.tech", "engineering",
-        "graduation", "padhai", "digri", "ba", "bsc", "bcom", "डिग्री", "कॉलेज", "డిగ్రీ"
+        "graduation", "padhai", "digri", "ba", "bsc", "bcom", "डिग्री", "कॉलेज", "డిగ్రీ",
+        "பட்டப்படிப்பு", "கல்லூரி", "டிப்ளமோ"
     ],
     "cost": [
         "cost", "fee", "fees", "expensive", "afford", "kharcha", "fees kitni",
-        "meeda", "kharchalu", "paisa lagega", "खर्चा", "फीस", "ఫీజు", "ఖర్చు"
+        "meeda", "kharchalu", "paisa lagega", "खर्चा", "फीस", "ఫీజు", "ఖర్చు",
+        "கட்டணம்", "செலவு", "பணம் தேவை"
     ],
 }
 
@@ -64,54 +69,56 @@ CONCERN_CATEGORIES = (
 
 CONCERN_KEYWORDS = {
     "income_potential": [
-        "salary", "earn", "income", "paisa", "kamai", "rupee", "₹",
-        "वेतन", "कमाई", "पैसे", "జీతం", "డబ్బు",
+        "salary", "salaries", "earn", "income", "paisa", "kamai", "rupee", "₹",
+        "वेतन", "कमाई", "पैसे", "జీతం", "డబ్బు", "சம்பளம்", "வருமானம்", "பணம்",
     ],
     "job_security": [
-        "job", "naukri", "employment", "permanent", "stable", "rozgaar",
-        "नौकरी", "रोजगार", "मिलेगी", "ఉద్యోగం", "ఉద్యోగం వస్తుందా",
+        "job", "naukri", "employment", "permanent", "stable", "rozgaar", "placement", "placed",
+        "नौकरी", "रोजगार", "मिलेगी", "प्लेसमेंट", "ఉద్యోగ", "ఉద్యోగం", "ఉద్యోగం వస్తుందా", "ప్లేస్‌మెంట్",
+        "வேலை", "நிரந்தர வேலை", "வேலை கிடைக்குமா", "வேலைவாய்ப்பு",
     ],
     "social_perception_status": [
         "respect", "izzat", "status", "relatives", "society", "shame",
-        "समाज", "इज़्ज़त", "लोग क्या कहेंगे", "గౌరవం",
+        "समाज", "इज़्ज़त", "लोग क्या कहेंगे", "గౌరవం", "மரியாதை", "அந்தஸ்து", "கௌரவம்",
     ],
     "safety": [
         "safe", "danger", "injury", "accident", "risk", "suraksha",
-        "सुरक्षा", "खतरा", "భద్రత", "ప్రమాదం",
+        "सुरक्षा", "खतरा", "భద్రత", "ప్రమాదం", "பாதுகாப்பு", "ஆபத்து", "காயம்",
     ],
     "further_education": [
         "degree", "college", "university", "b.tech", "engineering",
-        "graduation", "डिग्री", "कॉलेज", "చదువు", "కాలేజీ",
+        "graduation", "डिग्री", "कॉलेज", "చదువు", "కాలేజీ", "பட்டப்படிப்பு", "கல்லூரி", "படிப்பு",
     ],
     "career_progression": [
         "growth", "promotion", "career path", "progress", "future",
-        "तरक्की", "करियर", "ఎదుగుదల", "కెరీర్",
+        "तरक्की", "करियर", "ఎదుగుదల", "కెరీర్", "வளர்ச்சி", "பதவி உயர்வு",
     ],
     "training_quality": [
         "quality", "trainer", "instructor", "equipment", "course good",
-        "गुणवत्ता", "प्रशिक्षक", "శిక్షణ నాణ్యత", "ట్రైనర్",
+        "गुणवत्ता", "प्रशिक्षक", "శిక్షణ నాణ్యత", "ట్రైనర్", "தரம்", "பயிற்சி தரம்",
     ],
     "migration_location": [
         "away", "relocate", "migration", "move", "city", "near home",
-        "दूर", "स्थान बदल", "शहर", "ఇంటి దగ్గర", "వలస",
+        "दूर", "स्थान बदल", "शहर", "ఇంటి దగ్గర", "వలస", "வெளியூர்", "நகரம்", "வீட்டின் அருகில்",
     ],
     "family_affordability": [
-        "cost", "fee", "fees", "expensive", "afford", "kharcha",
-        "खर्चा", "फीस", "ఖర్చు", "ఫీజు",
+        "cost", "fee", "fees", "expensive", "afford", "kharcha", "debt", "karza", "appu",
+        "खर्चा", "फीस", "कर्ज", "ఖర్చు", "ఫీజు", "అప్పు", "கட்டணம்", "செலவு", "கடன்",
     ],
     "gender_family_concerns": [
         "daughter", "girl", "women", "marriage", "family permission",
-        "बेटी", "लड़की", "महिला", "शादी", "కూతురు", "అమ్మాయి",
+        "बेटी", "लड़की", "महिला", "शादी", "కూతురు", "అమ్మాయి", "மகள்", "பெண்", "திருமணம்",
     ],
     "recognition_of_qualification": [
         "certificate valid", "recognised", "recognition", "मान्यता",
-        "प्रमाणपत्र", "certificate", "గుర్తింపు", "సర్టిఫికేట్",
+        "प्रमाणपत्र", "certificate", "గుర్తింపు", "సర్టిఫికేట్", "அங்கீகாரம்", "சான்றிதழ்",
     ],
 }
 
 HIGH_INTENSITY_MARKERS = (
     "urgent", "very worried", "afraid", "fear", "must", "no way",
     "क्या होगा", "मिलेगी क्या", "जरूरी", "చాలా భయం", "వస్తుందా",
+    "மிகவும் பயமாக", "அவசரம்", "கிடைக்குமா",
 )
 
 def _contains(text: str, phrase: str) -> bool:
@@ -142,24 +149,27 @@ def classify_concerns(text: str, speaker: str = "parent") -> dict:
 NEGATIVE_WORDS = [
     "no", "nahi", "never", "worst", "useless", "waste", "bekar",
     "kharab", "problem", "worried", "fear", "doubt", "ledu", "vaddu",
-    "cheppaku", "mushkil", "dikkat", "नहीं", "बेकार", "వద్దు", "లేదు"
+    "cheppaku", "mushkil", "dikkat", "नहीं", "बेकार", "వద్దు", "లేదు",
+    "வேண்டாம்", "இல்லை", "பயனற்றது", "மோசமானது"
 ]
 
 POSITIVE_WORDS = [
     "yes", "good", "great", "ok", "sure", "interested", "achha", "badhiya",
     "sahi", "theek", "chalega", "haan", "ji", "bagundi", "manchidi",
-    "avunu", "happy", "excited", "हाँ", "अच्छा", "అవును", "బాగుంది"
+    "avunu", "happy", "excited", "हाँ", "अच्छा", "అవును", "బాగుంది",
+    "சரி", "நல்லது", "விருப்பம்", "மகிழ்ச்சி"
 ]
 
 REQUEST_HUMAN_WORDS = [
     "counsellor", "counselor", "talk to someone",
     "call me", "phone me", "call human", "real person", "insaan se", "manishi tho",
-    "काउंसलर", "మాట్లాడాలి"
+    "काउंसलर", "మాట్లాడాలి", "మాట్లాడ", "కౌన్సెలర్", "ஆலோசகர்", "பேச வேண்டும்"
 ]
 
 SENSITIVE_WORDS = [
-    "unsafe", "accident", "injury", "family fight", "debt", "harassment",
-    "suicide", "abuse", "violence", "maar", "ladai", "hinsa", "हिंसा", "అప్పు"
+    "family fight", "debt", "harassment", "suicide", "abuse", "violence", "threatened",
+    "forced", "maar", "ladai", "hinsa", "karza", "हिंसा", "कर्ज", "आत्महत्या",
+    "అప్పు", "వేధింపులు", "ఆత్మహత్య", "హింస", "கடன்", "தற்கொலை", "துன்புறுத்தல்", "வன்முறை"
 ]
 
 
@@ -169,12 +179,24 @@ def _keyword_classify(text: str, speaker: str) -> dict:
 
     def has_match(word_list, text):
         for w in word_list:
-            if re.search(r'\b' + re.escape(w) + r'\b', text):
-                return True
+            if not w.isascii():
+                if w in text:
+                    return True
+            else:
+                if re.search(r'\b' + re.escape(w) + r'\b', text):
+                    return True
         return False
 
     def count_matches(word_list, text):
-        return sum(1 for w in word_list if re.search(r'\b' + re.escape(w) + r'\b', text))
+        cnt = 0
+        for w in word_list:
+            if not w.isascii():
+                if w in text:
+                    cnt += 1
+            else:
+                if re.search(r'\b' + re.escape(w) + r'\b', text):
+                    cnt += 1
+        return cnt
 
     # Detect objection category
     category = "none"

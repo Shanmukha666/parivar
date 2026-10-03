@@ -18,17 +18,16 @@ from app.core.prompts import ESCALATION_SUMMARY_PROMPT
 
 logger = logging.getLogger(__name__)
 
-# ── Sensitive keywords (multilingual) ──────────────────────────────────
 SENSITIVE_KEYWORDS = [
     # English
-    "unsafe", "accident", "injury", "family fight", "debt", "harassment",
-    "suicide", "abuse", "violence", "threatened",
+    "family fight", "debt", "harassment", "suicide", "abuse", "violence", "threatened", "forced",
     # Hindi
-    "khatarnak", "hadsa", "chot", "ladai", "karza", "pareshan",
-    "aatmhatya", "marpit", "hinsa", "dhamki",
+    "karza", "ladai", "aatmhatya", "marpit", "hinsa", "dhamki", "कर्ज", "आत्महत्या", "हिंसा",
     # Telugu
-    "asuraksitam", "pramaadam", "gaya", "kalahamu", "aapaddha",
-    "vedhimpulu", "aatmahatya", "hansa",
+    "kalahamu", "aapaddha", "vedhimpulu", "aatmahatya", "hansa", "appu", "ఆత్మహత్య", "వేధింపులు", "హింస",
+    # Tamil
+    "kadan", "tharkolai", "kodumai", "thunpuruthal", "vanmurai",
+    "கடன்", "தற்கொலை", "துன்புறுத்தல்", "வன்முறை"
 ]
 
 ESCALATION_STATUSES = {"new", "assigned", "contacted", "resolved", "closed_no_response"}

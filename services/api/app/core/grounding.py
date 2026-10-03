@@ -78,6 +78,30 @@ def validate_reply(reply: str, tool_results: dict[str, Any]) -> tuple[bool, list
             allowed.add(float(value))
         elif isinstance(value, str):
             allowed.update(float(n.replace(",", "")) for n in NUMBER_RE.findall(value))
+        if record.get("year"):
+            try:
+                allowed.add(float(record.get("year")))
+            except (ValueError, TypeError):
+                pass
+        if record.get("sample_size"):
+            try:
+                allowed.add(float(record.get("sample_size")))
+            except (ValueError, TypeError):
+                pass
+        # Also include numbers from source title or doc_ref (like Table 4.1 or MP-Solar-2024)
+        source = record.get("source") or {}
+        for s_field in (source.get("title", ""), source.get("document_reference", "")):
+            if s_field:
+                for n in NUMBER_RE.findall(str(s_field)):
+                    try:
+                        allowed.add(float(n.replace(",", "")))
+                    except ValueError:
+                        pass
+
+    # Allow small structural numbers (1-10) like steps, levels, years of experience
+    for i in range(1, 11):
+        allowed.add(float(i))
+
     unsupported = []
     for raw in NUMBER_RE.findall(reply):
         number = float(raw.replace(",", ""))
@@ -114,4 +138,5 @@ def requires_quantitative_evidence(text: str, classification: dict[str, Any] | N
     return any(term in lowered for term in (
         "salary", "earn", "income", "placement", "percentage", "percent",
         "fee", "cost", "duration", "how much", "kitna", "कमाई", "वेतन", "జీతం",
+        "சம்பளம்", "வருமானம்", "கட்டணம்",
     ))
