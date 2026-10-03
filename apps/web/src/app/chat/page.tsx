@@ -12,6 +12,7 @@ import SourceBadge from '../../components/SourceBadge';
 import { PhoneCall, Send, Volume2, VolumeX, ArrowRight, ShieldCheck, CheckCircle2 } from 'lucide-react';
 import { speakText, stopSpeaking } from '../../lib/speech';
 import { ensureFamilySession } from '../../lib/supabase';
+import { useTranslation } from '../../lib/i18n';
 import type { Source } from '../../lib/types';
 
 interface MessageItem {
@@ -26,6 +27,7 @@ interface MessageItem {
 export default function ChatPage() {
   const router = useRouter();
   const { language, sessionId, setSessionId, profile } = useStore();
+  const t = useTranslation(language);
   const [speaker, setSpeaker] = useState<'learner' | 'parent'>('learner');
   const [messages, setMessages] = useState<MessageItem[]>([]);
   const [inputText, setInputText] = useState('');
@@ -35,6 +37,7 @@ export default function ChatPage() {
   const [escalated, setEscalated] = useState(false);
   const [callbackConsent, setCallbackConsent] = useState(false);
   const [activeSessionId, setActiveSessionId] = useState<string | null>(sessionId);
+  const [failedText, setFailedText] = useState<string | null>(null);
 
   const endRef = useRef<HTMLDivElement>(null);
   useEffect(() => endRef.current?.scrollIntoView({ behavior: 'smooth' }), [messages, loading]);
@@ -71,21 +74,15 @@ export default function ChatPage() {
       }
       setActiveSessionId(currentSid);
 
-      const welcomeTexts: Record<string, string> = {
-        en: `Namaste! I am Parivar Path, your family vocational advisor. We are exploring the ${profile.selectedTradeName || 'Electrician'} pathway together. Parents and learners: please share what is on your mind!`,
-        hi: `नमस्ते! मैं परिवार पथ हूँ, आपका पारिवारिक करियर सलाहकार। हम मिलकर ${profile.selectedTradeName || 'इलेक्ट्रीशियन'} कोर्स के बारे में चर्चा कर रहे हैं। माता-पिता और छात्र, बेझिझक अपने सवाल पूछें!`,
-        te: `నమస్కారం! నేను పరివార్ పథ్, మీ కుటుంబ వృత్తివిద్యా సలహాదారుని. మనం కలిసి ${profile.selectedTradeName || 'ఎలక్ట్రీషియన్'} కోర్సు గురించి తెలుసుకుందాం. విద్యార్థి మరియు తల్లిదండ్రులు మీ సందేహాలను అడగండి!`
-      };
-
       const initialAiMsg: MessageItem = {
         id: 'init-1',
         role: 'assistant',
         speaker: 'ai',
-        content: welcomeTexts[language] || welcomeTexts.en,
+        content: t('chat_welcome', { trade: profile.selectedTradeName || t('default_trade') }),
         suggested_chips: [
-          language === 'hi' ? 'कमाई कितनी होगी?' : (language === 'te' ? 'జీతం ఎంత ఉంటుంది?' : 'How much will they earn?'),
-          language === 'hi' ? 'क्या यह सुरक्षित है?' : (language === 'te' ? 'ఇది సురక్షితమేనా?' : 'Is it safe?'),
-          language === 'hi' ? 'डिग्री से बेहतर क्यों?' : (language === 'te' ? 'డిగ్రీ కంటే ఎలా మేలు?' : 'Isn’t a degree better?')
+          t('chip_earnings'),
+          t('chip_safety'),
+          t('chip_degree')
         ]
       };
       setMessages([initialAiMsg]);
@@ -97,6 +94,9 @@ export default function ChatPage() {
   }, []);
 
   const handleSend = async (textToSend: string) => {
+    if (textToSend === t('retry_message') && failedText) {
+      textToSend = failedText;
+    }
     if (!textToSend.trim() || loading) return;
 
     const userMessage: MessageItem = {
@@ -107,6 +107,7 @@ export default function ChatPage() {
     };
 
     setMessages(prev => [...prev, userMessage]);
+    setFailedText(null);
     setInputText('');
     setLoading(true);
 
@@ -142,13 +143,12 @@ export default function ChatPage() {
         id: (Date.now() + 1).toString(),
         role: 'assistant',
         speaker: 'ai',
-        content: language === 'hi' 
-          ? 'मैं अभी सत्यापित डेटा तक नहीं पहुंच पा रहा हूं। कृपया पुनः प्रयास करें या काउंसलर से बात करें।'
-          : (language === 'te' ? 'నేను ఇప్పుడు ధృవీకరించబడిన డేటాను యాక్సెస్ చేయలేకపోతున్నాను. దయచేసి మళ్లీ ప్రయత్నించండి లేదా కౌన్సెలర్‌తో మాట్లాడండి.' : 'I can\'t reach verified data right now. Try again or talk to a counsellor.'),
+        content: t('verified_data_unavailable'),
         citations: [],
-        suggested_chips: ['Talk to counsellor']
+        suggested_chips: [t('talk_to_counsellor'), t('retry_message')]
       };
       setMessages(prev => [...prev, fallbackAi]);
+      setFailedText(textToSend);
       if (ttsEnabled) {
         speakText(fallbackAi.content, language);
       }
@@ -173,7 +173,7 @@ export default function ChatPage() {
           id: Date.now().toString(),
           role: 'assistant',
           speaker: 'counsellor',
-          content: '🤝 Your request has been queued! A certified vocational counsellor will call your phone shortly.'
+          content: `🤝 ${t('counsellor_request_queued')}`
         }
       ]);
     } catch (e) {
@@ -191,7 +191,7 @@ export default function ChatPage() {
             <span className="text-2xl">🏠</span>
             <div>
               <h1 className="text-lg font-bold text-slate-900 leading-tight">Parivar Path</h1>
-              <p className="text-xs text-slate-500">{profile.district || 'Adilabad'} • {profile.selectedTradeName || 'Electrician'}</p>
+              <p className="text-xs text-slate-500">{profile.district || 'Adilabad'} • {profile.selectedTradeName || t('default_trade')}</p>
             </div>
           </div>
 
@@ -202,7 +202,8 @@ export default function ChatPage() {
                 if (ttsEnabled) stopSpeaking();
                 setTtsEnabled(!ttsEnabled);
               }}
-              title={ttsEnabled ? 'Mute AI Voice' : 'Enable AI Voice'}
+              title={ttsEnabled ? t('mute_ai_voice') : t('enable_ai_voice')}
+              aria-label={ttsEnabled ? t('mute_ai_voice') : t('enable_ai_voice')}
               className={`p-2.5 rounded-xl border transition-colors min-h-[48px] min-w-[48px] flex items-center justify-center ${
                 ttsEnabled ? 'bg-orange-50 border-orange-200 text-orange-600' : 'bg-slate-100 border-slate-200 text-slate-400'
               }`}
@@ -215,7 +216,7 @@ export default function ChatPage() {
               onClick={() => router.push('/summary')}
               className="px-4 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl font-bold text-sm min-h-[48px] flex items-center gap-1.5 shadow-sm transition-all"
             >
-              <span>Summary Card</span>
+              <span>{t('summary_card')}</span>
               <ArrowRight size={16} />
             </button>
           </div>
@@ -230,8 +231,8 @@ export default function ChatPage() {
         {escalated && (
           <div className="bg-amber-50 border border-amber-200 rounded-xl p-3 flex items-center gap-3 text-amber-900 text-sm">
             <ShieldCheck size={24} className="text-amber-600 flex-shrink-0" />
-            <div>
-              <strong>Human Counsellor Active:</strong> An accredited skill counselor has been alerted to review this session.
+            <div role="status">
+              <strong>{t('human_counsellor_active')}:</strong> {t('counsellor_alerted')}
             </div>
           </div>
         )}
@@ -268,7 +269,7 @@ export default function ChatPage() {
             <div className="w-2 h-2 rounded-full bg-orange-500 animate-bounce" />
             <div className="w-2 h-2 rounded-full bg-orange-500 animate-bounce [animation-delay:0.2s]" />
             <div className="w-2 h-2 rounded-full bg-orange-500 animate-bounce [animation-delay:0.4s]" />
-            <span>Finding verified facts...</span>
+            <span>{t('finding_verified_facts')}</span>
           </div>
         )}
         <div ref={endRef} />
@@ -288,19 +289,21 @@ export default function ChatPage() {
           <button 
             onClick={() => setShowEscalateModal(true)}
             className="p-3 text-rose-600 bg-rose-50 hover:bg-rose-100 border border-rose-200 rounded-xl transition-colors min-h-[48px] min-w-[48px] flex items-center justify-center flex-shrink-0"
-            title="Talk to Human Counsellor"
-            aria-label="Talk to Human Counsellor"
+            title={t('talk_to_human_counsellor')}
+            aria-label={t('talk_to_human_counsellor')}
           >
             <PhoneCall size={22} />
           </button>
 
           {/* Text Input Box */}
+          <label className="sr-only" htmlFor="chat-message">{t('message_label')}</label>
           <input 
+            id="chat-message"
             type="text" 
             value={inputText}
             onChange={e => setInputText(e.target.value)}
             onKeyDown={e => e.key === 'Enter' && handleSend(inputText)}
-            placeholder={language === 'hi' ? (speaker === 'parent' ? "माता-पिता का सवाल..." : "छात्र का सवाल...") : language === 'te' ? (speaker === 'parent' ? "తల్లిదండ్రుల ప్రశ్న..." : "విద్యార్థి ప్రశ్న...") : (speaker === 'parent' ? "Parent's question..." : "Learner's question...")}
+            placeholder={speaker === 'parent' ? t('parent_question_placeholder') : t('learner_question_placeholder')}
             className="flex-1 p-3.5 bg-slate-100 border border-slate-200 rounded-xl text-base text-slate-900 focus:outline-none focus:ring-2 focus:ring-orange-500 min-h-[48px]"
           />
 
@@ -309,13 +312,13 @@ export default function ChatPage() {
             <button 
               onClick={() => handleSend(inputText)} 
               className="p-3.5 bg-orange-600 hover:bg-orange-700 text-white rounded-xl min-h-[48px] min-w-[48px] flex items-center justify-center flex-shrink-0 transition-colors shadow-sm"
-              aria-label="Send message"
+              aria-label={t('send_button')}
             >
               <Send size={22} />
             </button>
           ) : (
             <div className="flex-shrink-0">
-              <VoiceButton onResult={handleSend} />
+              <VoiceButton onTranscript={setInputText} />
             </div>
           )}
         </div>
@@ -327,23 +330,23 @@ export default function ChatPage() {
           <div className="bg-white rounded-2xl p-6 max-w-sm w-full space-y-4 shadow-xl border border-slate-200">
             <div className="flex items-center gap-3 text-orange-600">
               <PhoneCall size={28} />
-              <h3 id="escalate-modal-title" className="text-xl font-bold text-slate-900">Connect to Counsellor</h3>
+              <h3 id="escalate-modal-title" className="text-xl font-bold text-slate-900">{t('connect_counsellor')}</h3>
             </div>
             <p className="text-sm text-slate-600">
-              Our district skill centre counsellors can talk to you and your parents over phone or live chat to resolve any questions.
+              {t('counsellor_modal_description')}
             </p>
             <div className="space-y-2">
-              <label className="text-xs font-semibold text-slate-700" htmlFor="callback-phone">Enter Phone Number for Free Callback:</label>
+              <label className="text-xs font-semibold text-slate-700" htmlFor="callback-phone">{t('phone_label')}:</label>
               <input 
                 id="callback-phone"
                 type="tel"
                 defaultValue=""
-                placeholder="10-digit mobile number"
+                placeholder={t('phone_placeholder')}
                 className="w-full p-3 border border-slate-300 rounded-xl text-slate-900 text-base focus:ring-2 focus:ring-orange-500"
               />
               <label className="flex items-start gap-2 text-xs text-slate-600" htmlFor="callback-consent">
                 <input id="callback-consent" type="checkbox" checked={callbackConsent} onChange={(event) => setCallbackConsent(event.target.checked)} className="mt-0.5" />
-                I consent to storing this number for a counsellor callback. It will be deleted after the retention period.
+                {t('callback_consent')}
               </label>
             </div>
             <div className="flex gap-2 pt-2">
@@ -351,7 +354,7 @@ export default function ChatPage() {
                 onClick={() => setShowEscalateModal(false)}
                 className="flex-1 py-3 bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold rounded-xl focus:ring-2 focus:ring-orange-500 outline-none"
               >
-                Cancel
+                {t('cancel')}
               </button>
               <button
                 onClick={() => {
@@ -369,7 +372,7 @@ export default function ChatPage() {
                 }}
                 className="flex-1 py-3 bg-orange-600 hover:bg-orange-700 text-white font-bold rounded-xl focus:ring-2 focus:ring-orange-500 outline-none"
               >
-                Request Call
+                {t('request_call')}
               </button>
             </div>
           </div>
@@ -378,4 +381,3 @@ export default function ChatPage() {
     </div>
   );
 }
-

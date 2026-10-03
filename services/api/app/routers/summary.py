@@ -136,7 +136,7 @@ env = Environment(loader=DictLoader({"summary": template_html}), autoescape=sele
 
 @router.post("/summary-card")
 async def generate_summary_card(req: SummaryCardRequest, current_user=Depends(family_user), db: AsyncSession = Depends(get_db)):
-    sess_stmt = select(Session).where(Session.id == req.session_id)
+    sess_stmt = select(Session).where(Session.id == req.session_id, Session.owner_id == current_user.id)
     sess_res = await db.execute(sess_stmt)
     sess = sess_res.scalars().first()
     

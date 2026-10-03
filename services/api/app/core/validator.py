@@ -5,6 +5,7 @@ PRD section 6.8.
 
 import re
 from typing import Tuple, List, Set
+from app.core.grounding import validate_reply as validate_grounded_reply
 
 
 def _extract_numbers(text: str) -> Set[float]:
@@ -72,6 +73,8 @@ def validate_numbers(llm_reply: str, tool_results: dict) -> Tuple[bool, List[str
     Returns:
         (is_valid, list_of_unmatched_number_strings)
     """
+    if "metrics" in tool_results.get("outcomes", {}):
+        return validate_grounded_reply(llm_reply, tool_results)
     reply_numbers = _extract_numbers(llm_reply)
     allowed = _build_allowed_set(tool_results)
 

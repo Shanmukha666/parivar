@@ -49,7 +49,7 @@ export default function ConsentPage() {
 
           <div className="flex gap-4 items-start bg-amber-50 p-4 rounded-xl">
             <AlertCircle className="text-amber-600 shrink-0" size={32} />
-            <p className="text-xl font-medium text-gray-800">For minors under 18, a parent or guardian must also agree to this service.</p>
+            <p className="text-xl font-medium text-gray-800">{t('consent_minor')}</p>
           </div>
         </div>
 
@@ -62,7 +62,7 @@ export default function ConsentPage() {
             className="mt-1 w-6 h-6 text-orange-600 rounded focus:ring-orange-500"
           />
           <label htmlFor="consent-check" className="text-lg text-slate-800 cursor-pointer">
-            I understand and give consent. (You can request to delete your data at any time by speaking to a counsellor).
+            {t('consent_checkbox')} {t('consent_delete_note')}
           </label>
         </div>
       </div>

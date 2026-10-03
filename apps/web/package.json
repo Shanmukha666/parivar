@@ -6,7 +6,9 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "test:i18n": "node scripts/test-i18n.mjs",
+    "test:voice": "node scripts/test-voice.mjs"
   },
   "dependencies": {
     "@supabase/ssr": "^0.12.7",

@@ -1,146 +1,200 @@
 import { NextResponse } from 'next/server';
-import { createSupabaseServerClient } from '../../../../lib/supabase-server';
+import { getAuthenticatedUser, requireAdmin } from '../../../../lib/authorization';
+
+const CONCERNS = [
+  'income_potential',
+  'job_security',
+  'social_perception_status',
+  'safety',
+  'further_education',
+  'career_progression',
+  'training_quality',
+  'migration_location',
+  'family_affordability',
+  'gender_family_concerns',
+  'recognition_of_qualification',
+  'other_unknown',
+] as const;
+
+type CountMap = Record<string, number>;
+
+function increment(target: CountMap, key: string | null | undefined) {
+  if (key) target[key] = (target[key] || 0) + 1;
+}
+
+function hasDate(value: string | null, start: string | null, end: string | null) {
+  if (!value) return false;
+  const date = new Date(value).getTime();
+  if (start && date < new Date(`${start}T00:00:00.000Z`).getTime()) return false;
+  if (end && date >= new Date(`${end}T23:59:59.999Z`).getTime()) return false;
+  return true;
+}
 
 export async function GET(request: Request) {
-  const supabase = await createSupabaseServerClient();
-  const { data: { user } } = await supabase.auth.getUser();
+  const { supabase, user } = await getAuthenticatedUser();
+  const denied = requireAdmin(user);
+  if (denied) return denied;
 
-  // Try calling the Supabase admin RPC functions first
   const { searchParams } = new URL(request.url);
-  const stateFilter = searchParams.get('state');
-  const districtFilter = searchParams.get('district');
+  const state = searchParams.get('state');
+  const district = searchParams.get('district');
+  const language = searchParams.get('language');
+  const tradeId = searchParams.get('trade_id');
+  const providerId = searchParams.get('provider_id');
+  const concern = searchParams.get('concern');
+  const startDate = searchParams.get('start_date');
+  const endDate = searchParams.get('end_date');
 
-  try {
-    // 1. Check if admin_kpis RPC is available
-    const { data: rpcKpis, error: rpcError } = await supabase.rpc('admin_kpis');
-    if (!rpcError && rpcKpis) {
-      const { data: rpcHeatmap } = await supabase.rpc('admin_district_resistance');
-      const { data: rpcObjections } = await supabase.rpc('admin_objection_breakdown');
+  let sessionQuery = supabase
+    .from('sessions')
+    .select('id, state, district, lang, selected_trade_id, created_at, concern_state')
+    .order('created_at', { ascending: true });
+  if (state) sessionQuery = sessionQuery.eq('state', state);
+  if (district) sessionQuery = sessionQuery.eq('district', district);
+  if (language) sessionQuery = sessionQuery.eq('lang', language);
+  if (tradeId) sessionQuery = sessionQuery.eq('selected_trade_id', Number(tradeId));
+  if (startDate) sessionQuery = sessionQuery.gte('created_at', `${startDate}T00:00:00.000Z`);
+  if (endDate) sessionQuery = sessionQuery.lte('created_at', `${endDate}T23:59:59.999Z`);
 
-      return NextResponse.json({
-        total_sessions: rpcKpis.total_sessions || 0,
-        escalation_rate: rpcKpis.escalation_rate || 0,
-        avg_sentiment_shift: rpcKpis.avg_sentiment_shift,
-        summary_shares: rpcKpis.summary_shares || 0,
-        objections: rpcObjections || {},
-        heatmap: rpcHeatmap || [],
-        funnel: rpcKpis.funnel || { sessions: rpcKpis.total_sessions || 0, trade_viewed: 0, summary_shared: 0, escalated: 0 }
-      });
-    }
-  } catch {
-    // Fall back to table queries below
+  const { data: rawSessions, error: sessionsError } = await sessionQuery;
+  if (sessionsError) return NextResponse.json({ error: 'Failed to fetch aggregate session data' }, { status: 500 });
+
+  const sessions = (rawSessions || []).filter((item) => hasDate(item.created_at, startDate, endDate));
+  const sessionIds = sessions.map((item) => item.id);
+  const sessionSet = new Set(sessionIds);
+
+  const [tradesResult, escalationsResult, messagesResult, metricsResult] = await Promise.all([
+    supabase.from('trades').select('id, name_en'),
+    sessionIds.length
+      ? supabase.from('escalations').select('session_id, status').in('session_id', sessionIds)
+      : Promise.resolve({ data: [], error: null }),
+    sessionIds.length
+      ? supabase.from('messages').select('id, session_id').in('session_id', sessionIds)
+      : Promise.resolve({ data: [], error: null }),
+    supabase.from('outcome_metrics').select('provider_id, trade_id, state, district, verification_status, is_synthetic'),
+  ]);
+
+  if (tradesResult.error || escalationsResult.error || messagesResult.error || metricsResult.error) {
+    return NextResponse.json({ error: 'Failed to fetch dashboard aggregates' }, { status: 500 });
   }
 
-  // Direct table query calculation
-  try {
-    let sessionQuery = supabase.from('sessions').select('id, district, state, created_at');
-    if (stateFilter) sessionQuery = sessionQuery.eq('state', stateFilter);
-    if (districtFilter) sessionQuery = sessionQuery.eq('district', districtFilter);
+  const tradeNames = new Map((tradesResult.data || []).map((trade) => [trade.id, trade.name_en]));
+  const relevantEscalations = (escalationsResult.data || []).filter((item) => sessionSet.has(item.session_id));
+  const messageIds = (messagesResult.data || []).map((item) => item.id);
+  const messageSession = new Map((messagesResult.data || []).map((item) => [item.id, item.session_id]));
+  const analysesResult = messageIds.length
+    ? await supabase.from('message_analysis').select('message_id, concerns, objection_category').in('message_id', messageIds)
+    : { data: [], error: null };
+  if (analysesResult.error) return NextResponse.json({ error: 'Failed to fetch concern aggregates' }, { status: 500 });
 
-    const { data: sessions, error: sessErr } = await sessionQuery;
-    if (sessErr || !sessions) {
-      return NextResponse.json({ error: 'Failed to fetch sessions' }, { status: 500 });
-    }
-
-    const totalSessions = sessions.length;
-    const sessionIds = sessions.map(s => s.id);
-
-    // Fetch escalations
-    const { data: escalations } = await supabase
-      .from('escalations')
-      .select('id, session_id, status');
-    
-    const relevantEscalations = escalations?.filter(e => sessionIds.includes(e.session_id)) || [];
-    const escalationRate = totalSessions > 0 ? relevantEscalations.length / totalSessions : 0;
-
-    // Fetch events for funnel
-    const { data: events } = await supabase
-      .from('events')
-      .select('type, session_id');
-
-    const relevantEvents = events?.filter(ev => sessionIds.includes(ev.session_id)) || [];
-    const tradeViews = new Set(relevantEvents.filter(e => e.type === 'trade_viewed').map(e => e.session_id)).size;
-    const summaryShares = new Set(relevantEvents.filter(e => e.type === 'summary_shared').map(e => e.session_id)).size;
-
-    // Fetch message analyses for objections & sentiment shift
-    const { data: analyses } = await supabase
-      .from('message_analysis')
-      .select('objection_category, sentiment, message_id');
-
-    const objections: Record<string, number> = {
-      income: 0,
-      safety: 0,
-      status: 0,
-      job_security: 0,
-      degree_pref: 0,
-      cost: 0,
-    };
-
-    let totalShift = 0;
-    let shiftCount = 0;
-
-    if (analyses && analyses.length > 0) {
-      for (const a of analyses) {
-        if (a.objection_category && objections[a.objection_category] !== undefined) {
-          objections[a.objection_category]++;
-        }
+  const concernDistribution: CountMap = {};
+  const legacyConcernMap: Record<string, string> = {
+    income: 'income_potential',
+    job_security: 'job_security',
+    status: 'social_perception_status',
+    degree_pref: 'further_education',
+    safety: 'safety',
+    cost: 'family_affordability',
+  };
+  const concernSessionIds = new Set<string>();
+  for (const analysis of analysesResult.data || []) {
+    const concerns = Array.isArray(analysis.concerns) ? analysis.concerns : [];
+    const labels = concerns.length
+      ? concerns
+      : [legacyConcernMap[analysis.objection_category || ''] || analysis.objection_category];
+    for (const label of labels) {
+      if (label && CONCERNS.includes(label as typeof CONCERNS[number])) {
+        increment(concernDistribution, label);
+        const sid = messageSession.get(analysis.message_id);
+        if (sid) concernSessionIds.add(`${sid}:${label}`);
       }
     }
-
-    // Heatmap per district
-    const districtMap: Record<string, { total: number; escalated: number; sentiments: number[] }> = {};
-    for (const s of sessions) {
-      const dist = s.district || 'Unknown';
-      if (!districtMap[dist]) districtMap[dist] = { total: 0, escalated: 0, sentiments: [] };
-      districtMap[dist].total++;
-    }
-
-    for (const esc of relevantEscalations) {
-      const sess = sessions.find(s => s.id === esc.session_id);
-      if (sess && districtMap[sess.district]) {
-        districtMap[sess.district].escalated++;
-      }
-    }
-
-    const heatmap = Object.entries(districtMap).map(([district, stat]) => {
-      // k-anonymity check: mask if < 10 sessions
-      if (stat.total < 10) {
-        return {
-          district,
-          resistance_index: null,
-          total_sessions: stat.total,
-          low_sample: true,
-          status: 'low_sample'
-        };
-      }
-      const escRate = stat.total > 0 ? stat.escalated / stat.total : 0;
-      // resistance index formula: 0.5 * share_neg_start + 0.3 * esc_rate + 0.2 * (1 - norm_shift)
-      const resIndex = Math.min(100, Math.max(0, Math.round((0.5 * 0.4 + 0.3 * escRate + 0.2 * 0.5) * 100)));
-      return {
-        district,
-        resistance_index: resIndex,
-        total_sessions: stat.total,
-        escalation_rate: Math.round(escRate * 100) / 100,
-        low_sample: false,
-        status: resIndex >= 65 ? 'high' : resIndex >= 45 ? 'medium' : 'low'
-      };
-    });
-
-    return NextResponse.json({
-      total_sessions: totalSessions,
-      escalation_rate: Math.round(escalationRate * 100) / 100,
-      avg_sentiment_shift: totalSessions >= 10 ? 0.32 : null,
-      summary_shares: summaryShares,
-      objections,
-      heatmap,
-      funnel: {
-        sessions: totalSessions,
-        trade_viewed: tradeViews || Math.round(totalSessions * 0.8),
-        summary_shared: summaryShares || Math.round(totalSessions * 0.4),
-        escalated: relevantEscalations.length,
-      }
-    });
-  } catch (error) {
-    return NextResponse.json({ error: 'Server error' }, { status: 500 });
   }
+  if (concern && concern !== 'all') {
+    for (const key of Object.keys(concernDistribution)) {
+      if (key !== concern) delete concernDistribution[key];
+    }
+  }
+
+  const providerScopedSessionIds = providerId
+    ? new Set((metricsResult.data || [])
+      .filter((metric) => String(metric.provider_id) === providerId && metric.verification_status === 'verified' && metric.is_synthetic === false)
+      .flatMap((metric) => sessions
+        .filter((session) =>
+          session.selected_trade_id === metric.trade_id &&
+          session.state === metric.state &&
+          (!metric.district || session.district === metric.district),
+        )
+        .map((session) => session.id)))
+    : null;
+  const filteredSessions = concern && concern !== 'all'
+    ? sessions.filter((session) => concernSessionIds.has(`${session.id}:${concern}`))
+    : sessions;
+  const providerFilteredSessions = providerScopedSessionIds
+    ? filteredSessions.filter((session) => providerScopedSessionIds.has(session.id))
+    : filteredSessions;
+  const filteredIds = new Set(providerFilteredSessions.map((session) => session.id));
+  const filteredEscalations = relevantEscalations.filter((item) => filteredIds.has(item.session_id));
+
+  const geography: CountMap = {};
+  const tradeDistribution: CountMap = {};
+  const languageDistribution: CountMap = {};
+  const unresolvedByConcern: CountMap = {};
+  const concernChanges: CountMap = { resolved: 0, unresolved: 0 };
+
+  for (const session of providerFilteredSessions) {
+    increment(geography, `${session.state || 'Unknown'} / ${session.district || 'Unknown'}`);
+    increment(tradeDistribution, tradeNames.get(session.selected_trade_id) || 'Not specified');
+    increment(languageDistribution, session.lang || 'Unknown');
+    const state = session.concern_state || {};
+    const unresolved = Array.isArray(state.unresolved_concerns) ? state.unresolved_concerns : [];
+    const current = Array.isArray(state.current_concerns) ? state.current_concerns : [];
+    if (unresolved.length) concernChanges.unresolved++;
+    else if (current.length || Array.isArray(state.initial_concerns) && state.initial_concerns.length) concernChanges.resolved++;
+    for (const label of unresolved) increment(unresolvedByConcern, label);
+  }
+
+  const providerDistribution: CountMap = {};
+  const providerIds = (metricsResult.data || [])
+    .filter((metric) => metric.verification_status === 'verified' && metric.is_synthetic === false)
+    .filter((metric) => filteredSessions.some((session) =>
+      session.selected_trade_id === metric.trade_id &&
+      session.state === metric.state &&
+      (!metric.district || session.district === metric.district),
+    ))
+    .map((metric) => metric.provider_id)
+    .filter((id): id is number => Number.isInteger(id));
+  const uniqueProviderIds = Array.from(new Set(providerIds));
+  if (uniqueProviderIds.length) {
+    let providersQuery = supabase.from('providers').select('id, name').in('id', uniqueProviderIds);
+    if (providerId) providersQuery = providersQuery.eq('id', Number(providerId));
+    const providersResult = await providersQuery;
+    if (providersResult.error) return NextResponse.json({ error: 'Failed to fetch provider aggregates' }, { status: 500 });
+    for (const provider of providersResult.data || []) increment(providerDistribution, provider.name);
+  }
+
+  const total = providerFilteredSessions.length;
+  const escalated = filteredEscalations.length;
+  const unresolved = concernChanges.unresolved;
+  return NextResponse.json({
+    filters: { state, district, language, trade_id: tradeId, provider_id: providerId, concern, start_date: startDate, end_date: endDate },
+    kpis: {
+      counselling_volume: total,
+      unresolved_concerns: unresolved,
+      escalation_rate: total ? escalated / total : null,
+      escalation_rate_label: total ? `${Math.round((escalated / total) * 100)}%` : 'Insufficient data',
+    },
+    concern_distribution: concernDistribution,
+    unresolved_concerns_by_category: unresolvedByConcern,
+    concern_state_change: {
+      resolved: concernChanges.resolved || null,
+      unresolved: concernChanges.unresolved || null,
+      label: total ? 'Based on recorded Concern State' : 'Insufficient data',
+    },
+    geographic_distribution: geography,
+    trade_distribution: tradeDistribution,
+    language_distribution: languageDistribution,
+    provider_distribution: providerDistribution,
+    insufficient_data: total === 0,
+  });
 }

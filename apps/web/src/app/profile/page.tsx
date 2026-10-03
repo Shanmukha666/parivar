@@ -24,6 +24,7 @@ export default function ProfilePage() {
   const [classPassed, setClassPassed] = useState('Class 10 Pass');
   const [income, setIncome] = useState('₹1 - 3 Lakhs');
   const [interests, setInterests] = useState<string[]>(['electrical', 'mechanical']);
+  const [step, setStep] = useState(0);
 
   const handleStateChange = (newState: string) => {
     setState(newState);
@@ -32,13 +33,17 @@ export default function ProfilePage() {
   };
 
   const handleNext = () => {
+    if (step < 4) {
+      setStep(current => current + 1);
+      return;
+    }
     updateProfile({ state, district, role, classPassed, income, interests });
     router.push('/trades');
   };
 
   return (
     <div className="flex flex-col min-h-screen p-6 bg-white overflow-y-auto max-w-xl mx-auto">
-      <ProgressDots total={3} current={1} />
+      <ProgressDots total={5} current={step} />
 
       <div className="flex items-center justify-between mb-6">
         <h1 className="text-2xl font-black text-slate-900">{t('profile_title')}</h1>
@@ -47,13 +52,13 @@ export default function ProfilePage() {
 
       <div className="space-y-6 flex-1">
         {/* User Role */}
-        <div>
-          <label className="block text-sm font-bold text-slate-700 mb-2">Who is participating right now?</label>
+        <div hidden={step !== 0}>
+          <label className="block text-sm font-bold text-slate-700 mb-2">{t('profile_role_question')}</label>
           <div className="grid grid-cols-3 gap-2">
             {[
-              { id: 'learner', label: 'Learner (Student)' },
-              { id: 'parent', label: 'Parent / Family' },
-              { id: 'both', label: 'Both Together' },
+              { id: 'learner', label: t('role_learner') },
+              { id: 'parent', label: t('role_parent') },
+              { id: 'both', label: t('role_both') },
             ].map((r) => (
               <button
                 key={r.id}
@@ -72,8 +77,8 @@ export default function ProfilePage() {
         </div>
 
         {/* Location Selectors */}
-        <div>
-          <label className="block text-sm font-bold text-slate-700 mb-2">Location (State & District)</label>
+        <div hidden={step !== 1}>
+          <label className="block text-sm font-bold text-slate-700 mb-2">{t('profile_location_question')}</label>
           <div className="grid grid-cols-2 gap-2">
             <select
               value={state}
@@ -97,8 +102,8 @@ export default function ProfilePage() {
         </div>
 
         {/* Class Passed */}
-        <div>
-          <label className="block text-sm font-bold text-slate-700 mb-2">Highest Education Passed</label>
+        <div hidden={step !== 2}>
+          <label className="block text-sm font-bold text-slate-700 mb-2">{t('profile_education_question')}</label>
           <div className="grid grid-cols-3 gap-2">
             {['Class 8 Pass', 'Class 10 Pass', 'Class 12 Pass'].map((cls) => (
               <button
@@ -118,8 +123,8 @@ export default function ProfilePage() {
         </div>
 
         {/* Annual Income Bracket */}
-        <div>
-          <label className="block text-sm font-bold text-slate-700 mb-2">Household Annual Income (For scholarships)</label>
+        <div hidden={step !== 3}>
+          <label className="block text-sm font-bold text-slate-700 mb-2">{t('profile_income_question')}</label>
           <div className="grid grid-cols-3 gap-2">
             {['Below ₹1 Lakh', '₹1 - 3 Lakhs', '₹3 - 5 Lakhs'].map((inc) => (
               <button
@@ -139,8 +144,8 @@ export default function ProfilePage() {
         </div>
 
         {/* Interests */}
-        <div>
-          <label className="block text-sm font-bold text-slate-700 mb-2">Learner Interests</label>
+        <div hidden={step !== 4}>
+          <label className="block text-sm font-bold text-slate-700 mb-2">{t('profile_interests_question')}</label>
           <IconPicker selected={interests} onChange={setInterests} />
         </div>
       </div>
@@ -149,7 +154,7 @@ export default function ProfilePage() {
         onClick={handleNext}
         className="w-full bg-orange-600 hover:bg-orange-700 text-white font-bold text-lg py-4 rounded-2xl flex items-center justify-center gap-2 shadow-lg mt-8 min-h-[52px] transition-all"
       >
-        <span>{t('next')}</span>
+        <span>{step === 4 ? t('next') : t('continue')}</span>
         <ChevronRight size={22} />
       </button>
     </div>

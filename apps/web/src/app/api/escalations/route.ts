@@ -13,6 +13,7 @@ export async function POST(request: Request) {
     callback_phone_consent?: boolean;
     callback_slot?: string;
     priority?: 'normal' | 'high' | 'urgent';
+    concern_category?: string;
   };
   if (!body.session_id || !body.reason || body.reason.length > 1000) {
     return NextResponse.json({ error: 'Invalid escalation request' }, { status: 400 });
@@ -35,6 +36,7 @@ export async function POST(request: Request) {
   const { data: escalation, error } = await supabase.from('escalations').insert({
     session_id: session.id,
     reason: body.reason,
+    concern_category: body.concern_category || null,
     status: 'new',
     priority: body.priority || 'normal',
     language: session.lang,

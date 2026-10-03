@@ -1,249 +1,120 @@
 'use client';
 
-import { useState, useEffect } from 'react';
-import KPICard from '../../../components/KPICard';
-import DistrictHeatmap from '../../../components/DistrictHeatmap';
-import { Download, Sparkles, Filter, RefreshCw } from 'lucide-react';
-import {
-  BarChart,
-  Bar,
-  XAxis,
-  YAxis,
-  CartesianGrid,
-  Tooltip as RechartsTooltip,
-  Legend,
-  ResponsiveContainer,
-  FunnelChart,
-  Funnel,
-  LabelList
-} from 'recharts';
-import { fetchAdminMetrics, fetchAdminInsights } from '../../../lib/api';
+import { useEffect, useState } from 'react';
+import { fetchAdminMetrics } from '../../../lib/api';
 
-export default function AdminDashboard() {
-  const [metrics, setMetrics] = useState<any>(null);
-  const [insights, setInsights] = useState<string[]>([]);
-  const [selectedState, setSelectedState] = useState<string>('');
-  const [selectedDistrict, setSelectedDistrict] = useState<string>('');
-  const [loading, setLoading] = useState(true);
+const concerns = [
+  ['income_potential', 'Income'],
+  ['job_security', 'Job security'],
+  ['social_perception_status', 'Social perception'],
+  ['safety', 'Safety'],
+  ['further_education', 'Further education'],
+  ['career_progression', 'Career progression'],
+  ['training_quality', 'Training quality'],
+  ['migration_location', 'Migration / location'],
+  ['family_affordability', 'Family affordability'],
+  ['gender_family_concerns', 'Gender / family'],
+  ['recognition_of_qualification', 'Qualification recognition'],
+  ['other_unknown', 'Other'],
+];
 
-  const loadData = async () => {
-    setLoading(true);
-    try {
-      const data = await fetchAdminMetrics({
-        state: selectedState || undefined,
-        district: selectedDistrict || undefined,
-      });
-      setMetrics(data);
-
-      const insData = await fetchAdminInsights(selectedState || undefined, selectedDistrict || undefined);
-      setInsights(insData.insights || []);
-    } catch (e) {
-      console.error('Failed to load dashboard data', e);
-      // No fallback mock data, just leave metrics empty
-      setMetrics(null);
-      setInsights([]);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  useEffect(() => {
-    loadData();
-  }, [selectedState, selectedDistrict]);
-
-  const objectionChartData = metrics?.objections
-    ? Object.entries(metrics.objections).map(([category, count]) => ({
-        category: category.replace('_', ' ').toUpperCase(),
-        count: count as number,
-      }))
-    : [];
-
-  const funnelData = metrics?.funnel
-    ? [
-        { name: '1. Sessions Started', value: metrics.funnel.sessions, fill: '#3b82f6' },
-        { name: '2. Trade Viewed', value: metrics.funnel.trades_viewed, fill: '#0ea5e9' },
-        { name: '3. Summary Shared', value: metrics.funnel.summary_shared, fill: '#10b981' },
-        { name: '4. Escalated to Human', value: metrics.funnel.escalated, fill: '#f43f5e' },
-      ]
-    : [];
-
+function Distribution({ title, values }: { title: string; values?: Record<string, number> }) {
+  const entries = Object.entries(values || {});
   return (
-    <div className="min-h-screen bg-slate-50 p-6 md:p-8 space-y-6">
-      {/* Top Header & Filter Controls */}
-      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 bg-white p-6 rounded-2xl border border-slate-200 shadow-sm">
-        <div>
-          <h1 className="text-2xl font-black text-slate-900 tracking-tight">
-            Parivar Path — Scheme Administrator Analytics
-          </h1>
-          <p className="text-xs text-slate-500 mt-1">
-            Resistance Index & Parental Sentiment Shift Tracking • Ministry of Skill Development
-          </p>
-        </div>
-
-        <div className="flex flex-wrap items-center gap-3">
-          {/* State Filter */}
-          <select
-            value={selectedState}
-            onChange={(e) => {
-              setSelectedState(e.target.value);
-              setSelectedDistrict('');
-            }}
-            className="border border-slate-200 bg-white px-3 py-2 rounded-xl text-sm font-semibold text-slate-700 focus:outline-none focus:ring-2 focus:ring-orange-500 min-h-[44px]"
-          >
-            <option value="">All States</option>
-            <option value="Telangana">Telangana</option>
-          </select>
-
-          {/* District Filter */}
-          <select
-            value={selectedDistrict}
-            onChange={(e) => setSelectedDistrict(e.target.value)}
-            className="border border-slate-200 bg-white px-3 py-2 rounded-xl text-sm font-semibold text-slate-700 focus:outline-none focus:ring-2 focus:ring-orange-500 min-h-[44px]"
-          >
-            <option value="">All Districts</option>
-            {selectedState === 'Telangana' && (
-              <>
-                <option value="Adilabad">Adilabad</option>
-                <option value="Hyderabad">Hyderabad</option>
-                <option value="Karimnagar">Karimnagar</option>
-              </>
-            )}
-          </select>
-
-          {/* Export CSV Button */}
-          <a
-            href="http://localhost:8000/admin/export.csv"
-            download="parivar_path_sessions.csv"
-            className="bg-slate-900 hover:bg-slate-800 text-white px-4 py-2 rounded-xl text-sm font-bold flex items-center gap-2 shadow-sm transition-colors min-h-[44px]"
-          >
-            <Download size={16} /> Export CSV
-          </a>
-        </div>
-      </div>
-
-      {(!metrics && !loading) && (
-        <div className="bg-red-50 border border-red-200 text-red-700 p-4 rounded-2xl font-semibold">
-          Failed to load dashboard data. Please try again.
-        </div>
-      )}
-
-      {/* KPI Row (PRD 1.6 & 7) */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        <KPICard
-          title="Total Family Sessions"
-          value={metrics ? metrics.total_sessions.toString() : 'Unavailable'}
-          trend={metrics ? 'From recorded sessions' : 'No verified metrics loaded'}
-          good={Boolean(metrics)}
-        />
-        <KPICard
-          title="Avg Sentiment Shift"
-          value={metrics?.avg_sentiment_shift != null ? `+${metrics.avg_sentiment_shift}` : 'Unavailable'}
-          trend={metrics ? 'Computed from parent messages' : 'No verified metrics loaded'}
-          good={Boolean(metrics)}
-        />
-        <KPICard
-          title="Escalation Rate"
-          value={metrics ? `${Math.round(metrics.escalation_rate * 100)}%` : 'Unavailable'}
-          trend={metrics ? 'From recorded escalations' : 'No verified metrics loaded'}
-          good={Boolean(metrics)}
-        />
-        <KPICard
-          title="Summary Cards Shared"
-          value={metrics ? metrics.total_summary_shares.toString() : 'Unavailable'}
-          trend={metrics ? 'From recorded shares' : 'No verified metrics loaded'}
-          good={Boolean(metrics)}
-        />
-      </div>
-
-      {/* District Resistance Heatmap & Resistance Index */}
-      <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-4">
-        <div className="flex justify-between items-center">
-          <div>
-            <h3 className="font-bold text-lg text-slate-900">
-              District Resistance Index (Heatmap & Breakdown)
-            </h3>
-            <p className="text-xs text-slate-500">
-              Formula: <code>0.5 × NegativeStart + 0.3 × EscalationRate + 0.2 × (1 - ShiftNorm)</code> (0 to 100)
-            </p>
-          </div>
-        </div>
-
-        <DistrictHeatmap districts={metrics?.heatmap} />
-      </div>
-
-      {/* Charts Grid: Objections + Funnel */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* Objection Breakdown Bar Chart */}
-        <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm flex flex-col">
-          <h3 className="font-bold text-base text-slate-900 mb-1">
-            Top Parental Objections by Category
-          </h3>
-          <p className="text-xs text-slate-500 mb-4">
-            Aggregated from natural language family messages & quick chips
-          </p>
-          <div className="h-64 w-full">
-            <ResponsiveContainer width="100%" height="100%">
-              <BarChart data={objectionChartData}>
-                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
-                <XAxis dataKey="category" tick={{ fontSize: 11 }} />
-                <YAxis tick={{ fontSize: 11 }} />
-                <RechartsTooltip />
-                <Bar dataKey="count" fill="#ea580c" radius={[6, 6, 0, 0]} />
-              </BarChart>
-            </ResponsiveContainer>
-          </div>
-        </div>
-
-        {/* Counselling Funnel */}
-        <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm flex flex-col">
-          <h3 className="font-bold text-base text-slate-900 mb-1">
-            Family Counselling Funnel
-          </h3>
-          <p className="text-xs text-slate-500 mb-4">
-            Progression from onboarding to trade selection and WhatsApp card share
-          </p>
-          <div className="space-y-3 flex-1 flex flex-col justify-center">
-            {funnelData.map((step, idx) => {
-              const maxVal = funnelData[0]?.value || 1;
-              const pct = Math.round((step.value / maxVal) * 100);
-              return (
-                <div key={idx} className="space-y-1">
-                  <div className="flex justify-between text-xs font-semibold text-slate-700">
-                    <span>{step.name}</span>
-                    <span>
-                      {step.value} ({pct}%)
-                    </span>
-                  </div>
-                  <div className="w-full bg-slate-100 rounded-full h-3 overflow-hidden">
-                    <div
-                      className="h-full rounded-full transition-all duration-500"
-                      style={{ width: `${pct}%`, backgroundColor: step.fill }}
-                    />
-                  </div>
-                </div>
-              );
-            })}
-          </div>
-        </div>
-      </div>
-
-      {/* AI-Generated Insights Panel (PRD 6.6) */}
-      <div className="bg-gradient-to-r from-orange-50 to-amber-50 p-6 rounded-2xl border border-orange-200 shadow-sm">
-        <div className="flex items-center gap-2 mb-3">
-          <Sparkles className="text-orange-600" size={20} />
-          <h3 className="font-bold text-base text-slate-900">
-            Automated Policy & Intervention Insights
-          </h3>
-        </div>
-        <div className="space-y-2.5">
-          {insights.map((ins, i) => (
-            <div key={i} className="flex items-start gap-2.5 text-xs text-slate-800 bg-white/80 p-3 rounded-xl border border-orange-100">
-              <span className="font-bold text-orange-600 flex-shrink-0">Action {i + 1}:</span>
-              <span>{ins}</span>
+    <section className="bg-white rounded-2xl border border-slate-200 p-5 shadow-sm">
+      <h2 className="font-bold text-slate-900">{title}</h2>
+      {entries.length ? (
+        <div className="mt-4 space-y-3">
+          {entries.sort((a, b) => b[1] - a[1]).map(([label, count]) => (
+            <div key={label} className="flex items-center justify-between gap-4 text-sm">
+              <span className="text-slate-700">{label.replaceAll('_', ' ')}</span>
+              <span className="font-bold text-slate-900">{count}</span>
             </div>
           ))}
         </div>
-      </div>
-    </div>
+      ) : <p className="mt-4 text-sm text-slate-500">Insufficient data</p>}
+    </section>
+  );
+}
+
+export default function AdminDashboard() {
+  const [filters, setFilters] = useState<Record<string, string>>({});
+  const [metrics, setMetrics] = useState<any>(null);
+  const [error, setError] = useState('');
+
+  useEffect(() => {
+    let active = true;
+    fetchAdminMetrics({
+      state: filters.state || undefined,
+      district: filters.district || undefined,
+      language: filters.language || undefined,
+      trade_id: filters.trade_id ? Number(filters.trade_id) : undefined,
+      provider_id: filters.provider_id ? Number(filters.provider_id) : undefined,
+      concern: filters.concern || undefined,
+      start_date: filters.start_date || undefined,
+      end_date: filters.end_date || undefined,
+    }).then((data) => {
+      if (active) { setMetrics(data); setError(''); }
+    }).catch(() => {
+      if (active) { setMetrics(null); setError('Unable to load aggregate dashboard data.'); }
+    });
+    return () => { active = false; };
+  }, [filters]);
+
+  const update = (key: string, value: string) => setFilters((current) => ({ ...current, [key]: value }));
+  const kpis = metrics?.kpis;
+
+  return (
+    <main className="min-h-screen bg-slate-50 p-4 md:p-8 space-y-6">
+      <header className="bg-white rounded-2xl border border-slate-200 p-6 shadow-sm">
+        <p className="text-xs font-bold uppercase tracking-wide text-orange-700">SIH 26241 administrator view</p>
+        <h1 className="mt-1 text-2xl font-black text-slate-900">Where and why families need support</h1>
+        <p className="mt-2 text-sm text-slate-600">Aggregate counselling data only. No names, phone numbers, transcripts, or household-level records are shown.</p>
+      </header>
+
+      <section className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        {[
+          ['Counselling volume', kpis?.counselling_volume ?? 'Insufficient data'],
+          ['Unresolved concerns', kpis?.unresolved_concerns ?? 'Insufficient data'],
+          ['Escalation rate', kpis?.escalation_rate_label || 'Insufficient data'],
+          ['Concern state change', metrics?.concern_state_change?.label || 'Insufficient data'],
+        ].map(([label, value]) => (
+          <div key={label} className="bg-white rounded-2xl border border-slate-200 p-5 shadow-sm">
+            <p className="text-sm text-slate-500">{label}</p>
+            <p className="mt-2 text-2xl font-black text-slate-900">{value}</p>
+          </div>
+        ))}
+      </section>
+
+      <section className="bg-white rounded-2xl border border-slate-200 p-5 shadow-sm">
+        <h2 className="font-bold text-slate-900">Filters</h2>
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 mt-4">
+          <input type="date" aria-label="Start date" value={filters.start_date || ''} onChange={(e) => update('start_date', e.target.value)} className="border rounded-xl p-3" />
+          <input type="date" aria-label="End date" value={filters.end_date || ''} onChange={(e) => update('end_date', e.target.value)} className="border rounded-xl p-3" />
+          <input placeholder="State" aria-label="State" value={filters.state || ''} onChange={(e) => update('state', e.target.value)} className="border rounded-xl p-3" />
+          <input placeholder="District" aria-label="District" value={filters.district || ''} onChange={(e) => update('district', e.target.value)} className="border rounded-xl p-3" />
+          <select aria-label="Language" value={filters.language || ''} onChange={(e) => update('language', e.target.value)} className="border rounded-xl p-3">
+            <option value="">All languages</option><option value="en">English</option><option value="hi">Hindi</option><option value="te">Telugu</option><option value="ta">Tamil</option>
+          </select>
+          <input placeholder="Trade ID" aria-label="Trade ID" inputMode="numeric" value={filters.trade_id || ''} onChange={(e) => update('trade_id', e.target.value)} className="border rounded-xl p-3" />
+          <input placeholder="Provider ID" aria-label="Provider ID" inputMode="numeric" value={filters.provider_id || ''} onChange={(e) => update('provider_id', e.target.value)} className="border rounded-xl p-3" />
+          <select aria-label="Concern" value={filters.concern || ''} onChange={(e) => update('concern', e.target.value)} className="border rounded-xl p-3">
+            <option value="">All concerns</option>{concerns.map(([value, label]) => <option key={value} value={value}>{label}</option>)}
+          </select>
+        </div>
+      </section>
+
+      {error && <div role="alert" className="bg-red-50 border border-red-200 text-red-800 rounded-xl p-4">{error}</div>}
+      {metrics?.insufficient_data && <div className="bg-amber-50 border border-amber-200 text-amber-900 rounded-xl p-4">Insufficient data for the selected filters.</div>}
+
+      <section className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <Distribution title="WHY? Concern distribution" values={metrics?.concern_distribution} />
+        <Distribution title="Unresolved concerns by category" values={metrics?.unresolved_concerns_by_category} />
+        <Distribution title="WHERE? State / district" values={metrics?.geographic_distribution} />
+        <Distribution title="Trade distribution" values={metrics?.trade_distribution} />
+        <Distribution title="Language distribution" values={metrics?.language_distribution} />
+        <Distribution title="Training provider distribution" values={metrics?.provider_distribution} />
+      </section>
+    </main>
   );
 }

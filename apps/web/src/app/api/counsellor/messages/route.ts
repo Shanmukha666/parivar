@@ -1,12 +1,26 @@
 import { NextResponse } from 'next/server';
-import { createSupabaseServerClient } from '../../../../lib/supabase-server';
+import { getAuthenticatedUser, requireRole } from '../../../../lib/authorization';
 
 export async function POST(request: Request) {
-  const supabase = await createSupabaseServerClient();
+  const { supabase, user } = await getAuthenticatedUser();
+  const denied = requireRole(user, 'counsellor');
+  if (denied) return denied;
+  if (!user) return NextResponse.json({ error: 'Authentication required' }, { status: 401 });
   const body = await request.json().catch(() => ({}));
 
   if (!body.session_id || !body.text) {
     return NextResponse.json({ error: 'session_id and text are required' }, { status: 400 });
+  }
+
+  if (user.app_metadata?.role !== 'admin') {
+    const { data: assignment } = await supabase
+      .from('escalations')
+      .select('id')
+      .eq('session_id', body.session_id)
+      .eq('counsellor_id', user.id)
+      .in('status', ['assigned', 'contacted'])
+      .maybeSingle();
+    if (!assignment) return NextResponse.json({ error: 'Ticket is not assigned to this counsellor' }, { status: 403 });
   }
 
   const { data, error } = await supabase
@@ -28,12 +42,26 @@ export async function POST(request: Request) {
 }
 
 export async function GET(request: Request) {
-  const supabase = await createSupabaseServerClient();
+  const { supabase, user } = await getAuthenticatedUser();
+  const denied = requireRole(user, 'counsellor');
+  if (denied) return denied;
+  if (!user) return NextResponse.json({ error: 'Authentication required' }, { status: 401 });
   const { searchParams } = new URL(request.url);
   const sessionId = searchParams.get('session_id');
 
   if (!sessionId) {
     return NextResponse.json({ error: 'session_id is required' }, { status: 400 });
+  }
+
+  if (user.app_metadata?.role !== 'admin') {
+    const { data: assignment } = await supabase
+      .from('escalations')
+      .select('id')
+      .eq('session_id', sessionId)
+      .eq('counsellor_id', user.id)
+      .in('status', ['assigned', 'contacted'])
+      .maybeSingle();
+    if (!assignment) return NextResponse.json({ error: 'Ticket is not assigned to this counsellor' }, { status: 403 });
   }
 
   const { data, error } = await supabase

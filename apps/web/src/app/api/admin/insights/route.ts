@@ -1,7 +1,11 @@
 import { NextResponse } from 'next/server';
-import { createSupabaseServerClient } from '../../../../lib/supabase-server';
+import { getAuthenticatedUser, requireAdmin } from '../../../../lib/authorization';
 
 export async function GET(request: Request) {
+  const { user } = await getAuthenticatedUser();
+  const denied = requireAdmin(user);
+  if (denied) return denied;
+
   const { searchParams } = new URL(request.url);
   const state = searchParams.get('state') || 'All States';
   const district = searchParams.get('district');
@@ -9,10 +13,10 @@ export async function GET(request: Request) {
   const target = district ? `${district}, ${state}` : state;
 
   const insights = [
-    `In ${target}, parent resistance is primarily driven by social status concerns ("degree is better") followed by starting income doubts.`,
-    `District data indicates that showing verified 3-year career progression ladders reduces parent hesitation by 40%.`,
-    `Recommendation: Deploy mobile skill orientation vans and alumni success stories to semi-urban clusters to address status objections.`
+    `No causal impact estimate is available for ${target}. Review objection counts and sample sizes before making an intervention decision.`,
+    `Use only reviewed outcome records and locally reviewed language content when preparing counselling material for ${target}.`,
+    `If the sample is large enough, compare objection and escalation rates over time before attributing any change to the platform.`
   ];
 
-  return NextResponse.json({ insights });
+  return NextResponse.json({ insights, weak_signal: true });
 }

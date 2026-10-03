@@ -30,6 +30,9 @@ class Provider(Base):
     accreditation = Column(Text)
     fee_inr = Column(Integer)
     contact = Column(Text)
+    verified = Column(Boolean, nullable=False, default=False)
+    is_synthetic = Column(Boolean, nullable=False, default=False)
+    source_id = Column(Integer, ForeignKey("data_sources.id"))
 
 class Outcome(Base):
     __tablename__ = "outcomes"
@@ -47,6 +50,41 @@ class Outcome(Base):
     sample_size = Column(Integer)
     source = Column(Text)
     verified_on = Column(Date)
+    verified = Column(Boolean, nullable=False, default=False)
+    is_synthetic = Column(Boolean, nullable=False, default=False)
+    evidence_url = Column(Text)
+    review_status = Column(Text, nullable=False, default="pending_data_review")
+
+class DataSource(Base):
+    __tablename__ = "data_sources"
+    id = Column(Integer, primary_key=True, index=True)
+    publisher = Column(Text, nullable=False)
+    title = Column(Text, nullable=False)
+    source_url = Column(Text)
+    document_reference = Column(Text)
+    retrieved_on = Column(Date)
+
+class OutcomeMetric(Base):
+    __tablename__ = "outcome_metrics"
+    id = Column(Integer, primary_key=True, index=True)
+    trade_id = Column(Integer, ForeignKey("trades.id"), nullable=False, index=True)
+    provider_id = Column(Integer, ForeignKey("providers.id"))
+    state = Column(Text, nullable=False)
+    district = Column(Text, index=True)
+    metric_key = Column(Text, nullable=False)
+    metric_value = Column(Numeric)
+    metric_text = Column(Text)
+    unit = Column(Text, nullable=False)
+    period_start = Column(Date)
+    period_end = Column(Date)
+    year = Column(Integer)
+    sample_size = Column(Integer)
+    source_id = Column(Integer, ForeignKey("data_sources.id"), nullable=False)
+    verification_date = Column(Date)
+    verification_status = Column(Text, nullable=False, default="pending")
+    data_quality = Column(Text, nullable=False, default="unknown")
+    confidence = Column(Numeric)
+    is_synthetic = Column(Boolean, nullable=False, default=False)
 
 class Pathway(Base):
     __tablename__ = "pathways"
@@ -58,6 +96,9 @@ class Pathway(Base):
     next_education = Column(Text)
     typical_role = Column(Text)
     typical_salary_range = Column(Text)
+    source_id = Column(Integer, ForeignKey("data_sources.id"))
+    verification_status = Column(Text, nullable=False, default="pending")
+    is_synthetic = Column(Boolean, nullable=False, default=False)
 
 class Scheme(Base):
     __tablename__ = "schemes"
@@ -77,11 +118,13 @@ class Story(Base):
     name = Column(Text)
     quote = Column(UniversalJSON)
     outcome = Column(Text)
+    verified = Column(Boolean, nullable=False, default=False)
     is_synthetic = Column(Boolean, default=True)
 
 class Session(Base):
     __tablename__ = "sessions"
     id = Column(UniversalUUID, primary_key=True, default=uuid.uuid4)
+    owner_id = Column(UniversalUUID, nullable=False, index=True)
     lang = Column(Text)
     state = Column(Text)
     district = Column(Text, index=True)
@@ -89,6 +132,25 @@ class Session(Base):
     learner_class = Column(Text)
     income_bracket = Column(Text)
     selected_trade_id = Column(Integer)
+    learner_age = Column(Integer)
+    guardian_consent = Column(Boolean, nullable=False, default=False)
+    concern_state = Column(UniversalJSON, nullable=False, default=lambda: {
+        "initial_concerns": [],
+        "evidence_presented": [],
+        "current_concerns": [],
+        "unresolved_concerns": [],
+        "escalation_status": "not_escalated",
+    })
+    joint_counselling_state = Column(UniversalJSON, nullable=False, default=lambda: {
+        "mode": "not_started",
+        "status": "not_started",
+        "answers": {},
+        "comparison": None,
+        "counselling_plan": None,
+        "evidence_discussed": [],
+        "unresolved": False,
+        "escalation_status": "not_escalated",
+    })
     consent = Column(Boolean)
     created_at = Column(DateTime(timezone=True), server_default=func.now())
 
@@ -107,19 +169,26 @@ class MessageAnalysis(Base):
     objection_category = Column(Text)
     sentiment = Column(Numeric)
     intent = Column(Text)
+    concerns = Column(UniversalJSON, nullable=False, default=list)
+    concern_intensity = Column(Text, nullable=False, default="LOW")
 
 class Escalation(Base):
     __tablename__ = "escalations"
     id = Column(Integer, primary_key=True, index=True)
     session_id = Column(UniversalUUID)
     reason = Column(Text)
+    concern_category = Column(Text)
     summary = Column(Text)
-    status = Column(Text, default='queued', index=True)
-    counsellor_id = Column(Integer)
+    status = Column(Text, default='new', index=True)
+    priority = Column(Text, default='normal', index=True)
+    counsellor_id = Column(UniversalUUID)
     callback_phone = Column(Text)
     callback_slot = Column(Text)
     created_at = Column(DateTime(timezone=True), server_default=func.now())
+    accepted_at = Column(DateTime(timezone=True))
+    contacted_at = Column(DateTime(timezone=True))
     resolved_at = Column(DateTime(timezone=True))
+    closed_at = Column(DateTime(timezone=True))
     resolution_note = Column(Text)
 
 class Event(Base):

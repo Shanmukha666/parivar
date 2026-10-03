@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { UserProfile } from './types';
+import { isSupportedLanguage, type Language } from './i18n';
 
 export interface ExtendedProfile extends Partial<UserProfile> {
   role?: string;
@@ -9,7 +10,7 @@ export interface ExtendedProfile extends Partial<UserProfile> {
 }
 
 interface AppState {
-  language: string;
+  language: Language;
   sessionId: string | null;
   profile: ExtendedProfile;
   isHydrated: boolean;
@@ -72,7 +73,7 @@ export function useStore() {
   return {
     ...state,
     setLanguage: (lang: string) => {
-      setGlobalState({ language: lang });
+      if (isSupportedLanguage(lang)) setGlobalState({ language: lang });
     },
     setSessionId: (id: string) => {
       setGlobalState({ sessionId: id });

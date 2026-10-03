@@ -4,12 +4,15 @@ import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import PathwayLadder from '../../../components/PathwayLadder';
 import { ArrowLeft, MessageCircle, TrendingUp, Award, MapPin, Building, ShieldCheck } from 'lucide-react';
+import WhyThisNumber from '../../../components/WhyThisNumber';
 import { fetchTradeDetail, fetchTradeOutcomes, fetchTradePathway, fetchProviders, patchSession } from '../../../lib/api';
 import { useStore } from '../../../lib/store';
+import { formatCurrency, useTranslation } from '../../../lib/i18n';
 
 export default function TradeDetail({ params }: { params: { id: string } }) {
   const router = useRouter();
   const { language, profile, setSelectedTrade, sessionId } = useStore();
+  const t = useTranslation(language);
   const tradeId = parseInt(params.id, 10) || 1;
 
   const [trade, setTrade] = useState<any>(null);
@@ -86,7 +89,7 @@ export default function TradeDetail({ params }: { params: { id: string } }) {
               <span>Local Outcomes ({profile.district || 'Adilabad'})</span>
             </h2>
             <span className="text-[11px] font-semibold bg-emerald-50 text-emerald-700 px-2 py-0.5 rounded-full border border-emerald-200">
-              {outcomes?.is_synthetic ? 'Demo dataset' : outcomes?.verified ? 'Verified' : 'Verification pending'}
+              {outcomes?.is_synthetic ? 'DEMO / SYNTHETIC DATA' : outcomes?.verified ? 'VERIFIED DATA' : 'Verification pending'}
             </span>
           </div>
 
@@ -94,23 +97,75 @@ export default function TradeDetail({ params }: { params: { id: string } }) {
             <div className="bg-orange-50/60 p-3 rounded-xl border border-orange-100 text-center">
               <div className="text-2xl font-black text-orange-600">{outcomes?.placement_rate != null ? `${outcomes.placement_rate}%` : 'Not available'}</div>
               <div className="text-[11px] text-slate-500 font-semibold">Placement Rate</div>
+              {outcomes?.placement_rate != null && (
+                <WhyThisNumber variant="subtle" details={{
+                  metric: t('placement_label') || 'Placement Rate',
+                  value: `${outcomes.placement_rate}%`,
+                  location: `${profile.district || 'District'}, ${profile.state || 'State'}`,
+                  trade: trade?.name_en,
+                  year: outcomes?.cohort_year,
+                  sampleSize: outcomes?.sample_size,
+                  source: outcomes?.source?.publisher || outcomes?.source?.title || 'NCVT / MSDE Survey',
+                  sourceUrl: outcomes?.source?.url,
+                  verifiedOn: outcomes?.verified_on,
+                  isVerified: !outcomes?.is_synthetic,
+                  isSynthetic: outcomes?.is_synthetic,
+                }} />
+              )}
             </div>
             <div className="bg-orange-50/60 p-3 rounded-xl border border-orange-100 text-center">
               <div className="text-2xl font-black text-orange-600">
-                {outcomes?.avg_start_salary_inr != null ? `₹${outcomes.avg_start_salary_inr.toLocaleString()}/mo` : 'Not available'}
+                {outcomes?.avg_start_salary_inr != null ? `${formatCurrency(outcomes.avg_start_salary_inr, language)}/mo` : t('not_available')}
               </div>
-              <div className="text-[11px] text-slate-500 font-semibold">Starting Salary</div>
+              <div className="text-[11px] text-slate-500 font-semibold">{t('salary_label')}</div>
+              {outcomes?.avg_start_salary_inr != null && (
+                <WhyThisNumber variant="subtle" details={{
+                  metric: t('salary_label') || 'Starting Salary',
+                  value: `${formatCurrency(outcomes.avg_start_salary_inr, language)} / month`,
+                  location: `${profile.district || 'District'}, ${profile.state || 'State'}`,
+                  trade: trade?.name_en,
+                  year: outcomes?.cohort_year,
+                  sampleSize: outcomes?.sample_size,
+                  source: outcomes?.source?.publisher || outcomes?.source?.title || 'NCVT / MSDE Survey',
+                  sourceUrl: outcomes?.source?.url,
+                  verifiedOn: outcomes?.verified_on,
+                  isVerified: !outcomes?.is_synthetic,
+                  isSynthetic: outcomes?.is_synthetic,
+                }} />
+              )}
             </div>
           </div>
 
           <div className="text-xs text-slate-600 pt-1">
-            After 3 years experience: <strong>{outcomes?.salary_3yr_min != null && outcomes?.salary_3yr_max != null ? `₹${outcomes.salary_3yr_min.toLocaleString()} – ₹${outcomes.salary_3yr_max.toLocaleString()} / month` : 'Not available'}</strong>
+            {t('after_three_years')}: <strong>{outcomes?.salary_3yr_min != null && outcomes?.salary_3yr_max != null ? `${formatCurrency(outcomes.salary_3yr_min, language)} – ${formatCurrency(outcomes.salary_3yr_max, language)} / month` : t('not_available')}</strong>
+            {outcomes?.salary_3yr_min != null && outcomes?.salary_3yr_max != null && (
+              <WhyThisNumber variant="subtle" className="ml-1" details={{
+                metric: t('after_three_years') || '3-Year Earnings',
+                value: `${formatCurrency(outcomes.salary_3yr_min, language)} – ${formatCurrency(outcomes.salary_3yr_max, language)}`,
+                location: `${profile.district || 'District'}, ${profile.state || 'State'}`,
+                trade: trade?.name_en,
+                year: outcomes?.cohort_year,
+                sampleSize: outcomes?.sample_size,
+                source: outcomes?.source?.publisher || outcomes?.source?.title || 'NCVT / MSDE Survey',
+                sourceUrl: outcomes?.source?.url,
+                verifiedOn: outcomes?.verified_on,
+                isVerified: !outcomes?.is_synthetic,
+                isSynthetic: outcomes?.is_synthetic,
+              }} />
+            )}
           </div>
 
           <div className="text-[11px] text-slate-400 bg-slate-50 p-2 rounded-lg border border-slate-100 flex items-center gap-1.5">
             <Award size={13} className="text-blue-500 flex-shrink-0" />
             <span>Scope: {outcomes?.scope_label || 'Verified data unavailable'} ({outcomes?.cohort_year || 'n/a'} batch, {outcomes?.sample_size || 'n/a'} learners)</span>
           </div>
+          {outcomes?.source && (
+            <div className="text-[11px] text-slate-500">
+              Source: {outcomes.source.publisher} — {outcomes.source.title}
+              {outcomes.source.url && <a className="ml-1 underline" href={outcomes.source.url} target="_blank" rel="noreferrer">open reference</a>}
+              {outcomes.stale && <span className="ml-1 text-amber-700">This record may be stale.</span>}
+            </div>
+          )}
         </section>
 
         {/* NSQF Progression Pathway Ladder */}
@@ -140,6 +195,9 @@ export default function TradeDetail({ params }: { params: { id: string } }) {
                 <div className="font-bold text-slate-900">{p.name}</div>
                 <div className="text-slate-500 mt-0.5">
                   Type: {p.type} • Fee: {p.fee_inr != null ? `₹${p.fee_inr}` : 'Not available'}
+                </div>
+                <div className={p.is_synthetic ? 'text-amber-700 font-semibold' : 'text-emerald-700 font-semibold'}>
+                  {p.is_synthetic ? 'DEMO / SYNTHETIC PROVIDER DATA' : 'VERIFIED PROVIDER DATA'}
                 </div>
               </div>
             ))}

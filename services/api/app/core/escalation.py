@@ -6,8 +6,9 @@ Detects when human counsellor help is needed, creates tickets, manages queue.
 import json
 import logging
 import os
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import List, Optional, Any
+from uuid import UUID
 
 from sqlalchemy import select, func
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -29,6 +30,61 @@ SENSITIVE_KEYWORDS = [
     "asuraksitam", "pramaadam", "gaya", "kalahamu", "aapaddha",
     "vedhimpulu", "aatmahatya", "hansa",
 ]
+
+ESCALATION_STATUSES = {"new", "assigned", "contacted", "resolved", "closed_no_response"}
+ACTIVE_STATUSES = {"new", "assigned", "contacted"}
+PRIORITIES = {"normal", "high", "urgent"}
+
+
+def can_view_ticket(ticket: Escalation, user_id: str, role: str) -> bool:
+    """Family users may view only their own session tickets; staff may view assigned work."""
+    if role == "admin":
+        return True
+    if role == "counsellor":
+        return str(ticket.counsellor_id) == str(user_id) if ticket.counsellor_id else ticket.status == "new"
+    return False
+
+
+def can_view_family_ticket(ticket: Escalation, session_owner_id: str, user_id: str) -> bool:
+    """A family member can only view tickets for sessions they own."""
+    return str(session_owner_id) == str(user_id) and str(ticket.session_id) != "None"
+
+
+def transition_ticket(ticket: Escalation, action: str, actor_id: str, role: str) -> None:
+    """Apply the ticket state machine and authorization rules in one place."""
+    now = datetime.now(timezone.utc)
+    if action == "accept":
+        if role not in {"counsellor", "admin"} or ticket.status != "new":
+            raise ValueError("Ticket is not available for acceptance")
+        ticket.status = "assigned"
+        ticket.counsellor_id = UUID(str(actor_id))
+        ticket.accepted_at = now
+        return
+    if action == "contact":
+        if role not in {"counsellor", "admin"} or ticket.status != "assigned":
+            raise ValueError("Ticket must be assigned before contact begins")
+        if role == "counsellor" and str(ticket.counsellor_id) != str(actor_id):
+            raise PermissionError("Only the assigned counsellor may begin contact")
+        ticket.status = "contacted"
+        ticket.contacted_at = now
+        return
+    if action == "resolve":
+        if role not in {"counsellor", "admin"} or ticket.status != "contacted":
+            raise ValueError("Ticket must be contacted before resolution")
+        if role == "counsellor" and str(ticket.counsellor_id) != str(actor_id):
+            raise PermissionError("Only the assigned counsellor may resolve the ticket")
+        ticket.status = "resolved"
+        ticket.resolved_at = now
+        return
+    if action == "close":
+        if role not in {"counsellor", "admin"} or ticket.status != "resolved":
+            raise ValueError("Only a resolved ticket can be closed")
+        if role == "counsellor" and str(ticket.counsellor_id) != str(actor_id):
+            raise PermissionError("Only the assigned counsellor may close the ticket")
+        ticket.status = "closed_no_response"
+        ticket.closed_at = now
+        return
+    raise ValueError("Unknown ticket action")
 
 
 async def check_escalation_triggers(
@@ -160,18 +216,34 @@ async def create_escalation_ticket(
     db: AsyncSession,
     callback_phone: Optional[str] = None,
     callback_slot: Optional[str] = None,
+    concern_category: Optional[str] = None,
+    priority: str = "normal",
 ) -> Escalation:
     """Create an escalation ticket and add to queue."""
     import uuid
     sid = uuid.UUID(str(session_id)) if not isinstance(session_id, uuid.UUID) else session_id
 
+    existing_result = await db.execute(
+        select(Escalation)
+        .where(Escalation.session_id == sid, Escalation.status.in_(ACTIVE_STATUSES))
+        .order_by(Escalation.created_at.desc())
+        .limit(1)
+    )
+    existing = existing_result.scalars().first()
+    if existing:
+        return existing
+
     summary = await generate_escalation_summary(sid, reason, db)
 
+    if priority not in PRIORITIES:
+        raise ValueError("Invalid escalation priority")
     ticket = Escalation(
         session_id=sid,
         reason=reason,
+        concern_category=concern_category,
+        priority=priority,
         summary=summary,
-        status="queued",
+        status="new",
         callback_phone=callback_phone,
         callback_slot=callback_slot,
     )
@@ -191,7 +263,7 @@ async def get_escalation_queue(db: AsyncSession) -> List[dict]:
     """Get all queued escalation tickets for counsellors."""
     stmt = (
         select(Escalation)
-        .where(Escalation.status.in_(["queued", "active"]))
+        .where(Escalation.status.in_(["new", "assigned", "contacted"]))
         .order_by(Escalation.created_at.desc())
     )
     result = await db.execute(stmt)
@@ -205,8 +277,13 @@ async def get_escalation_queue(db: AsyncSession) -> List[dict]:
             "summary": t.summary,
             "status": t.status,
             "created_at": t.created_at.isoformat() if t.created_at else None,
-            "callback_phone": t.callback_phone,
+            # Callback details remain hidden until the assigned counsellor begins contact.
+            "callback_phone": t.callback_phone if t.status == "contacted" else None,
             "callback_slot": t.callback_slot,
+            "priority": t.priority,
+            "concern_category": t.concern_category,
+            "accepted_at": t.accepted_at.isoformat() if t.accepted_at else None,
+            "contacted_at": t.contacted_at.isoformat() if t.contacted_at else None,
         }
         for t in tickets
     ]
@@ -218,8 +295,18 @@ async def accept_ticket(ticket_id: int, counsellor_id: int, db: AsyncSession) ->
     result = await db.execute(stmt)
     ticket = result.scalars().first()
     if ticket:
-        ticket.status = "active"
-        ticket.counsellor_id = counsellor_id
+        transition_ticket(ticket, "accept", str(counsellor_id), "counsellor")
+        await db.commit()
+        await db.refresh(ticket)
+    return ticket
+
+
+async def contact_ticket(ticket_id: int, counsellor_id: str, db: AsyncSession) -> Escalation:
+    stmt = select(Escalation).where(Escalation.id == ticket_id)
+    result = await db.execute(stmt)
+    ticket = result.scalars().first()
+    if ticket:
+        transition_ticket(ticket, "contact", counsellor_id, "counsellor")
         await db.commit()
         await db.refresh(ticket)
     return ticket
@@ -228,6 +315,7 @@ async def accept_ticket(ticket_id: int, counsellor_id: int, db: AsyncSession) ->
 async def resolve_ticket(
     ticket_id: int,
     resolution_note: str,
+    counsellor_id: str,
     db: AsyncSession,
 ) -> Escalation:
     """Counsellor resolves a ticket."""
@@ -235,9 +323,19 @@ async def resolve_ticket(
     result = await db.execute(stmt)
     ticket = result.scalars().first()
     if ticket:
-        ticket.status = "resolved"
-        ticket.resolved_at = datetime.utcnow()
+        transition_ticket(ticket, "resolve", counsellor_id, "counsellor")
         ticket.resolution_note = resolution_note
+        await db.commit()
+        await db.refresh(ticket)
+    return ticket
+
+
+async def close_ticket(ticket_id: int, counsellor_id: str, db: AsyncSession) -> Escalation:
+    stmt = select(Escalation).where(Escalation.id == ticket_id)
+    result = await db.execute(stmt)
+    ticket = result.scalars().first()
+    if ticket:
+        transition_ticket(ticket, "close", counsellor_id, "counsellor")
         await db.commit()
         await db.refresh(ticket)
     return ticket

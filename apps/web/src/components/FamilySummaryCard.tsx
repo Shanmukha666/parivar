@@ -2,9 +2,12 @@
 
 import { Share2, Printer, MapPin, Award, CheckCircle2, TrendingUp, ShieldCheck } from 'lucide-react';
 import { useStore } from '../lib/store';
+import { useTranslation } from '../lib/i18n';
+import WhyThisNumber from './WhyThisNumber';
 
 export default function FamilySummaryCard({ data, loading }: { data?: any, loading?: boolean }) {
   const { language, profile } = useStore();
+  const t = useTranslation(language);
 
   const tradeName = profile.selectedTradeName || 'Selected trade';
   const district = profile.district || 'your district';
@@ -74,14 +77,53 @@ Explore verified vocational careers together at Parivar Path!`;
             <div className="bg-white p-3 rounded-xl border border-orange-100 shadow-sm text-center">
               <div className="text-2xl font-black text-orange-600">{outcomes?.placement_rate != null ? `${outcomes.placement_rate}%` : 'N/A'}</div>
               <div className="text-xs text-slate-500 font-medium">Placement / Job Rate</div>
+              {outcomes?.placement_rate != null && (
+                <WhyThisNumber variant="subtle" details={{
+                  metric: t('placement_label') || 'Placement Rate',
+                  value: `${outcomes.placement_rate}%`,
+                  location: `${district}, ${state}`,
+                  trade: tradeName,
+                  year: outcomes?.cohort_year,
+                  sampleSize: outcomes?.sample_size,
+                  source: outcomes?.source || 'NCVT / MSDE Survey',
+                  isVerified: true,
+                  isSynthetic: outcomes?.is_synthetic,
+                }} />
+              )}
             </div>
             <div className="bg-white p-3 rounded-xl border border-orange-100 shadow-sm text-center">
               <div className="text-2xl font-black text-orange-600">{outcomes?.avg_starting_salary != null ? `₹${outcomes.avg_starting_salary}` : 'N/A'}</div>
               <div className="text-xs text-slate-500 font-medium">Starting Salary / Month</div>
+              {outcomes?.avg_starting_salary != null && (
+                <WhyThisNumber variant="subtle" details={{
+                  metric: t('salary_label') || 'Starting Salary',
+                  value: `₹${outcomes.avg_starting_salary} / month`,
+                  location: `${district}, ${state}`,
+                  trade: tradeName,
+                  year: outcomes?.cohort_year,
+                  sampleSize: outcomes?.sample_size,
+                  source: outcomes?.source || 'NCVT / MSDE Survey',
+                  isVerified: true,
+                  isSynthetic: outcomes?.is_synthetic,
+                }} />
+              )}
             </div>
           </div>
           <p className="text-xs text-slate-600 mt-2.5 font-medium">
             After 3 years experience: <strong>{outcomes?.avg_mid_career_salary != null ? `₹${outcomes.avg_mid_career_salary} / month` : 'N/A'}</strong>
+            {outcomes?.avg_mid_career_salary != null && (
+              <WhyThisNumber variant="subtle" className="ml-1" details={{
+                metric: t('after_three_years') || '3-Year Earnings',
+                value: `₹${outcomes.avg_mid_career_salary} / month`,
+                location: `${district}, ${state}`,
+                trade: tradeName,
+                year: outcomes?.cohort_year,
+                sampleSize: outcomes?.sample_size,
+                source: outcomes?.source || 'NCVT / MSDE Survey',
+                isVerified: true,
+                isSynthetic: outcomes?.is_synthetic,
+              }} />
+            )}
           </p>
           <div className="mt-2 inline-flex items-center gap-1 bg-blue-50 text-blue-700 border border-blue-200 px-2.5 py-1 rounded-full text-[11px] font-semibold">
             <Award size={13} /> Source: {outcomes?.source || 'Not available'} {outcomes?.cohort_year ? `(${outcomes.cohort_year})` : ''}

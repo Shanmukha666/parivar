@@ -1,13 +1,107 @@
-from fastapi import APIRouter, Depends, Query, HTTPException
+from fastapi import APIRouter, Depends, Query, HTTPException, status
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select, func, or_
 from typing import List, Optional, Dict, Any
 
 from app.database import get_db
-from app.models.models import Trade, Provider, Scheme, Pathway, Outcome, Story
+from app.models.models import Trade, Provider, Scheme, Pathway, OutcomeMetric, DataSource, Story
+from app.schemas.schemas import MetricIngest
+from app.core.supabase_auth import admin_user
+from datetime import date, timedelta
 from app.core.tools import get_outcomes, get_pathway, find_providers, get_schemes, get_story, recommend_trades
 
 router = APIRouter()
+
+def is_stale(verification_date: date | None, today: date | None = None) -> bool:
+    return bool(verification_date and verification_date < (today or date.today()) - timedelta(days=730))
+
+@router.get("/outcomes")
+async def list_verified_outcomes(
+    trade_id: Optional[int] = Query(None, gt=0),
+    provider_id: Optional[int] = Query(None, gt=0),
+    district: Optional[str] = Query(None),
+    state: Optional[str] = Query(None),
+    include_demo: bool = Query(False),
+    db: AsyncSession = Depends(get_db),
+):
+    stmt = select(OutcomeMetric, DataSource).join(DataSource, DataSource.id == OutcomeMetric.source_id)
+    if trade_id:
+        stmt = stmt.where(OutcomeMetric.trade_id == trade_id)
+    if provider_id:
+        stmt = stmt.where(OutcomeMetric.provider_id == provider_id)
+    if district:
+        stmt = stmt.where(func.lower(OutcomeMetric.district) == district.lower())
+    if state:
+        stmt = stmt.where(func.lower(OutcomeMetric.state) == state.lower())
+    if not include_demo:
+        stmt = stmt.where(
+            OutcomeMetric.verification_status == "verified",
+            OutcomeMetric.is_synthetic.is_(False),
+        )
+    result = await db.execute(stmt.order_by(OutcomeMetric.year.desc(), OutcomeMetric.id.desc()))
+    today = date.today()
+    return [{
+        "id": metric.id,
+        "trade_id": metric.trade_id,
+        "provider_id": metric.provider_id,
+        "state": metric.state,
+        "district": metric.district,
+        "metric_key": metric.metric_key,
+        "metric_value": float(metric.metric_value) if metric.metric_value is not None else None,
+        "metric_text": metric.metric_text,
+        "unit": metric.unit,
+        "year": metric.year,
+        "sample_size": metric.sample_size,
+        "verification_status": metric.verification_status,
+        "is_synthetic": metric.is_synthetic,
+        "data_quality": metric.data_quality,
+        "confidence": float(metric.confidence) if metric.confidence is not None else None,
+        "verification_date": metric.verification_date.isoformat() if metric.verification_date else None,
+        "stale": is_stale(metric.verification_date, today),
+        "source": {
+            "publisher": source.publisher,
+            "title": source.title,
+            "url": source.source_url,
+            "document_reference": source.document_reference,
+        },
+    } for metric, source in result.all()]
+
+@router.post("/outcomes/metrics", status_code=status.HTTP_201_CREATED)
+async def ingest_outcome_metric(
+    payload: MetricIngest,
+    current_user=Depends(admin_user),
+    db: AsyncSession = Depends(get_db),
+):
+    source = DataSource(
+        publisher=payload.publisher,
+        title=payload.source_title,
+        source_url=payload.source_url,
+        document_reference=payload.document_reference,
+    )
+    db.add(source)
+    await db.flush()
+    metric = OutcomeMetric(
+        trade_id=payload.trade_id,
+        provider_id=payload.provider_id,
+        state=payload.state,
+        district=payload.district,
+        metric_key=payload.metric_key,
+        metric_value=payload.metric_value,
+        metric_text=payload.metric_text,
+        unit=payload.unit,
+        year=payload.year,
+        sample_size=payload.sample_size,
+        source_id=source.id,
+        verification_date=payload.verification_date.date() if payload.verification_date else None,
+        verification_status=payload.verification_status,
+        data_quality=payload.data_quality,
+        confidence=payload.confidence,
+        is_synthetic=payload.is_synthetic,
+    )
+    db.add(metric)
+    await db.commit()
+    await db.refresh(metric)
+    return {"id": metric.id, "verification_status": metric.verification_status, "is_synthetic": metric.is_synthetic}
 
 @router.get("/trades")
 async def list_trades(
@@ -119,6 +213,8 @@ async def list_providers(
             "accreditation": p.accreditation,
             "fee_inr": p.fee_inr,
             "contact": p.contact
+            ,"verified": p.verified,
+            "is_synthetic": p.is_synthetic,
         }
         for p in providers
     ]

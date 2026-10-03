@@ -47,6 +47,98 @@ OBJECTION_KEYWORDS = {
     ],
 }
 
+CONCERN_CATEGORIES = (
+    "income_potential",
+    "job_security",
+    "social_perception_status",
+    "safety",
+    "further_education",
+    "career_progression",
+    "training_quality",
+    "migration_location",
+    "family_affordability",
+    "gender_family_concerns",
+    "recognition_of_qualification",
+    "other_unknown",
+)
+
+CONCERN_KEYWORDS = {
+    "income_potential": [
+        "salary", "earn", "income", "paisa", "kamai", "rupee", "₹",
+        "वेतन", "कमाई", "पैसे", "జీతం", "డబ్బు",
+    ],
+    "job_security": [
+        "job", "naukri", "employment", "permanent", "stable", "rozgaar",
+        "नौकरी", "रोजगार", "मिलेगी", "ఉద్యోగం", "ఉద్యోగం వస్తుందా",
+    ],
+    "social_perception_status": [
+        "respect", "izzat", "status", "relatives", "society", "shame",
+        "समाज", "इज़्ज़त", "लोग क्या कहेंगे", "గౌరవం",
+    ],
+    "safety": [
+        "safe", "danger", "injury", "accident", "risk", "suraksha",
+        "सुरक्षा", "खतरा", "భద్రత", "ప్రమాదం",
+    ],
+    "further_education": [
+        "degree", "college", "university", "b.tech", "engineering",
+        "graduation", "डिग्री", "कॉलेज", "చదువు", "కాలేజీ",
+    ],
+    "career_progression": [
+        "growth", "promotion", "career path", "progress", "future",
+        "तरक्की", "करियर", "ఎదుగుదల", "కెరీర్",
+    ],
+    "training_quality": [
+        "quality", "trainer", "instructor", "equipment", "course good",
+        "गुणवत्ता", "प्रशिक्षक", "శిక్షణ నాణ్యత", "ట్రైనర్",
+    ],
+    "migration_location": [
+        "away", "relocate", "migration", "move", "city", "near home",
+        "दूर", "स्थान बदल", "शहर", "ఇంటి దగ్గర", "వలస",
+    ],
+    "family_affordability": [
+        "cost", "fee", "fees", "expensive", "afford", "kharcha",
+        "खर्चा", "फीस", "ఖర్చు", "ఫీజు",
+    ],
+    "gender_family_concerns": [
+        "daughter", "girl", "women", "marriage", "family permission",
+        "बेटी", "लड़की", "महिला", "शादी", "కూతురు", "అమ్మాయి",
+    ],
+    "recognition_of_qualification": [
+        "certificate valid", "recognised", "recognition", "मान्यता",
+        "प्रमाणपत्र", "certificate", "గుర్తింపు", "సర్టిఫికేట్",
+    ],
+}
+
+HIGH_INTENSITY_MARKERS = (
+    "urgent", "very worried", "afraid", "fear", "must", "no way",
+    "क्या होगा", "मिलेगी क्या", "जरूरी", "చాలా భయం", "వస్తుందా",
+)
+
+def _contains(text: str, phrase: str) -> bool:
+    return phrase.lower() in text.lower()
+
+
+def classify_concerns(text: str, speaker: str = "parent") -> dict:
+    """Classify concern state, not mental health or emotion diagnosis."""
+    if speaker not in {"parent", "learner", "counsellor"}:
+        speaker = "parent"
+    matches = []
+    for category, keywords in CONCERN_KEYWORDS.items():
+        if any(_contains(text, keyword) for keyword in keywords):
+            matches.append(category)
+    if not matches:
+        matches = ["other_unknown"]
+    question_or_strong = "?" in text or any(_contains(text, marker) for marker in HIGH_INTENSITY_MARKERS)
+    intensity = "HIGH" if question_or_strong and len(matches) > 0 else "MEDIUM"
+    if len(text.split()) <= 3 and not question_or_strong:
+        intensity = "LOW"
+    return {
+        "concerns": matches,
+        "concern_intensity": intensity,
+        "classification_basis": "deterministic_keyword_fallback",
+        "is_diagnostic": False,
+    }
+
 NEGATIVE_WORDS = [
     "no", "nahi", "never", "worst", "useless", "waste", "bekar",
     "kharab", "problem", "worried", "fear", "doubt", "ledu", "vaddu",
@@ -124,12 +216,14 @@ def _keyword_classify(text: str, speaker: str) -> dict:
     else:
         intent = "ask_info"
 
+    concern_state = classify_concerns(text, speaker)
     return {
         "speaker_role": speaker,
         "objection_category": category,
         "sentiment": round(sentiment, 2),
         "intent": intent,
         "language": "en",  # default; real version detects
+        **concern_state,
     }
 
 
@@ -161,12 +255,22 @@ async def classify_message(
             result_text = response.content[0].text.strip()
             # Parse JSON from response
             if result_text.startswith("{"):
-                return json.loads(result_text)
+                result = json.loads(result_text)
+                deterministic = classify_concerns(text, speaker)
+                result["concerns"] = sorted(set(result.get("concerns", [])) & set(CONCERN_CATEGORIES)) or deterministic["concerns"]
+                result["concern_intensity"] = result.get("concern_intensity") if result.get("concern_intensity") in {"LOW", "MEDIUM", "HIGH"} else deterministic["concern_intensity"]
+                result["is_diagnostic"] = False
+                return result
             # Try to find JSON in response
             import re
             json_match = re.search(r'\{[^{}]+\}', result_text)
             if json_match:
-                return json.loads(json_match.group())
+                result = json.loads(json_match.group())
+                deterministic = classify_concerns(text, speaker)
+                result["concerns"] = sorted(set(result.get("concerns", [])) & set(CONCERN_CATEGORIES)) or deterministic["concerns"]
+                result["concern_intensity"] = result.get("concern_intensity") if result.get("concern_intensity") in {"LOW", "MEDIUM", "HIGH"} else deterministic["concern_intensity"]
+                result["is_diagnostic"] = False
+                return result
 
         except Exception as e:
             logger.warning(f"LLM classifier failed, using keyword fallback: {e}")
@@ -188,6 +292,45 @@ async def store_classification(
         objection_category=classification.get("objection_category", "none"),
         sentiment=classification.get("sentiment", 0.0),
         intent=classification.get("intent", "other"),
+        concerns=classification.get("concerns", ["other_unknown"]),
+        concern_intensity=classification.get("concern_intensity", "MEDIUM"),
     )
     db.add(analysis)
     await db.commit()
+
+
+def update_concern_state(
+    session,
+    classification: dict,
+    *,
+    evidence_presented: list[dict] | None = None,
+    escalation_status: str | None = None,
+) -> dict:
+    """Update session concern state; this is tracking, not psychological diagnosis."""
+    previous = dict(session.concern_state or {})
+    initial = list(previous.get("initial_concerns", []))
+    current = list(previous.get("current_concerns", []))
+    unresolved = list(previous.get("unresolved_concerns", []))
+    concerns = classification.get("concerns", ["other_unknown"])
+    for concern in concerns:
+        if concern not in initial:
+            initial.append(concern)
+        if concern not in current:
+            current.append(concern)
+        if concern not in unresolved:
+            unresolved.append(concern)
+    presented = list(previous.get("evidence_presented", []))
+    for evidence in evidence_presented or []:
+        if evidence not in presented:
+            presented.append(evidence)
+    state = {
+        "initial_concerns": initial,
+        "evidence_presented": presented,
+        "current_concerns": current,
+        "unresolved_concerns": unresolved,
+        "current_intensity": classification.get("concern_intensity", "MEDIUM"),
+        "escalation_status": escalation_status or previous.get("escalation_status", "not_escalated"),
+        "is_diagnostic": False,
+    }
+    session.concern_state = state
+    return state

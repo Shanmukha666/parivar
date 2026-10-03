@@ -64,10 +64,30 @@ export async function fetchTradeDetail(id: number | string) {
 }
 
 export async function fetchTradeOutcomes(id: number | string, district?: string, state?: string) {
-  if (!supabase) throw new Error('Supabase is not configured');
-  const { data, error } = await supabase.from('outcomes').select('*').eq('trade_id', id).eq('state', state || 'Telangana').eq('district', district || 'Adilabad').order('cohort_year', { ascending: false }).limit(1).maybeSingle();
-  if (error) throw error;
-  return data ? { ...data, found: true, scope_label: `${data.district} district` } : { found: false };
+  const params = new URLSearchParams({ trade_id: String(id), state: state || 'Telangana' });
+  if (district) params.set('district', district);
+  params.set('include_demo', 'true');
+  const res = await fetch(`/api/outcomes?${params.toString()}`);
+  if (!res.ok) throw new Error('Outcome data unavailable');
+  const records = await res.json();
+  const latest = records[0];
+  if (!latest) return { found: false };
+  const values = Object.fromEntries(records.map((r: any) => [r.metric_key, r.metric_value ?? r.metric_text]));
+  return {
+    found: true,
+    is_synthetic: latest.is_synthetic,
+    verified: latest.verification_status === 'verified' && !latest.is_synthetic,
+    verification_status: latest.verification_status,
+    verification_date: latest.verification_date,
+    stale: records.some((r: any) => r.stale),
+    sample_size: latest.sample_size,
+    cohort_year: latest.year,
+    source: latest.source,
+    ...values,
+    placement_rate: values.placement_rate,
+    avg_start_salary_inr: values.starting_earnings,
+    scope_label: `${latest.district || latest.state} ${latest.district ? 'district' : 'state'}`,
+  };
 }
 
 export async function fetchTradePathway(id: number | string) {
@@ -102,11 +122,25 @@ export async function fetchSchemes(state?: string, income_bracket?: string) {
   return data || [];
 }
 
-export async function fetchAdminMetrics(filters?: { state?: string; district?: string; trade_id?: number }) {
+export async function fetchAdminMetrics(filters?: {
+  state?: string;
+  district?: string;
+  language?: string;
+  trade_id?: number;
+  provider_id?: number;
+  concern?: string;
+  start_date?: string;
+  end_date?: string;
+}) {
   const params = new URLSearchParams();
   if (filters?.state) params.append('state', filters.state);
   if (filters?.district) params.append('district', filters.district);
   if (filters?.trade_id) params.append('trade_id', filters.trade_id.toString());
+  if (filters?.language) params.append('language', filters.language);
+  if (filters?.provider_id) params.append('provider_id', filters.provider_id.toString());
+  if (filters?.concern) params.append('concern', filters.concern);
+  if (filters?.start_date) params.append('start_date', filters.start_date);
+  if (filters?.end_date) params.append('end_date', filters.end_date);
 
   const res = await fetch(`/api/admin/metrics?${params.toString()}`, { headers: await getSupabaseAuthHeaders() });
   if (!res.ok) throw new Error('Failed to fetch metrics');

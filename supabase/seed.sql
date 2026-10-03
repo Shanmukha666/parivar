@@ -21,12 +21,45 @@ cross join (values
 where t.name_en = 'Electrician'
   and not exists (select 1 from public.pathways p where p.from_trade_id = t.id and p.step_order = v.step_order);
 
+update public.pathways
+set verification_status = 'pending', is_synthetic = true
+where from_trade_id = (select id from public.trades where name_en = 'Electrician');
+
 insert into public.providers (name, type, state, district, accreditation, fee_inr)
 values
   ('Demo Government ITI Adilabad', 'Government ITI', 'Telangana', 'Adilabad', 'Demo accreditation - verify before use', 1200),
   ('Demo Government ITI Karimnagar', 'Government ITI', 'Telangana', 'Karimnagar', 'Demo accreditation - verify before use', 1200),
   ('Demo Government ITI Hyderabad', 'Government ITI', 'Telangana', 'Hyderabad', 'Demo accreditation - verify before use', 1500)
 on conflict do nothing;
+
+update public.providers
+set verified = false, is_synthetic = true
+where name like 'Demo %';
+
+insert into public.data_sources (publisher, title, document_reference)
+select 'Parivar development team', 'Synthetic development fixture', 'DEMO-SYNTHETIC-2025'
+where not exists (
+  select 1 from public.data_sources where document_reference = 'DEMO-SYNTHETIC-2025'
+);
+
+insert into public.outcome_metrics (
+  trade_id, state, district, metric_key, metric_value, unit, year,
+  sample_size, source_id, verification_status, data_quality, is_synthetic
+)
+select o.trade_id, o.state, o.district, v.metric_key, v.metric_value, v.unit,
+  o.cohort_year, o.sample_size, s.id, 'pending', 'low', true
+from public.outcomes o
+join public.data_sources s on s.document_reference = 'DEMO-SYNTHETIC-2025'
+cross join lateral (values
+  ('placement_rate', o.placement_rate, 'percent'),
+  ('starting_earnings', o.avg_start_salary_inr, 'INR/month')
+) v(metric_key, metric_value, unit)
+where o.is_synthetic = true
+  and not exists (
+    select 1 from public.outcome_metrics m
+    where m.trade_id = o.trade_id and m.district = o.district
+      and m.metric_key = v.metric_key and m.is_synthetic
+  );
 
 insert into public.outcomes (trade_id, state, district, cohort_year, placement_rate, avg_start_salary_inr, salary_3yr_min, salary_3yr_max, sample_size, source, verified_on, verified, is_synthetic, evidence_url, review_status)
 select t.id, 'Telangana', d.name,

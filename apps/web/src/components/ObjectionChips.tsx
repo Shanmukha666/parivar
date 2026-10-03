@@ -30,6 +30,14 @@ export default function ObjectionChips({ onSelect }: { onSelect: (objection: str
       { label: '🎓 Isn’t a degree better?', query: 'Isn’t pursuing a regular college degree better for their future?' },
       { label: '💵 Training cost & fees?', query: 'What is the course fee? Are there scholarships or free schemes?' },
     ],
+    ta: [
+      { label: '💰 வருமானம் எவ்வளவு?', query: 'இந்த பயிற்சிக்குப் பிறகு வருமானம் எவ்வளவு இருக்கும்?' },
+      { label: '🛡️ வேலை பாதுகாப்பானதா?', query: 'இந்த வேலை பாதுகாப்பானதா? பாதுகாப்பு நடவடிக்கைகள் என்ன?' },
+      { label: '👥 சமூக மரியாதை இருக்குமா?', query: 'இந்த தொழிலுக்கு சமூகத்தில் மரியாதை இருக்குமா?' },
+      { label: '💼 வேலை கிடைக்குமா?', query: 'பயிற்சிக்குப் பிறகு வேலை வாய்ப்புகள் எப்படி இருக்கும்?' },
+      { label: '🎓 பட்டம் சிறந்ததல்லவா?', query: 'வழக்கமான பட்டப்படிப்பு சிறந்ததல்லவா?' },
+      { label: '💵 கட்டணம் எவ்வளவு?', query: 'பயிற்சி கட்டணம் எவ்வளவு? உதவித்தொகை உள்ளதா?' },
+    ],
   };
 
   const chips = chipsByLang[language] || chipsByLang.en;

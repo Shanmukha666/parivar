@@ -1,11 +1,14 @@
 import { NextResponse } from 'next/server';
-import { createSupabaseServerClient } from '../../../../../lib/supabase-server';
+import { getAuthenticatedUser, requireRole } from '../../../../../lib/authorization';
 
 export async function POST(
   request: Request,
   { params }: { params: { id: string } }
 ) {
-  const supabase = await createSupabaseServerClient();
+  const { supabase, user } = await getAuthenticatedUser();
+  const denied = requireRole(user, 'counsellor');
+  if (denied) return denied;
+  if (!user) return NextResponse.json({ error: 'Authentication required' }, { status: 401 });
   const ticketId = parseInt(params.id, 10);
   if (isNaN(ticketId)) {
     return NextResponse.json({ error: 'Invalid ticket id' }, { status: 400 });
@@ -22,6 +25,8 @@ export async function POST(
       resolved_at: new Date().toISOString(),
     })
     .eq('id', ticketId)
+    .eq('counsellor_id', user.id)
+    .in('status', ['assigned', 'contacted'])
     .select()
     .single();
 

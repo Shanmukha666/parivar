@@ -9,7 +9,7 @@ export async function POST(request: Request) {
   if (!user) return NextResponse.json({ error: 'Authentication required' }, { status: 401 });
 
   const body = await request.json();
-  if (body.lang === 'ta' || body.state !== 'Telangana' || !DISTRICTS.has(body.district) || body.consent !== true) {
+  if (!['en', 'hi', 'te', 'ta'].includes(body.lang) || body.state !== 'Telangana' || !DISTRICTS.has(body.district) || body.consent !== true) {
     return NextResponse.json({ error: 'Unsupported location, language, or consent' }, { status: 400 });
   }
 
@@ -23,6 +23,8 @@ export async function POST(request: Request) {
     income_bracket: body.income_bracket,
     selected_trade_id: body.selected_trade_id || null,
     consent: true,
+    consent_version: body.consent_version || 'v1',
+    consented_at: new Date().toISOString(),
   }).select().single();
 
   if (error) return NextResponse.json({ error: 'Could not create session' }, { status: 500 });

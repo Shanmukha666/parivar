@@ -1,9 +1,10 @@
 import { NextResponse } from 'next/server';
-import { createSupabaseServerClient } from '../../../../lib/supabase-server';
+import { getAuthenticatedUser, requireRole } from '../../../../lib/authorization';
 
 export async function GET() {
-  const supabase = await createSupabaseServerClient();
-  const { data: { user } } = await supabase.auth.getUser();
+  const { supabase, user } = await getAuthenticatedUser();
+  const denied = requireRole(user, 'counsellor');
+  if (denied) return denied;
 
   try {
     const { data: escalations, error } = await supabase
@@ -15,6 +16,10 @@ export async function GET() {
         summary,
         status,
         counsellor_id,
+        priority,
+        concern_category,
+        accepted_at,
+        contacted_at,
         created_at,
         sessions (
           district,

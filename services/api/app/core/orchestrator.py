@@ -18,8 +18,9 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.models.models import Session, Message, Trade
 from app.core.prompts import SYSTEM_PROMPT, TOOL_SCHEMAS
 from app.core.tools import execute_tool
-from app.core.classifier import classify_message, store_classification
+from app.core.classifier import classify_message, store_classification, update_concern_state
 from app.core.validator import validate_numbers, REGENERATION_INSTRUCTION, SAFE_FALLBACK
+from app.core.grounding import assess_evidence, source_citations, requires_quantitative_evidence
 from app.core.escalation import (
     check_escalation_triggers,
     create_escalation_ticket,
@@ -362,6 +363,8 @@ async def handle_turn(
     classification = await classify_message(text, speaker)
     classification["_original_text"] = text  # For escalation keyword check
     await store_classification(msg.id, classification, db)
+    update_concern_state(session, classification)
+    await db.commit()
 
     # ── Step 3: Get trade name for prompt ──
     trade_name = "Not selected"
@@ -405,11 +408,45 @@ async def handle_turn(
         )
         tool_results_all["schemes"] = schemes_result
 
+    evidence = assess_evidence(tool_results_all)
+    if session.selected_trade_id and requires_quantitative_evidence(text, classification) and not evidence.usable:
+        reason = evidence.reason
+        if reason == "conflicting_verified_data":
+            reply = "The verified sources give conflicting figures for this question. I will not choose one number without a counsellor reviewing the sources."
+        else:
+            reply = "Verified information is unavailable for this question. I can connect you with a human counsellor."
+        ticket = await create_escalation_ticket(
+            str(session.id),
+            reason,
+            db,
+            concern_category=(classification.get("concerns") or [None])[0],
+            priority="urgent" if reason == "conflicting_verified_data" else "high",
+        )
+        update_concern_state(session, classification, escalation_status="escalated")
+        await db.commit()
+        citations = source_citations(tool_results_all)
+        ai_msg = Message(session_id=session.id, speaker="ai", text=reply, lang=lang)
+        db.add(ai_msg)
+        await db.commit()
+        return {
+            "reply": reply,
+            "citations": citations,
+            "suggested_chips": ["Talk to a counsellor"],
+            "escalate": True,
+            "escalate_reason": reason,
+        }
+
     system_prompt = _build_system_prompt(session, trade_name, tool_results_all)
 
     # ── Steps 4-6: Call LLM with tool-calling loop ──
     llm_response = await _call_llm_with_tools(
         system_prompt, history, tool_results_all, db
+    )
+    citations = llm_response.get("citations") or source_citations(tool_results_all)
+    update_concern_state(
+        session,
+        classification,
+        evidence_presented=citations if isinstance(citations, list) else [],
     )
 
     # ── Step 7: Number validation ──
@@ -447,7 +484,13 @@ async def handle_turn(
 
     if should_escalate or llm_response.get("escalate"):
         reason = escalation_reason or llm_response.get("escalate_reason", "Unknown")
-        ticket = await create_escalation_ticket(str(session.id), reason, db)
+        ticket = await create_escalation_ticket(
+            str(session.id),
+            reason,
+            db,
+            concern_category=(classification.get("concerns") or [None])[0],
+            priority="urgent" if "Sensitive" in reason else "high",
+        )
 
         if not llm_response.get("escalate"):
             # Append escalation notice to reply
@@ -460,6 +503,9 @@ async def handle_turn(
 
         llm_response["escalate"] = True
         llm_response["escalate_reason"] = reason
+        update_concern_state(session, classification, escalation_status="escalated")
+    else:
+        update_concern_state(session, classification, escalation_status="not_escalated")
 
     # ── Step 9: Store AI response ──
     ai_msg = Message(
@@ -469,6 +515,7 @@ async def handle_turn(
         lang=lang,
     )
     db.add(ai_msg)
+    db.add(session)
     await db.commit()
 
     # ── Log engagement event ──
@@ -488,7 +535,7 @@ async def handle_turn(
     # ── Return response ──
     return {
         "reply": llm_response["reply"],
-        "citations": llm_response.get("citations", []),
+        "citations": source_citations(all_tool_results) or llm_response.get("citations", []),
         "suggested_chips": llm_response.get("suggested_chips", []),
         "escalate": llm_response.get("escalate", False),
     }

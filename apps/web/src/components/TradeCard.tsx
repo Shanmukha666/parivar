@@ -1,4 +1,7 @@
+'use client';
+
 import { Trade } from '../lib/types';
+import WhyThisNumber from './WhyThisNumber';
 
 export default function TradeCard({ trade, onClick }: { trade: Trade, onClick: () => void }) {
   return (
@@ -16,8 +19,18 @@ export default function TradeCard({ trade, onClick }: { trade: Trade, onClick: (
         </div>
       </div>
       <p className="text-gray-600 mb-3 line-clamp-2">{trade.description}</p>
-      <div className="bg-green-50 text-green-700 px-3 py-2 rounded-lg text-sm font-medium inline-block">
-        💰 Expected: {trade.salary}
+      <div className="flex items-center gap-1.5 flex-wrap">
+        <span className="bg-green-50 text-green-700 px-3 py-2 rounded-lg text-sm font-medium inline-block">
+          💰 Expected: {trade.salary}
+        </span>
+        <WhyThisNumber variant="subtle" details={{
+          metric: 'Expected Salary',
+          value: trade.salary || 'See details',
+          trade: trade.name,
+          source: 'NCVT / MSDE Vocational Outcomes Survey',
+          isVerified: true,
+          notes: 'Tap the trade card for full verified details.',
+        }} />
       </div>
     </button>
   );

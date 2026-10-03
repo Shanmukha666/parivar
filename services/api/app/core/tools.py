@@ -7,7 +7,7 @@ from sqlalchemy import select, func, or_, and_
 from sqlalchemy.ext.asyncio import AsyncSession
 from typing import Dict, Any, List, Optional
 
-from app.models.models import Outcome, Pathway, Provider, Scheme, Story, Trade
+from app.models.models import DataSource, OutcomeMetric, Pathway, Provider, Scheme, Story, Trade
 
 import logging
 logger = logging.getLogger(__name__)
@@ -25,42 +25,71 @@ async def get_outcomes(
     Tries district first; falls back to state if sample_size < 20.
     """
     scope = "district"
-    data = None
+    data = []
 
-    # 1. Try district-level data
+    # 1. Try district-level data from the normalized verified contract.
     if district:
         stmt = (
-            select(Outcome)
+            select(OutcomeMetric, DataSource)
+            .join(DataSource, DataSource.id == OutcomeMetric.source_id)
             .where(
-                Outcome.trade_id == trade_id,
-                func.lower(Outcome.district) == district.lower(),
+                OutcomeMetric.trade_id == trade_id,
+                func.lower(OutcomeMetric.state) == state.lower(),
+                func.lower(OutcomeMetric.district) == district.lower(),
+                OutcomeMetric.verification_status == "verified",
+                OutcomeMetric.is_synthetic.is_(False),
             )
-            .order_by(Outcome.cohort_year.desc())
-            .limit(1)
+            .order_by(OutcomeMetric.year.desc())
         )
         result = await db.execute(stmt)
-        row = result.scalars().first()
-        if row and row.sample_size and row.sample_size >= 20:
-            data = row
+        rows = result.all()
+        if rows and any(row.sample_size and row.sample_size >= 20 for row, _ in rows):
+            data = rows
             scope = "district"
 
     # 2. Fall back to state-level aggregation
-    if data is None:
+    if not data:
         stmt = (
-            select(Outcome)
+            select(OutcomeMetric, DataSource)
+            .join(DataSource, DataSource.id == OutcomeMetric.source_id)
             .where(
-                Outcome.trade_id == trade_id,
-                func.lower(Outcome.state) == state.lower(),
+                OutcomeMetric.trade_id == trade_id,
+                func.lower(OutcomeMetric.state) == state.lower(),
+                OutcomeMetric.verification_status == "verified",
+                OutcomeMetric.is_synthetic.is_(False),
             )
-            .order_by(Outcome.cohort_year.desc())
-            .limit(1)
+            .order_by(OutcomeMetric.year.desc())
         )
         result = await db.execute(stmt)
-        data = result.scalars().first()
+        data = result.all()
         scope = "state"
 
-    if data is None:
+    if not data:
         return {"found": False, "tool_result_id": "outcomes_empty"}
+
+    metrics = []
+    flattened = {}
+    for metric, source in data:
+        value = float(metric.metric_value) if metric.metric_value is not None else None
+        metrics.append({
+            "metric_key": metric.metric_key,
+            "value": value,
+            "text": metric.metric_text,
+            "unit": metric.unit,
+            "year": metric.year,
+            "sample_size": metric.sample_size,
+            "verification_date": metric.verification_date.isoformat() if metric.verification_date else None,
+            "data_quality": metric.data_quality,
+            "confidence": float(metric.confidence) if metric.confidence is not None else None,
+            "source": {
+                "publisher": source.publisher,
+                "title": source.title,
+                "url": source.source_url,
+                "document_reference": source.document_reference,
+            },
+        })
+        if metric.metric_key not in flattened:
+            flattened[metric.metric_key] = value if value is not None else metric.metric_text
 
     return {
         "found": True,
@@ -70,29 +99,28 @@ async def get_outcomes(
             f"{district} district" if scope == "district"
             else f"{state} state (district data not available or too small)"
         ),
-        "placement_rate": float(data.placement_rate) if data.placement_rate else None,
-        "avg_start_salary_inr": data.avg_start_salary_inr,
-        "salary_3yr_min": data.salary_3yr_min,
-        "salary_3yr_max": data.salary_3yr_max,
-        "self_employment_rate": float(data.self_employment_rate) if data.self_employment_rate else None,
-        "sample_size": data.sample_size,
-        "cohort_year": data.cohort_year,
-        "source": data.source,
-        "verified_on": data.verified_on.isoformat() if data.verified_on else None,
+        "metrics": metrics,
+        "values": flattened,
+        "verification_status": "verified",
     }
 
 
 async def get_pathway(trade_id: int, *, db: AsyncSession) -> Dict[str, Any]:
     """Get career ladder with NSQF levels, further education and typical roles."""
     stmt = (
-        select(Pathway)
-        .where(Pathway.from_trade_id == trade_id)
+        select(Pathway, DataSource)
+        .join(DataSource, DataSource.id == Pathway.source_id)
+        .where(
+            Pathway.from_trade_id == trade_id,
+            Pathway.verification_status == "verified",
+            Pathway.is_synthetic.is_(False),
+        )
         .order_by(Pathway.step_order)
     )
     result = await db.execute(stmt)
-    pathways = result.scalars().all()
+    pathway_rows = result.all()
 
-    if not pathways:
+    if not pathway_rows:
         return {"found": False, "tool_result_id": "pathway_empty"}
 
     # Also get trade info for context
@@ -114,8 +142,14 @@ async def get_pathway(trade_id: int, *, db: AsyncSession) -> Dict[str, Any]:
                 "next_education": p.next_education,
                 "typical_role": p.typical_role,
                 "typical_salary_range": p.typical_salary_range,
+                "source": {
+                    "publisher": source.publisher,
+                    "title": source.title,
+                    "url": source.source_url,
+                    "document_reference": source.document_reference,
+                },
             }
-            for p in pathways
+            for p, source in pathway_rows
         ],
     }
 
@@ -134,14 +168,17 @@ async def find_providers(
     if district:
         # Try district first
         district_stmt = (
-            select(Provider)
+            select(Provider, DataSource)
+            .outerjoin(DataSource, DataSource.id == Provider.source_id)
             .where(
                 func.lower(Provider.district) == district.lower(),
+                Provider.verified.is_(True),
+                Provider.is_synthetic.is_(False),
             )
             .order_by(Provider.name)
         )
         result = await db.execute(district_stmt)
-        providers = result.scalars().all()
+        providers = result.all()
 
         if providers:
             scope = "district"
@@ -157,20 +194,31 @@ async def find_providers(
                         "accreditation": p.accreditation,
                         "fee_inr": p.fee_inr,
                         "contact": p.contact,
+                        "source": {
+                            "publisher": source.publisher if source else None,
+                            "title": source.title if source else None,
+                            "url": source.source_url if source else None,
+                            "document_reference": source.document_reference if source else None,
+                        },
                     }
-                    for p in providers
+                    for p, source in providers
                 ],
             }
 
     # State-level fallback
     stmt = (
-        select(Provider)
-        .where(func.lower(Provider.state) == state.lower())
+        select(Provider, DataSource)
+        .outerjoin(DataSource, DataSource.id == Provider.source_id)
+        .where(
+            func.lower(Provider.state) == state.lower(),
+            Provider.verified.is_(True),
+            Provider.is_synthetic.is_(False),
+        )
         .order_by(Provider.name)
         .limit(5)
     )
     result = await db.execute(stmt)
-    providers = result.scalars().all()
+    providers = result.all()
 
     if not providers:
         return {"found": False, "tool_result_id": "providers_empty"}
@@ -187,8 +235,14 @@ async def find_providers(
                 "accreditation": p.accreditation,
                 "fee_inr": p.fee_inr,
                 "contact": p.contact,
+                "source": {
+                    "publisher": source.publisher if source else None,
+                    "title": source.title if source else None,
+                    "url": source.source_url if source else None,
+                    "document_reference": source.document_reference if source else None,
+                },
             }
-            for p in providers
+            for p, source in providers
         ],
     }
 
@@ -245,13 +299,17 @@ async def get_story(
     if district:
         conditions.append(func.lower(Story.district) == district.lower())
 
-    stmt = select(Story).where(and_(*conditions)).limit(1)
+    stmt =     select(Story).where(and_(*conditions), Story.verified.is_(True), Story.is_synthetic.is_(False)).limit(1)
     result = await db.execute(stmt)
     story = result.scalars().first()
 
     if not story and district:
         # Fallback: any story for this trade
-        stmt = select(Story).where(Story.trade_id == trade_id).limit(1)
+        stmt = select(Story).where(
+            Story.trade_id == trade_id,
+            Story.verified.is_(True),
+            Story.is_synthetic.is_(False),
+        ).limit(1)
         result = await db.execute(stmt)
         story = result.scalars().first()
 

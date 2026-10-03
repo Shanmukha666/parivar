@@ -69,6 +69,28 @@ body {
 }
 
 button {
-  min-height: 48px; /* Large tap targets */
+  min-height: 48px;
   min-width: 48px;
+}
+
+button, input, select, textarea, a {
+  -webkit-tap-highlight-color: transparent;
+}
+
+:focus-visible {
+  outline: 3px solid #c2410c;
+  outline-offset: 3px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    scroll-behavior: auto !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+@media (max-width: 374px) {
+  .landing-title { font-size: 3rem; }
 }
