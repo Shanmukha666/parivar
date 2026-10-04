@@ -26,9 +26,9 @@ const defaultState: AppState = {
     income: '₹1 - 3 Lakhs',
     role: 'both',
     consent: true,
-    selectedTradeId: 1,
-    selectedTradeName: 'Electrician',
-    interests: ['electrical', 'mechanical'],
+    selectedTradeId: undefined,
+selectedTradeName: undefined,
+interests: [],
   },
   isHydrated: false,
 };
