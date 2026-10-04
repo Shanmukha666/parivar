@@ -10,7 +10,18 @@ export const supabase = url && key
 
 export async function ensureFamilySession(): Promise<Session> {
   if (!supabase) {
-    throw new Error('Supabase is not configured');
+    // Graceful offline/demo fallback when Supabase keys are not provided
+    return {
+      access_token: 'local-demo-token',
+      token_type: 'bearer',
+      user: {
+        id: '00000000-0000-0000-0000-000000000001',
+        app_metadata: {},
+        user_metadata: {},
+        aud: 'authenticated',
+        created_at: new Date().toISOString(),
+      },
+    } as unknown as Session;
   }
 
   const { data: existing, error: sessionError } = await supabase.auth.getSession();
