@@ -9,6 +9,7 @@ class Settings:
     DATABASE_URL_SYNC: str = os.getenv("DATABASE_URL_SYNC", "")
     REDIS_URL: str = os.getenv("REDIS_URL", "")
     ANTHROPIC_API_KEY: str = os.getenv("ANTHROPIC_API_KEY", "")
+    GEMINI_API_KEY: str = os.getenv("GEMINI_API_KEY", "")
     AUTH_PROVIDER: str = os.getenv("AUTH_PROVIDER", "legacy")
     JWT_SECRET: str = os.getenv("JWT_SECRET", "")
     ALGORITHM: str = os.getenv("ALGORITHM", "HS256")

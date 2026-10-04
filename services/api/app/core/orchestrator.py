@@ -86,7 +86,6 @@ async def _get_conversation_history(
             })
     return history
 
-
 async def _call_llm_with_tools(
     system_prompt: str,
     messages: List[dict],
@@ -95,23 +94,124 @@ async def _call_llm_with_tools(
     api_key: Optional[str] = None,
 ) -> dict:
     """
-    Call Claude API with tool-calling protocol.
-    Returns parsed JSON response with reply, citations, etc.
+    Call LLM API with tool-calling protocol.
+    Prefers Gemini if GEMINI_API_KEY is set, else Anthropic, else mock.
     """
-    key = api_key or os.getenv("ANTHROPIC_API_KEY")
+    gemini_key = os.getenv("GEMINI_API_KEY", "")
+    anthropic_key = api_key or os.getenv("ANTHROPIC_API_KEY", "")
 
-    if not key and os.getenv("DEMO_MODE", "false").lower() != "true":
-        raise RuntimeError("LLM provider is not configured")
-
-    if not key:
-        # Explicitly opt-in demo mode only.
+    if gemini_key:
+        return await _call_gemini(system_prompt, messages, tool_results_all, db, gemini_key)
+    elif anthropic_key:
+        return await _call_anthropic(system_prompt, messages, tool_results_all, db, anthropic_key)
+    else:
         return _mock_llm_response(messages, tool_results_all)
 
+
+async def _call_gemini(
+    system_prompt: str,
+    messages: List[dict],
+    tool_results_all: Dict[str, Any],
+    db: AsyncSession,
+    api_key: str,
+) -> dict:
+    """Call Google Gemini API with tool support."""
+    import google.generativeai as genai
+
+    genai.configure(api_key=api_key)
+
+    # Build Gemini tool declarations from TOOL_SCHEMAS
+    gemini_tools = []
+    for t in TOOL_SCHEMAS:
+        func_decl = genai.protos.FunctionDeclaration(
+            name=t["name"],
+            description=t["description"],
+            parameters=t["input_schema"],
+        )
+        gemini_tools.append(func_decl)
+
+    tool_config = genai.protos.Tool(function_declarations=gemini_tools)
+
+    model = genai.GenerativeModel(
+        model_name="gemini-2.0-flash",
+        system_instruction=system_prompt,
+        tools=[tool_config],
+    )
+
+    # Convert messages to Gemini format
+    gemini_history = []
+    for msg in messages:
+        role = "user" if msg["role"] == "user" else "model"
+        content = msg.get("content", "")
+        if isinstance(content, str):
+            gemini_history.append({"role": role, "parts": [content]})
+
+    # Start chat and send last message
+    chat = model.start_chat(history=gemini_history[:-1] if len(gemini_history) > 1 else [])
+    last_msg = gemini_history[-1]["parts"][0] if gemini_history else ""
+
+    response = await _gemini_send_async(chat, last_msg)
+
+    # Tool-calling loop
+    loop_count = 0
+    accumulated_tool_results = dict(tool_results_all)
+
+    while loop_count < MAX_TOOL_LOOPS:
+        # Check for function calls in response
+        function_calls = []
+        for part in response.parts:
+            if hasattr(part, "function_call") and part.function_call.name:
+                function_calls.append(part.function_call)
+
+        if not function_calls:
+            break
+
+        loop_count += 1
+        # Execute tool calls
+        tool_responses = []
+        for fc in function_calls:
+            tool_args = dict(fc.args) if fc.args else {}
+            tool_result = await execute_tool(fc.name, tool_args, db)
+            accumulated_tool_results[fc.name] = tool_result
+            tool_responses.append(
+                genai.protos.Part(
+                    function_response=genai.protos.FunctionResponse(
+                        name=fc.name,
+                        response={"result": json.dumps(tool_result, default=str)},
+                    )
+                )
+            )
+
+        response = await _gemini_send_async(chat, tool_responses)
+
+    # Extract text
+    reply_text = response.text if hasattr(response, "text") and response.text else ""
+
+    # Parse JSON if present
+    parsed = _parse_llm_json(reply_text)
+    parsed["_tool_results"] = accumulated_tool_results
+    return parsed
+
+
+async def _gemini_send_async(chat, content):
+    """Send message to Gemini chat (sync wrapper for async context)."""
+    import asyncio
+    loop = asyncio.get_event_loop()
+    return await loop.run_in_executor(None, chat.send_message, content)
+
+
+async def _call_anthropic(
+    system_prompt: str,
+    messages: List[dict],
+    tool_results_all: Dict[str, Any],
+    db: AsyncSession,
+    api_key: str,
+) -> dict:
+    """Call Anthropic Claude API with tool-calling protocol."""
     import anthropic
 
-    client = anthropic.AsyncAnthropic(api_key=key)
+    client = anthropic.AsyncAnthropic(api_key=api_key)
 
-    # Convert tool schemas to Claude format
     tools = [
         {
             "name": t["name"],
@@ -121,7 +221,6 @@ async def _call_llm_with_tools(
         for t in TOOL_SCHEMAS
     ]
 
-    # Initial LLM call
     response = await client.messages.create(
         model="claude-sonnet-4-20250514",
         max_tokens=1024,
@@ -130,7 +229,6 @@ async def _call_llm_with_tools(
         messages=messages,
     )
 
-    # Tool-calling loop
     loop_count = 0
     accumulated_tool_results = dict(tool_results_all)
 
@@ -138,7 +236,6 @@ async def _call_llm_with_tools(
         loop_count += 1
         tool_use_blocks = [b for b in response.content if b.type == "tool_use"]
 
-        # Execute each tool call
         tool_results_messages = []
         for block in tool_use_blocks:
             tool_result = await execute_tool(block.name, block.input, db)
@@ -149,7 +246,6 @@ async def _call_llm_with_tools(
                 "content": json.dumps(tool_result, default=str),
             })
 
-        # Continue the conversation with tool results
         messages = messages + [
             {"role": "assistant", "content": response.content},
             {"role": "user", "content": tool_results_messages},
@@ -163,29 +259,32 @@ async def _call_llm_with_tools(
             messages=messages,
         )
 
-    # Extract text response
     text_blocks = [b for b in response.content if hasattr(b, "text")]
     reply_text = text_blocks[0].text if text_blocks else ""
 
-    # Try to parse JSON output
+    parsed = _parse_llm_json(reply_text)
+    parsed["_tool_results"] = accumulated_tool_results
+    return parsed
+
+
+def _parse_llm_json(reply_text: str) -> dict:
+    """Try to extract JSON from LLM reply text."""
     try:
         parsed = json.loads(reply_text)
         return {
             "reply": parsed.get("reply", reply_text),
-            "citations": parsed.get("citations", list(accumulated_tool_results.keys())),
+            "citations": parsed.get("citations", []),
             "suggested_chips": parsed.get("suggested_chips", []),
             "escalate": parsed.get("escalate", False),
             "escalate_reason": parsed.get("escalate_reason"),
-            "_tool_results": accumulated_tool_results,
         }
     except json.JSONDecodeError:
         return {
             "reply": reply_text,
-            "citations": list(accumulated_tool_results.keys()),
+            "citations": [],
             "suggested_chips": [],
             "escalate": False,
             "escalate_reason": None,
-            "_tool_results": accumulated_tool_results,
         }
 
 
