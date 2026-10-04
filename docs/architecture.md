@@ -18,7 +18,7 @@ AI with a verified outcome-data backend, human escalation, and an analytics dash
 - **Purpose**: API layer, AI orchestration, data access
 - **Tech**: Python 3.11, FastAPI, SQLAlchemy 2 (async), Pydantic v2
 - **Sub-components**:
-  - **Orchestrator**: Manages LLM conversation loop with tool calling
+  - **Orchestrator**: Retrieves evidence and sends a grounded prompt to Gemini
   - **Tool Layer**: Typed SQL queries with source metadata
   - **Classifier**: Objection categorisation + sentiment scoring
   - **Validator**: Ensures all numbers in AI output come from tool results
@@ -33,9 +33,9 @@ AI with a verified outcome-data backend, human escalation, and an analytics dash
 - **Purpose**: Session caching, escalation queue, real-time messaging
 - **Usage**: WebSocket message relay, counsellor queue management
 
-### 2.5 Claude API (Anthropic)
+### 2.5 Gemini API (Google)
 - **Purpose**: LLM backbone for conversational counselling
-- **Integration**: Tool-calling protocol, structured JSON output
+- **Integration**: Grounded structured JSON output after backend evidence retrieval
 - **Safety**: All factual claims must be tool-grounded
 
 ## 3. Request Flow (Chat Turn)
@@ -47,10 +47,9 @@ AI with a verified outcome-data backend, human escalation, and an analytics dash
 4. Orchestrator builds system prompt with:
    - Session profile (state, district, class, income)
    - Conversation history
-   - Tool schemas
-5. LLM requests tools (get_outcomes, get_pathway, etc.)
-6. Backend executes SQL queries, returns typed results
-7. LLM produces final answer with citations[]
+   - Pre-fetched, typed evidence results
+5. Backend executes controlled SQL queries, returns typed results
+6. Gemini produces a final answer with citations[]
 8. Validator checks every number against tool results
    - If invalid: regenerate once with "Use only numbers from tool results"
    - Second failure: safe fallback message + escalate=true
@@ -74,7 +73,7 @@ Family (voice/text)
               [Classifier]      [Orchestrator]
                     │                   │
                     ▼                   ▼
-           [message_analysis]    [Claude API]
+           [message_analysis]    [Gemini API]
                                         │
                                    tool calls
                                         │
@@ -161,7 +160,7 @@ Where:
 | Backend | FastAPI + Python 3.11 | Async, auto-docs, Pydantic |
 | Database | PostgreSQL 16 | JSONB, arrays, reliable |
 | Cache/Queue | Redis 7 | Fast, pub/sub for WebSocket |
-| LLM | Claude (Anthropic) | Tool calling, multilingual |
+| LLM | Gemini (Google) | Grounded, multilingual generation |
 | Voice | Web Speech API | Browser-native, no extra cost |
 | Charts | Recharts | React-native, customisable |
 | Maps | Leaflet | Open-source, lightweight |

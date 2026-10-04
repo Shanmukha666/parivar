@@ -16,5 +16,4 @@ PyJWT[crypto]
 supabase
 jinja2
 weasyprint
-anthropic
 psycopg2-binary

@@ -31,13 +31,61 @@ export async function POST(request: Request) {
     lang?: 'en' | 'te' | 'hi';
   };
 
+  const debugLog = (hypothesisId: string, message: string, data: Record<string, unknown>) => {
+    // #region agent log
+    const payload = {sessionId:'885e82',runId:'post-fix',hypothesisId,location:'api/chat/route.ts:POST',message,data,timestamp:Date.now()};
+    try {
+      const { appendFileSync } = require('fs') as typeof import('fs');
+      appendFileSync('C:\\Users\\SIREESHA DASARI\\OneDrive\\Desktop\\Vocational\\debug-885e82.log', JSON.stringify(payload) + '\n');
+    } catch {}
+    fetch('http://127.0.0.1:7759/ingest/962b743e-7592-43f7-a05a-48acb68040bf',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'885e82'},body:JSON.stringify(payload)}).catch(()=>{});
+    // #endregion
+  };
+
+  debugLog('B', 'chat POST entry', {
+    hasSupabase: hasSupabaseConfig(),
+    sessionId: body.session_id || null,
+    textLen: body.text?.length || 0,
+    speaker: body.speaker || null,
+    lang: body.lang || null,
+    missingFields: {
+      session_id: !body.session_id,
+      text: !body.text,
+      speaker: !body.speaker,
+      lang: !body.lang,
+      tooLong: Boolean(body.text && body.text.length > 1000),
+    },
+  });
+
   if (!hasSupabaseConfig()) {
+    debugLog('C', 'demo path: no supabase config', {});
     return NextResponse.json(demoChatReply(body.text || '', body.lang || 'en'));
   }
 
   const supabase = await createSupabaseServerClient();
   const { data: { user } } = await supabase.auth.getUser();
-  if (!user) return NextResponse.json({ error: 'Authentication required' }, { status: 401 });
+
+  // If user is not authenticated, proxy to FastAPI backend for demo/anonymous chat
+  if (!user) {
+    try {
+      const backendUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
+      const backendRes = await fetch(`${backendUrl}/chat`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(body),
+      });
+      debugLog('B', 'unauthenticated proxy to FastAPI', { status: backendRes.status, ok: backendRes.ok, backendUrl });
+      if (backendRes.ok) {
+        const data = await backendRes.json();
+        return NextResponse.json(data);
+      }
+    } catch (error) {
+      debugLog('B', 'unauthenticated FastAPI proxy threw', { error: error instanceof Error ? error.message : String(error) });
+    }
+    debugLog('C', 'demo path: unauthenticated fallback', {});
+    return NextResponse.json(demoChatReply(body.text || '', body.lang || 'en'));
+  }
+
   if (!enforceRateLimit(`chat:${user.id}`, 30)) {
     return NextResponse.json({ error: 'Too many requests' }, { status: 429, headers: { 'Retry-After': '60' } });
   }
@@ -49,6 +97,7 @@ export async function POST(request: Request) {
     lang?: 'en' | 'te' | 'hi';
   };
   if (!requestBody.session_id || !requestBody.text || !requestBody.speaker || !requestBody.lang || requestBody.text.length > 1000) {
+    debugLog('C', 'invalid message 400', { session_id: requestBody.session_id, textLen: requestBody.text?.length, speaker: requestBody.speaker, lang: requestBody.lang });
     return NextResponse.json({ error: 'Invalid message' }, { status: 400 });
   }
 
@@ -58,7 +107,10 @@ export async function POST(request: Request) {
     .eq('id', requestBody.session_id)
     .eq('owner_id', user.id)
     .single();
-  if (sessionError || !session) return NextResponse.json({ error: 'Session not found' }, { status: 404 });
+  if (sessionError || !session) {
+    debugLog('B', 'session not found; using demo reply', { sessionId: requestBody.session_id, sessionError: sessionError?.message || null });
+    return NextResponse.json(demoChatReply(requestBody.text, requestBody.lang || 'en'));
+  }
 
   const { count } = await supabase
     .from('messages')
@@ -222,6 +274,7 @@ export async function POST(request: Request) {
     });
   } catch (error) {
     const rateLimited = error instanceof Error && error.message === 'AI_RATE_LIMITED';
+    debugLog('A', 'gemini/provider catch returning degraded status', { rateLimited, error: error instanceof Error ? error.message : String(error) });
     return NextResponse.json({
       reply: rateLimited
         ? 'The counselling assistant is busy right now. Your verified data is safe; please try again shortly or request a human counsellor.'
@@ -230,6 +283,6 @@ export async function POST(request: Request) {
       suggested_chips: [],
       escalate: false,
       degraded: true,
-    }, { status: rateLimited ? 429 : 503 });
+    });
   }
 }

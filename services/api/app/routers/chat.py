@@ -4,13 +4,47 @@ from app.database import get_db
 from app.schemas.schemas import SessionCreate, SessionResponse, SessionUpdate, ChatRequest, ChatResponse, JointAnswerRequest
 from app.models.models import Session, Message, Trade
 from app.core.orchestrator import handle_turn
+from app.core.validator import SAFE_FALLBACK
 import uuid
+import json
+import logging
+import time
 from sqlalchemy import select
 from app.routers.auth import family_user
 from app.core.rate_limit import enforce_rate_limit
 from app.core.joint_counselling import record_answer, mark_evidence_discussed, request_escalation
 from app.core.escalation import create_escalation_ticket
 from app.core.tools import get_outcomes
+
+logger = logging.getLogger(__name__)
+
+def _debug_log(hypothesis_id: str, message: str, data: dict) -> None:
+    # #region agent log
+    try:
+        payload = {
+            "sessionId": "885e82",
+            "runId": "post-fix",
+            "hypothesisId": hypothesis_id,
+            "location": "routers/chat.py:send_message",
+            "message": message,
+            "data": data,
+            "timestamp": int(time.time() * 1000),
+        }
+        with open(r"C:\Users\SIREESHA DASARI\OneDrive\Desktop\Vocational\debug-885e82.log", "a", encoding="utf-8") as handle:
+            handle.write(json.dumps(payload) + "\n")
+    except Exception:
+        pass
+    # #endregion
+
+def _to_chat_response(payload: dict) -> ChatResponse:
+    chips = payload.get("suggested_chips") or []
+    return ChatResponse(
+        reply=payload.get("reply") or "",
+        citations=list(payload.get("citations") or []),
+        suggested_chips=[str(chip) for chip in chips],
+        escalate=bool(payload.get("escalate")),
+        escalate_reason=payload.get("escalate_reason"),
+    )
 
 router = APIRouter()
 
@@ -63,10 +97,25 @@ async def send_message(chat_req: ChatRequest, current_user=Depends(family_user),
     session = result.scalars().first()
 
     if not session:
+        _debug_log("B", "fastapi session not found", {"session_id": str(chat_req.session_id)})
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Session not found")
 
-    response = await handle_turn(session, chat_req.speaker, chat_req.text, chat_req.lang, db)
-    return ChatResponse(**response)
+    try:
+        response = await handle_turn(session, chat_req.speaker, chat_req.text, chat_req.lang, db)
+        citation_types = [type(item).__name__ for item in (response.get("citations") or [])]
+        _debug_log("F", "handle_turn ok", {"citation_types": citation_types, "reply_len": len(str(response.get("reply") or ""))})
+        return _to_chat_response(response)
+    except Exception as exc:
+        logger.exception("chat turn failed")
+        _debug_log("F", "handle_turn failed; returning safe fallback", {"error": str(exc), "error_type": type(exc).__name__})
+        fallback = {
+            "reply": SAFE_FALLBACK.get(chat_req.lang, SAFE_FALLBACK["en"]),
+            "citations": [],
+            "suggested_chips": ["Talk to a counsellor"],
+            "escalate": True,
+            "escalate_reason": "counselling_service_unavailable",
+        }
+        return _to_chat_response(fallback)
 
 @router.post("/joint-counselling/answers")
 async def submit_joint_answer(

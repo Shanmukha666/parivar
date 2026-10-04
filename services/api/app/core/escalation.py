@@ -5,7 +5,6 @@ Detects when human counsellor help is needed, creates tickets, manages queue.
 
 import json
 import logging
-import os
 from datetime import datetime, timezone
 from typing import List, Optional, Any
 from uuid import UUID
@@ -15,6 +14,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.models.models import Escalation, Message, MessageAnalysis, Session
 from app.core.prompts import ESCALATION_SUMMARY_PROMPT
+from app.core.gemini import GeminiError, generate_text, is_configured
 
 logger = logging.getLogger(__name__)
 
@@ -171,22 +171,18 @@ async def generate_escalation_summary(
         f"[{msg.speaker}]: {msg.text}" for msg in messages
     )
 
-    # Try LLM summary
-    if api_key or os.getenv("ANTHROPIC_API_KEY"):
+    # Gemini summary is optional; the structured fallback remains available.
+    if is_configured(api_key):
         try:
-            import anthropic
-
-            client = anthropic.AsyncAnthropic(
-                api_key=api_key or os.getenv("ANTHROPIC_API_KEY")
-            )
             prompt = ESCALATION_SUMMARY_PROMPT.format(transcript=transcript)
-            response = await client.messages.create(
-                model="claude-sonnet-4-20250514",
-                max_tokens=300,
-                messages=[{"role": "user", "content": prompt}],
+            return await generate_text(
+                system_instruction="Summarise only the supplied transcript. Do not invent facts.",
+                contents=[{"role": "user", "parts": [{"text": prompt}]}],
+                api_key=api_key,
+                max_output_tokens=300,
+                temperature=0,
             )
-            return response.content[0].text.strip()
-        except Exception as e:
+        except GeminiError as e:
             logger.warning(f"LLM summary failed: {e}")
 
     # Fallback: structured summary

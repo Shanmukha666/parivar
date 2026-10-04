@@ -6,12 +6,12 @@ Uses LLM when available, falls back to keyword-based classification.
 
 import json
 import logging
-import os
 from typing import Optional
 
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.prompts import CLASSIFIER_PROMPT
+from app.core.gemini import GeminiError, generate_text, is_configured
 
 logger = logging.getLogger(__name__)
 
@@ -217,25 +217,18 @@ async def classify_message(
 ) -> dict:
     """
     Classify a message for objection category, sentiment and intent.
-    Tries LLM first, falls back to keyword classifier.
+    Uses Gemini when configured, then falls back to the deterministic classifier.
     """
-    # Try LLM classification if API key is available
-    if api_key or os.getenv("ANTHROPIC_API_KEY"):
+    if is_configured(api_key):
         try:
-            import anthropic
-
-            client = anthropic.AsyncAnthropic(
-                api_key=api_key or os.getenv("ANTHROPIC_API_KEY")
-            )
             prompt = CLASSIFIER_PROMPT.format(text=text, speaker=speaker)
-
-            response = await client.messages.create(
-                model="claude-sonnet-4-20250514",
-                max_tokens=200,
-                messages=[{"role": "user", "content": prompt}],
+            result_text = await generate_text(
+                system_instruction="Return only the requested JSON. Do not add facts or explanations.",
+                contents=[{"role": "user", "parts": [{"text": prompt}]}],
+                api_key=api_key,
+                max_output_tokens=200,
+                temperature=0,
             )
-
-            result_text = response.content[0].text.strip()
             # Parse JSON from response
             if result_text.startswith("{"):
                 result = json.loads(result_text)
@@ -255,7 +248,7 @@ async def classify_message(
                 result["is_diagnostic"] = False
                 return result
 
-        except Exception as e:
+        except (GeminiError, json.JSONDecodeError) as e:
             logger.warning(f"LLM classifier failed, using keyword fallback: {e}")
 
     # Fallback to keyword-based classification

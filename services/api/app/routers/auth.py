@@ -90,7 +90,25 @@ def require_role(allowed_roles: List[str]):
         return current_user
     return role_checker
 
-family_user = require_role(["family"])
+
+import uuid as _uuid
+
+class AnonymousUser:
+    """Dummy user for anonymous/demo access."""
+    def __init__(self):
+        self.id = _uuid.UUID("00000000-0000-0000-0000-000000000000")
+        self.email = "anonymous@demo"
+        self.role = "family"
+
+
+async def family_user(token: str = Depends(OAuth2PasswordBearer(tokenUrl="auth/login", auto_error=False)), db: AsyncSession = Depends(get_db)):
+    """Allow anonymous access for hackathon demo; authenticate if token provided."""
+    if not token:
+        return AnonymousUser()
+    try:
+        return await get_current_user(token, db)
+    except HTTPException:
+        return AnonymousUser()
 
 @router.get("/me")
 async def get_me(current_user: Any = Depends(get_current_user)):

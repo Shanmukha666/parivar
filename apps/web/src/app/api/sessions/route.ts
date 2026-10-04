@@ -16,7 +16,24 @@ export async function POST(request: Request) {
 
   const supabase = await createSupabaseServerClient();
   const { data: { user } } = await supabase.auth.getUser();
-  if (!user) return NextResponse.json({ error: 'Authentication required' }, { status: 401 });
+
+  // If user is not authenticated, proxy to FastAPI backend for anonymous sessions
+  if (!user) {
+    const body = await request.json();
+    try {
+      const backendUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
+      const backendRes = await fetch(`${backendUrl}/sessions`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(body),
+      });
+      if (backendRes.ok) {
+        const data = await backendRes.json();
+        return NextResponse.json(data, { status: 201 });
+      }
+    } catch { /* fall through to demo */ }
+    return NextResponse.json(demoSessionResponse(body), { status: 201 });
+  }
 
   if (!enforceRateLimit(`session:${user.id}`, 10)) {
     return NextResponse.json({ error: 'Too many requests' }, { status: 429, headers: { 'Retry-After': '60' } });

@@ -17,7 +17,7 @@ export function hasSupabaseConfig(): boolean {
 
 export function demoSessionResponse(payload: Record<string, unknown>) {
   return {
-    id: 'local-demo-session',
+    id: '00000000-0000-4000-8000-000000000001',
     owner_id: '00000000-0000-0000-0000-000000000001',
     lang: payload.lang ?? 'en',
     state: payload.state ?? 'Telangana',

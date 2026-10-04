@@ -47,22 +47,46 @@ export async function createSession(payload: SessionPayload) {
   return res.json();
 }
 
+function isChatTurnResponse(body: unknown): body is ChatTurnResponse {
+  return Boolean(body && typeof body === 'object' && typeof (body as ChatTurnResponse).reply === 'string');
+}
+
 export async function sendChatMessage(data: ChatTurnRequest): Promise<ChatTurnResponse> {
+  let nextBody: unknown = null;
   try {
     const res = await fetch('/api/chat', {
       method: 'POST',
       headers: await getSupabaseAuthHeaders(),
       body: JSON.stringify(data),
     });
-    if (res.ok) return res.json();
-  } catch {}
-  const res = await fetch(`${API_BASE_URL}/chat`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(data),
-  });
-  if (!res.ok) throw new Error('Failed to send message');
-  return res.json();
+    try { nextBody = await res.json(); } catch {}
+    // #region agent log
+    fetch('http://127.0.0.1:7759/ingest/962b743e-7592-43f7-a05a-48acb68040bf',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'885e82'},body:JSON.stringify({sessionId:'885e82',runId:'post-fix',hypothesisId:'A',location:'api.ts:sendChatMessage',message:'next /api/chat result',data:{ok:res.ok,status:res.status,hasReply:isChatTurnResponse(nextBody),sessionId:data.session_id,textLen:data.text?.length,speaker:data.speaker,lang:data.lang},timestamp:Date.now()})}).catch(()=>{});
+    // #endregion
+    if (isChatTurnResponse(nextBody)) return nextBody;
+  } catch (err) {
+    // #region agent log
+    fetch('http://127.0.0.1:7759/ingest/962b743e-7592-43f7-a05a-48acb68040bf',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'885e82'},body:JSON.stringify({sessionId:'885e82',runId:'post-fix',hypothesisId:'A',location:'api.ts:sendChatMessage',message:'next /api/chat threw',data:{error:err instanceof Error?err.message:String(err)},timestamp:Date.now()})}).catch(()=>{});
+    // #endregion
+  }
+  try {
+    const res = await fetch(`${API_BASE_URL}/chat`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(data),
+    });
+    let fastapiBody: unknown = null;
+    try { fastapiBody = await res.json(); } catch {}
+    // #region agent log
+    fetch('http://127.0.0.1:7759/ingest/962b743e-7592-43f7-a05a-48acb68040bf',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'885e82'},body:JSON.stringify({sessionId:'885e82',runId:'post-fix',hypothesisId:'A',location:'api.ts:sendChatMessage',message:'fastapi /chat result',data:{ok:res.ok,status:res.status,hasReply:isChatTurnResponse(fastapiBody),apiBase:API_BASE_URL},timestamp:Date.now()})}).catch(()=>{});
+    // #endregion
+    if (isChatTurnResponse(fastapiBody)) return fastapiBody;
+  } catch (err) {
+    // #region agent log
+    fetch('http://127.0.0.1:7759/ingest/962b743e-7592-43f7-a05a-48acb68040bf',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'885e82'},body:JSON.stringify({sessionId:'885e82',runId:'post-fix',hypothesisId:'B',location:'api.ts:sendChatMessage',message:'fastapi /chat threw',data:{error:err instanceof Error?err.message:String(err)},timestamp:Date.now()})}).catch(()=>{});
+    // #endregion
+  }
+  throw new Error('Failed to send message');
 }
 
 const DEMO_TRADES: Record<number, any> = {

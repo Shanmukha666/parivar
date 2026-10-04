@@ -2,34 +2,29 @@
 Counselling orchestrator – the heart of the AI system.
 PRD section 3.2: Request flow (chat turn).
 
-Builds system prompt, runs tool-calling loop via Claude API,
-executes tools against DB, validates numbers, checks escalation.
-Falls back to a mock LLM for hackathon demo when no API key.
+Builds a grounded Gemini prompt, validates numbers, and checks escalation.
+Evidence is retrieved by this service before Gemini is called.
 """
 
 import json
 import logging
-import os
 from typing import Dict, Any, List, Optional
 
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.models.models import Session, Message, Trade
-from app.core.prompts import SYSTEM_PROMPT, TOOL_SCHEMAS
-from app.core.tools import execute_tool
+from app.core.prompts import SYSTEM_PROMPT
 from app.core.classifier import classify_message, store_classification, update_concern_state
 from app.core.validator import validate_numbers, REGENERATION_INSTRUCTION, SAFE_FALLBACK
 from app.core.grounding import assess_evidence, source_citations, requires_quantitative_evidence
+from app.core.gemini import GeminiError, generate_text
 from app.core.escalation import (
     check_escalation_triggers,
     create_escalation_ticket,
 )
 
 logger = logging.getLogger(__name__)
-
-MAX_TOOL_LOOPS = 5  # Prevent infinite tool-calling loops
-
 
 def _build_system_prompt(session: Session, trade_name: str, tool_results: Dict[str, Any] = None) -> str:
     """Build the system prompt with session context."""
@@ -93,177 +88,43 @@ async def _call_llm_with_tools(
     db: AsyncSession,
     api_key: Optional[str] = None,
 ) -> dict:
-    """
-    Call LLM API with tool-calling protocol.
-    Prefers Gemini if GEMINI_API_KEY is set, else Anthropic, else mock.
-    """
-    gemini_key = os.getenv("GEMINI_API_KEY", "")
-    anthropic_key = api_key or os.getenv("ANTHROPIC_API_KEY", "")
-
-    if gemini_key:
-        return await _call_gemini(system_prompt, messages, tool_results_all, db, gemini_key)
-    elif anthropic_key:
-        return await _call_anthropic(system_prompt, messages, tool_results_all, db, anthropic_key)
-    else:
-        return _mock_llm_response(messages, tool_results_all)
+    """Call Gemini after the service has retrieved the relevant evidence."""
+    return await _call_gemini(system_prompt, messages, tool_results_all, api_key)
 
 
 async def _call_gemini(
     system_prompt: str,
     messages: List[dict],
     tool_results_all: Dict[str, Any],
-    db: AsyncSession,
-    api_key: str,
+    api_key: Optional[str] = None,
 ) -> dict:
-    """Call Google Gemini API with tool support."""
-    import google.generativeai as genai
+    """Call Gemini with pre-fetched, verified evidence inline in its context."""
+    full_system = system_prompt
+    if tool_results_all:
+        full_system += "\n\nVERIFIED_DATA (the only source for factual claims):\n"
+        full_system += json.dumps(tool_results_all, default=str)
 
-    genai.configure(api_key=api_key)
-
-    # Build Gemini tool declarations from TOOL_SCHEMAS
-    gemini_tools = []
-    for t in TOOL_SCHEMAS:
-        func_decl = genai.protos.FunctionDeclaration(
-            name=t["name"],
-            description=t["description"],
-            parameters=t["input_schema"],
-        )
-        gemini_tools.append(func_decl)
-
-    tool_config = genai.protos.Tool(function_declarations=gemini_tools)
-
-    model = genai.GenerativeModel(
-        model_name="gemini-2.0-flash",
-        system_instruction=system_prompt,
-        tools=[tool_config],
-    )
-
-    # Convert messages to Gemini format
-    gemini_history = []
+    gemini_contents = []
     for msg in messages:
         role = "user" if msg["role"] == "user" else "model"
         content = msg.get("content", "")
-        if isinstance(content, str):
-            gemini_history.append({"role": role, "parts": [content]})
+        if isinstance(content, str) and content.strip():
+            gemini_contents.append({"role": role, "parts": [{"text": content}]})
 
-    # Start chat and send last message
-    chat = model.start_chat(history=gemini_history[:-1] if len(gemini_history) > 1 else [])
-    last_msg = gemini_history[-1]["parts"][0] if gemini_history else ""
+    if not gemini_contents:
+        gemini_contents.append({"role": "user", "parts": [{"text": "Hello"}]})
 
-    response = await _gemini_send_async(chat, last_msg)
-
-    # Tool-calling loop
-    loop_count = 0
-    accumulated_tool_results = dict(tool_results_all)
-
-    while loop_count < MAX_TOOL_LOOPS:
-        # Check for function calls in response
-        function_calls = []
-        for part in response.parts:
-            if hasattr(part, "function_call") and part.function_call.name:
-                function_calls.append(part.function_call)
-
-        if not function_calls:
-            break
-
-        loop_count += 1
-        # Execute tool calls
-        tool_responses = []
-        for fc in function_calls:
-            tool_args = dict(fc.args) if fc.args else {}
-            tool_result = await execute_tool(fc.name, tool_args, db)
-            accumulated_tool_results[fc.name] = tool_result
-            tool_responses.append(
-                genai.protos.Part(
-                    function_response=genai.protos.FunctionResponse(
-                        name=fc.name,
-                        response={"result": json.dumps(tool_result, default=str)},
-                    )
-                )
-            )
-
-        response = await _gemini_send_async(chat, tool_responses)
-
-    # Extract text
-    reply_text = response.text if hasattr(response, "text") and response.text else ""
-
-    # Parse JSON if present
-    parsed = _parse_llm_json(reply_text)
-    parsed["_tool_results"] = accumulated_tool_results
-    return parsed
-
-
-async def _gemini_send_async(chat, content):
-    """Send message to Gemini chat (sync wrapper for async context)."""
-    import asyncio
-    loop = asyncio.get_event_loop()
-    return await loop.run_in_executor(None, chat.send_message, content)
-
-
-async def _call_anthropic(
-    system_prompt: str,
-    messages: List[dict],
-    tool_results_all: Dict[str, Any],
-    db: AsyncSession,
-    api_key: str,
-) -> dict:
-    """Call Anthropic Claude API with tool-calling protocol."""
-    import anthropic
-
-    client = anthropic.AsyncAnthropic(api_key=api_key)
-
-    tools = [
-        {
-            "name": t["name"],
-            "description": t["description"],
-            "input_schema": t["input_schema"],
-        }
-        for t in TOOL_SCHEMAS
-    ]
-
-    response = await client.messages.create(
-        model="claude-sonnet-4-20250514",
-        max_tokens=1024,
-        system=system_prompt,
-        tools=tools,
-        messages=messages,
-    )
-
-    loop_count = 0
-    accumulated_tool_results = dict(tool_results_all)
-
-    while response.stop_reason == "tool_use" and loop_count < MAX_TOOL_LOOPS:
-        loop_count += 1
-        tool_use_blocks = [b for b in response.content if b.type == "tool_use"]
-
-        tool_results_messages = []
-        for block in tool_use_blocks:
-            tool_result = await execute_tool(block.name, block.input, db)
-            accumulated_tool_results[block.id] = tool_result
-            tool_results_messages.append({
-                "type": "tool_result",
-                "tool_use_id": block.id,
-                "content": json.dumps(tool_result, default=str),
-            })
-
-        messages = messages + [
-            {"role": "assistant", "content": response.content},
-            {"role": "user", "content": tool_results_messages},
-        ]
-
-        response = await client.messages.create(
-            model="claude-sonnet-4-20250514",
-            max_tokens=1024,
-            system=system_prompt,
-            tools=tools,
-            messages=messages,
+    try:
+        reply_text = await generate_text(
+            system_instruction=full_system,
+            contents=gemini_contents,
+            api_key=api_key,
         )
-
-    text_blocks = [b for b in response.content if hasattr(b, "text")]
-    reply_text = text_blocks[0].text if text_blocks else ""
-
+    except GeminiError:
+        logger.exception("Gemini API error")
+        return {"reply": "", "citations": [], "suggested_chips": [], "escalate": False, "escalate_reason": None, "_tool_results": tool_results_all}
     parsed = _parse_llm_json(reply_text)
-    parsed["_tool_results"] = accumulated_tool_results
+    parsed["_tool_results"] = tool_results_all
     return parsed
 
 
@@ -288,14 +149,19 @@ def _parse_llm_json(reply_text: str) -> dict:
         }
 
 
-def _mock_llm_response(
-    messages: List[dict],
-    tool_results: Dict[str, Any],
-) -> dict:
-    """
-    Mock LLM for hackathon demo when ANTHROPIC_API_KEY is not set.
-    Generates reasonable responses from tool results.
-    """
+def _gemini_unavailable_response(lang: str, tool_results: Dict[str, Any]) -> dict:
+    """Return a transparent, non-factual response when Gemini is unavailable."""
+    return {
+        "reply": SAFE_FALLBACK.get(lang, SAFE_FALLBACK["en"]),
+        "citations": source_citations(tool_results),
+        "suggested_chips": ["Talk to a counsellor"],
+        "escalate": True,
+        "escalate_reason": "gemini_unavailable",
+        "_tool_results": tool_results,
+    }
+
+    # Legacy demo response retained below temporarily for source compatibility.
+    # It is unreachable and will be removed with the next source cleanup.
     last_msg = messages[-1]["content"] if messages else ""
     last_text = last_msg if isinstance(last_msg, str) else str(last_msg)
 
@@ -555,6 +421,9 @@ async def handle_turn(
         system_prompt, history, tool_results_all, db
     )
     citations = llm_response.get("citations") or source_citations(tool_results_all)
+    if not (llm_response.get("reply") or "").strip():
+        llm_response = _gemini_unavailable_response(lang, tool_results_all)
+        citations = llm_response.get("citations") or citations
     update_concern_state(
         session,
         classification,

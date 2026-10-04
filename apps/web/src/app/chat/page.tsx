@@ -66,7 +66,7 @@ export default function ChatPage() {
             setSessionId(newSess.id);
           } catch (e) {
             console.warn('Session creation fallback active', e);
-            currentSid = '00000000-0000-0000-0000-000000000001';
+            currentSid = '00000000-0000-4000-8000-000000000001';
             setSessionId(currentSid);
           }
         }
@@ -97,9 +97,20 @@ export default function ChatPage() {
   }, []);
 
   const handleSend = async (textToSend: string) => {
+    const originalChipText = textToSend;
     if (textToSend === t('retry_message') && failedText) {
       textToSend = failedText;
     }
+    if (originalChipText === t('talk_to_counsellor')) {
+      // #region agent log
+      fetch('http://127.0.0.1:7759/ingest/962b743e-7592-43f7-a05a-48acb68040bf',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'885e82'},body:JSON.stringify({sessionId:'885e82',runId:'post-fix',hypothesisId:'E',location:'chat/page.tsx:handleSend',message:'counsellor chip opens escalate modal',data:{originalChipText,activeSessionId},timestamp:Date.now()})}).catch(()=>{});
+      // #endregion
+      setShowEscalateModal(true);
+      return;
+    }
+    // #region agent log
+    fetch('http://127.0.0.1:7759/ingest/962b743e-7592-43f7-a05a-48acb68040bf',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'885e82'},body:JSON.stringify({sessionId:'885e82',runId:'post-fix',hypothesisId:'E',location:'chat/page.tsx:handleSend',message:'handleSend entry',data:{originalChipText,mappedText:textToSend,isRetryChip:originalChipText===t('retry_message'),failedTextSet:Boolean(failedText),activeSessionId,speaker,chipMessageCount:messages.filter(m=>m.suggested_chips&&m.suggested_chips.length>0).length},timestamp:Date.now()})}).catch(()=>{});
+    // #endregion
     if (!textToSend.trim() || loading) return;
 
     const userMessage: MessageItem = {
@@ -116,7 +127,7 @@ export default function ChatPage() {
 
     try {
       const response = await sendChatMessage({
-        session_id: activeSessionId || '',
+        session_id: activeSessionId || '00000000-0000-4000-8000-000000000001',
         speaker,
         text: textToSend,
         lang: language || 'en',
@@ -132,6 +143,9 @@ export default function ChatPage() {
       };
 
       setMessages(prev => [...prev, aiMessage]);
+      // #region agent log
+      fetch('http://127.0.0.1:7759/ingest/962b743e-7592-43f7-a05a-48acb68040bf',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'885e82'},body:JSON.stringify({sessionId:'885e82',runId:'post-fix',hypothesisId:'A',location:'chat/page.tsx:handleSend',message:'chat reply accepted',data:{replyPreview:String(response.reply||'').slice(0,80),chipCount:response.suggested_chips?.length||0},timestamp:Date.now()})}).catch(()=>{});
+      // #endregion
 
       if (response.escalate) {
         setEscalated(true);
@@ -142,6 +156,9 @@ export default function ChatPage() {
       }
     } catch (err) {
       console.error(err);
+      // #region agent log
+      fetch('http://127.0.0.1:7759/ingest/962b743e-7592-43f7-a05a-48acb68040bf',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'885e82'},body:JSON.stringify({sessionId:'885e82',runId:'post-fix',hypothesisId:'A',location:'chat/page.tsx:handleSend',message:'sendChatMessage threw; showing verified_data_unavailable',data:{error:err instanceof Error?err.message:String(err),textLen:textToSend.length,activeSessionId},timestamp:Date.now()})}).catch(()=>{});
+      // #endregion
       const fallbackAi: MessageItem = {
         id: (Date.now() + 1).toString(),
         role: 'assistant',
@@ -163,7 +180,7 @@ export default function ChatPage() {
   const handleManualEscalate = async (phone: string) => {
     try {
       await createManualEscalation({
-        session_id: activeSessionId || '00000000-0000-0000-0000-000000000001',
+        session_id: activeSessionId || '00000000-0000-4000-8000-000000000001',
         reason: 'Family requested direct counsellor callback via UI',
         callback_phone: phone,
         callback_phone_consent: callbackConsent,
@@ -240,7 +257,10 @@ export default function ChatPage() {
           </div>
         )}
 
-        {messages.map(msg => (
+        {messages.map((msg, index) => {
+          const lastAssistantIndex = messages.findLastIndex(item => item.role === 'assistant');
+          const showChips = index === lastAssistantIndex && msg.suggested_chips && msg.suggested_chips.length > 0;
+          return (
           <div key={msg.id} className="space-y-1.5">
             <ChatMessage message={msg} />
             {msg.citations && msg.citations.length > 0 && (
@@ -250,10 +270,10 @@ export default function ChatPage() {
                 ))}
               </div>
             )}
-            {/* Suggested quick chips from AI */}
-            {msg.suggested_chips && msg.suggested_chips.length > 0 && (
+            {/* Suggested quick chips from AI — only the latest assistant turn */}
+            {showChips && (
               <div className="flex flex-wrap gap-2 pt-1 pl-2">
-                {msg.suggested_chips.map((chip, idx) => (
+                {msg.suggested_chips!.map((chip, idx) => (
                   <button
                     key={idx}
                     onClick={() => handleSend(chip)}
@@ -265,7 +285,8 @@ export default function ChatPage() {
               </div>
             )}
           </div>
-        ))}
+          );
+        })}
 
         {loading && (
           <div className="flex items-center gap-2 p-3 text-slate-500 bg-white rounded-2xl w-fit border border-slate-200 shadow-sm animate-pulse text-sm">

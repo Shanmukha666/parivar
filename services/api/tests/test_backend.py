@@ -9,7 +9,7 @@ from app.core.validator import validate_numbers
 from app.core.classifier import _keyword_classify, classify_concerns, update_concern_state
 from app.main import app
 from app.core.tools import get_outcomes, get_story
-from app.schemas.schemas import MetricIngest, SessionCreate
+from app.schemas.schemas import ChatResponse, MetricIngest, SessionCreate
 from app.routers.outcomes import is_stale
 from datetime import date
 from app.core.grounding import assess_evidence, validate_reply, source_citations, requires_quantitative_evidence
@@ -191,6 +191,28 @@ def test_joint_counselling_escalation_state():
     escalated = request_escalation(state)
     assert escalated["escalation_status"] == "pending"
     assert escalated["unresolved"] is True
+
+def test_chat_response_accepts_structured_citations():
+    payload = ChatResponse(
+        reply="I'm here to help your family explore vocational training options.",
+        citations=[{
+            "publisher": "NCVT Tracer Study / MSDE",
+            "title": "Graduate outcomes",
+            "url": "https://example.test/outcomes",
+            "verified": True,
+        }],
+        suggested_chips=["How much can they earn?", "Talk to a counsellor"],
+        escalate=False,
+    )
+    assert payload.citations[0]["publisher"] == "NCVT Tracer Study / MSDE"
+    string_payload = ChatResponse(
+        reply="Hello",
+        citations=["official_source"],
+        suggested_chips=[],
+        escalate=False,
+    )
+    assert string_payload.citations == ["official_source"]
+
 
 def test_fastapi_routes():
     def paths(routes):

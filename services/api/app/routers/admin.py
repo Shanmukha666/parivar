@@ -10,6 +10,7 @@ import json
 from app.database import get_db
 from app.models.models import Session, Message, MessageAnalysis, Escalation, Event, Trade
 from app.core.prompts import ADMIN_INSIGHT_PROMPT
+from app.core.gemini import GeminiError, generate_text, is_configured
 from app.routers.auth import require_role
 import logging
 logger = logging.getLogger(__name__)
@@ -199,24 +200,20 @@ async def get_insights(
 ):
     metrics = await get_metrics(state=state, district=district, db=db)
     
-    # Check if we can use real LLM for insights
-    api_key = os.getenv("ANTHROPIC_API_KEY")
-    if api_key:
+    # Gemini receives aggregate metrics only, never a family transcript or PII.
+    if is_configured():
         try:
-            import anthropic
-            client = anthropic.AsyncAnthropic(api_key=api_key)
             prompt = ADMIN_INSIGHT_PROMPT.format(metrics_json=json.dumps(metrics, default=str))
-            response = await client.messages.create(
-                model="claude-sonnet-4-20250514",
-                max_tokens=200,
-                messages=[{"role": "user", "content": prompt}]
+            text = await generate_text(
+                system_instruction="Return exactly three concise, aggregate-only administrator insights.",
+                contents=[{"role": "user", "parts": [{"text": prompt}]}],
+                max_output_tokens=200,
+                temperature=0,
             )
-            text = response.content[0].text
             insights = [line.strip().strip("-*123. ") for line in text.split("\n") if line.strip()]
             return {"insights": insights[:3], "weak_signal": metrics.get("total_sessions", 0) < MIN_SESSIONS_INSIGHTS}
-        except Exception as e:
+        except GeminiError as e:
             logger.warning(f"LLM insights generation failed: {e}")
-            pass
 
     # Fallback basic logic
     total_sess = metrics.get("total_sessions", 0)

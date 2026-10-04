@@ -43,9 +43,10 @@ class ChatRequest(BaseModel):
 
 class ChatResponse(BaseModel):
     reply: str
-    citations: List[str]
-    suggested_chips: List[str]
-    escalate: bool
+    citations: List[Any] = Field(default_factory=list)
+    suggested_chips: List[str] = Field(default_factory=list)
+    escalate: bool = False
+    escalate_reason: Optional[str] = None
 
 class JointAnswerRequest(BaseModel):
     session_id: UUID4
