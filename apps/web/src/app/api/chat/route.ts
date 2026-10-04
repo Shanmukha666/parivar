@@ -1,4 +1,3 @@
-```ts
 import { NextResponse } from 'next/server';
 
 import { createSupabaseServerClient } from '../../../lib/supabase-server';
@@ -49,6 +48,7 @@ export async function POST(request: Request) {
   }
 
   const supabase = await createSupabaseServerClient();
+
   const {
     data: { user },
   } = await supabase.auth.getUser();
@@ -266,8 +266,43 @@ export async function POST(request: Request) {
         scope: 'district',
       };
     }
+  }
 
-    evidence = assessEvidence(evidenceMetrics);
+  evidence = assessEvidence(evidenceMetrics);
+
+  await supabase
+    .from('sessions')
+    .update({
+      concern_state: updateConcernState(
+        concernState,
+        classification,
+        evidence.citations,
+      ),
+    })
+    .eq('id', session.id)
+    .eq('owner_id', user.id);
+
+  if (
+    session.selected_trade_id &&
+    body.text &&
+    requiresQuantitativeEvidence(body.text) &&
+    !evidence.usable
+  ) {
+    const reason = evidence.reason;
+
+    const reply =
+      reason === 'conflicting_verified_data'
+        ? 'Verified sources give conflicting figures for this question. I will not choose one number without a counsellor reviewing the sources.'
+        : 'Verified information is unavailable for this question. I can connect you with a human counsellor.';
+
+    await supabase.from('escalations').insert({
+      session_id: session.id,
+      reason,
+      status: 'new',
+      priority: 'high',
+      language: session.lang,
+      district: session.district,
+    });
 
     await supabase
       .from('sessions')
@@ -276,54 +311,19 @@ export async function POST(request: Request) {
           concernState,
           classification,
           evidence.citations,
+          'escalated',
         ),
       })
       .eq('id', session.id)
       .eq('owner_id', user.id);
 
-    if (
-      session.selected_trade_id &&
-      body.text &&
-      requiresQuantitativeEvidence(body.text) &&
-      !evidence.usable
-    ) {
-      const reason = evidence.reason;
-
-      const reply =
-        reason === 'conflicting_verified_data'
-          ? 'Verified sources give conflicting figures for this question. I will not choose one number without a counsellor reviewing the sources.'
-          : 'Verified information is unavailable for this question. I can connect you with a human counsellor.';
-
-      await supabase.from('escalations').insert({
-        session_id: session.id,
-        reason,
-        status: 'new',
-        priority: 'high',
-        language: session.lang,
-        district: session.district,
-      });
-
-      await supabase
-        .from('sessions')
-        .update({
-          concern_state: updateConcernState(
-            concernState,
-            classification,
-            evidence.citations,
-            'escalated',
-          ),
-        })
-        .eq('id', session.id)
-        .eq('owner_id', user.id);
-
-      return NextResponse.json({
-        reply,
-        citations: evidence.citations,
-        suggested_chips: ['Talk to a counsellor'],
-        escalate: true,
-        escalate_reason: reason,
-      });
-    }
+    return NextResponse.json({
+      reply,
+      citations: evidence.citations,
+      suggested_chips: ['Talk to a counsellor'],
+      escalate: true,
+      escalate_reason: reason,
+    });
   }
 
   try {
@@ -400,4 +400,3 @@ export async function POST(request: Request) {
     });
   }
 }
-
