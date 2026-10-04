@@ -30,9 +30,17 @@ export interface ChatTurnResponse {
 }
 
 export async function createSession(payload: SessionPayload) {
-  const res = await fetch('/api/sessions', {
+  try {
+    const res = await fetch('/api/sessions', {
+      method: 'POST',
+      headers: await getSupabaseAuthHeaders(),
+      body: JSON.stringify(payload),
+    });
+    if (res.ok) return res.json();
+  } catch {}
+  const res = await fetch(`${API_BASE_URL}/sessions`, {
     method: 'POST',
-    headers: await getSupabaseAuthHeaders(),
+    headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(payload),
   });
   if (!res.ok) throw new Error('Failed to create session');
@@ -40,9 +48,17 @@ export async function createSession(payload: SessionPayload) {
 }
 
 export async function sendChatMessage(data: ChatTurnRequest): Promise<ChatTurnResponse> {
-  const res = await fetch('/api/chat', {
+  try {
+    const res = await fetch('/api/chat', {
+      method: 'POST',
+      headers: await getSupabaseAuthHeaders(),
+      body: JSON.stringify(data),
+    });
+    if (res.ok) return res.json();
+  } catch {}
+  const res = await fetch(`${API_BASE_URL}/chat`, {
     method: 'POST',
-    headers: await getSupabaseAuthHeaders(),
+    headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(data),
   });
   if (!res.ok) throw new Error('Failed to send message');
@@ -50,26 +66,52 @@ export async function sendChatMessage(data: ChatTurnRequest): Promise<ChatTurnRe
 }
 
 export async function fetchTrades(district?: string, interest?: string, state?: string) {
-  if (!supabase) throw new Error('Supabase is not configured');
-  const { data, error } = await supabase.from('trades').select('*').order('id');
-  if (error) throw error;
-  return data || [];
+  if (supabase) {
+    try {
+      const { data, error } = await supabase.from('trades').select('*').order('id');
+      if (!error && data && data.length > 0) return data;
+    } catch {}
+  }
+  const params = new URLSearchParams();
+  if (district) params.append('district', district);
+  if (interest) params.append('interest', interest);
+  if (state) params.append('state', state);
+  const res = await fetch(`${API_BASE_URL}/trades?${params.toString()}`);
+  if (!res.ok) throw new Error('Failed to fetch trades');
+  return res.json();
 }
 
 export async function fetchTradeDetail(id: number | string) {
-  if (!supabase) throw new Error('Supabase is not configured');
-  const { data, error } = await supabase.from('trades').select('*').eq('id', id).single();
-  if (error) throw error;
-  return data;
+  if (supabase) {
+    try {
+      const { data, error } = await supabase.from('trades').select('*').eq('id', id).single();
+      if (!error && data) return data;
+    } catch {}
+  }
+  const res = await fetch(`${API_BASE_URL}/trades/${id}`);
+  if (!res.ok) throw new Error('Failed to fetch trade detail');
+  return res.json();
 }
 
 export async function fetchTradeOutcomes(id: number | string, district?: string, state?: string) {
   const params = new URLSearchParams({ trade_id: String(id), state: state || 'Telangana' });
   if (district) params.set('district', district);
   params.set('include_demo', 'true');
-  const res = await fetch(`/api/outcomes?${params.toString()}`);
-  if (!res.ok) throw new Error('Outcome data unavailable');
-  const records = await res.json();
+  let records: any[] = [];
+  try {
+    const res = await fetch(`/api/outcomes?${params.toString()}`);
+    if (res.ok) {
+      records = await res.json();
+    }
+  } catch {}
+  if (!records.length) {
+    try {
+      const res = await fetch(`${API_BASE_URL}/outcomes?${params.toString()}`);
+      if (res.ok) {
+        records = await res.json();
+      }
+    } catch {}
+  }
   const latest = records[0];
   if (!latest) return { found: false };
   const values = Object.fromEntries(records.map((r: any) => [r.metric_key, r.metric_value ?? r.metric_text]));
@@ -91,10 +133,16 @@ export async function fetchTradeOutcomes(id: number | string, district?: string,
 }
 
 export async function fetchTradePathway(id: number | string) {
-  if (!supabase) throw new Error('Supabase is not configured');
-  const { data, error } = await supabase.from('pathways').select('*').eq('from_trade_id', id).order('step_order');
-  if (error) throw error;
-  return { found: Boolean(data?.length), steps: data || [] };
+  if (supabase) {
+    try {
+      const { data, error } = await supabase.from('pathways').select('*').eq('from_trade_id', id).order('step_order');
+      if (!error && data && data.length > 0) return { found: true, steps: data };
+    } catch {}
+  }
+  const res = await fetch(`${API_BASE_URL}/trades/${id}/pathway`);
+  if (!res.ok) return { found: false, steps: [] };
+  const data = await res.json();
+  return { found: Boolean(data?.steps?.length), steps: data.steps || [] };
 }
 
 export async function fetchTradeStory(id: number | string, district?: string) {
@@ -107,19 +155,35 @@ export async function fetchTradeStory(id: number | string, district?: string) {
 }
 
 export async function fetchProviders(district?: string, state?: string) {
-  if (!supabase) throw new Error('Supabase is not configured');
-  let query = supabase.from('providers').select('*').eq('state', state || 'Telangana');
-  if (district) query = query.eq('district', district);
-  const { data, error } = await query.order('name').limit(20);
-  if (error) throw error;
-  return data || [];
+  if (supabase) {
+    try {
+      let query = supabase.from('providers').select('*').eq('state', state || 'Telangana');
+      if (district) query = query.eq('district', district);
+      const { data, error } = await query.order('name').limit(20);
+      if (!error && data && data.length > 0) return data;
+    } catch {}
+  }
+  const params = new URLSearchParams();
+  if (district) params.append('district', district);
+  if (state) params.append('state', state || 'Telangana');
+  const res = await fetch(`${API_BASE_URL}/providers?${params.toString()}`);
+  if (!res.ok) return [];
+  return res.json();
 }
 
 export async function fetchSchemes(state?: string, income_bracket?: string) {
-  if (!supabase) throw new Error('Supabase is not configured');
-  const { data, error } = await supabase.from('schemes').select('*').or(`state.eq.${state || 'Telangana'},state.is.null`);
-  if (error) throw error;
-  return data || [];
+  if (supabase) {
+    try {
+      const { data, error } = await supabase.from('schemes').select('*').or(`state.eq.${state || 'Telangana'},state.is.null`);
+      if (!error && data && data.length > 0) return data;
+    } catch {}
+  }
+  const params = new URLSearchParams();
+  if (state) params.append('state', state || 'Telangana');
+  if (income_bracket) params.append('income_bracket', income_bracket);
+  const res = await fetch(`${API_BASE_URL}/schemes?${params.toString()}`);
+  if (!res.ok) return [];
+  return res.json();
 }
 
 export async function fetchAdminMetrics(filters?: {

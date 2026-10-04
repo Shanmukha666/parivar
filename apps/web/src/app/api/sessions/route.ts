@@ -2,7 +2,7 @@ import { NextResponse } from 'next/server';
 import { createSupabaseServerClient } from '../../../lib/supabase-server';
 import { enforceRateLimit } from '../../../lib/rate-limit';
 
-const DISTRICTS = new Set(['Adilabad', 'Karimnagar', 'Hyderabad']);
+const DISTRICTS = new Set(['Warangal', 'Adilabad', 'Karimnagar', 'Hyderabad']);
 
 export async function POST(request: Request) {
   const supabase = await createSupabaseServerClient();
