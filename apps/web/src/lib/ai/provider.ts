@@ -84,10 +84,10 @@ export class GeminiProvider implements AiProvider {
       generation_config: { temperature: 0.2, max_output_tokens: 450 },
     };
 
-    const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/${this.model}:generateContent?key=${this.apiKey}`;
+    const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/${this.model}:generateContent`;
     const response = await fetch(endpoint, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: { 'Content-Type': 'application/json', 'x-goog-api-key': this.apiKey },
       body: JSON.stringify(body),
       signal: AbortSignal.timeout(12000),
     });
@@ -103,7 +103,7 @@ export class GeminiProvider implements AiProvider {
     if (functionCall) {
       const followUp = await fetch(endpoint, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json', 'x-goog-api-key': this.apiKey },
         body: JSON.stringify({
           ...body,
           contents: [

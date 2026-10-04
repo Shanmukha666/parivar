@@ -96,6 +96,6 @@ family_user = require_role(["family"])
 async def get_me(current_user: Any = Depends(get_current_user)):
     return {
         "id": current_user.id,
-        "email": current_user.email,
+        "email": getattr(current_user, "email", None),
         "role": current_user.role
     }

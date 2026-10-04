@@ -20,8 +20,10 @@ export default function VoiceButton({ onTranscript }: VoiceButtonProps) {
   const t = useTranslation(language);
   const listening = state === 'listening';
 
-  useEffect(() => () => {
-    recognitionRef.current?.abort?.();
+  useEffect(() => {
+    return () => {
+      recognitionRef.current?.abort?.();
+    };
   }, []);
 
   const setError = (key: NonNullable<typeof errorKey>) => {

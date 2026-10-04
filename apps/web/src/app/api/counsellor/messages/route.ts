@@ -6,6 +6,7 @@ export async function POST(request: Request) {
   const denied = requireRole(user, 'counsellor');
   if (denied) return denied;
   if (!user) return NextResponse.json({ error: 'Authentication required' }, { status: 401 });
+  if (user.app_metadata?.role === 'admin') return NextResponse.json({ error: 'Raw transcripts are restricted to the assigned counsellor' }, { status: 403 });
   const body = await request.json().catch(() => ({}));
 
   if (!body.session_id || !body.text) {
@@ -46,6 +47,7 @@ export async function GET(request: Request) {
   const denied = requireRole(user, 'counsellor');
   if (denied) return denied;
   if (!user) return NextResponse.json({ error: 'Authentication required' }, { status: 401 });
+  if (user.app_metadata?.role === 'admin') return NextResponse.json({ error: 'Raw transcripts are restricted to the assigned counsellor' }, { status: 403 });
   const { searchParams } = new URL(request.url);
   const sessionId = searchParams.get('session_id');
 

@@ -72,7 +72,7 @@ export async function POST(request: Request) {
     .from('trades')
     .select('id, name_en')
     .in('name_en', tradeNames);
-  const tradeIds = (trades || []).map(trade => trade.id);
+  const tradeIds = (trades || []).map((trade: any) => trade.id);
   const { data: evidenceRows } = tradeIds.length
     ? await supabase
       .from('outcome_metrics')

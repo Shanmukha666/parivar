@@ -5,15 +5,31 @@ import { createSupabaseServerClient } from './supabase-server';
 export type StaffRole = 'admin' | 'counsellor';
 
 export async function getAuthenticatedUser(): Promise<{
-  supabase: SupabaseClient;
+  supabase: any;
   user: User | null;
 }> {
   const supabase = await createSupabaseServerClient();
+  if (!supabase) {
+    return { supabase: null as any, user: null };
+  }
+
   const { data: { user }, error } = await supabase.auth.getUser();
-  if (error) {
+  if (error || !user) {
     return { supabase, user: null };
   }
-  return { supabase, user };
+
+  // `app_metadata` is not the database authorization source. The policies use
+  // `staff_roles`, so API checks must use the same, RLS-scoped relation.
+  const { data: staffRows } = await supabase
+    .from('staff_roles')
+    .select('role')
+    .eq('user_id', user.id);
+  const roles = (staffRows || []).map((row: any) => row.role);
+  const role = roles.includes('admin') ? 'admin' : roles.includes('counsellor') ? 'counsellor' : undefined;
+  return {
+    supabase,
+    user: { ...user, app_metadata: { ...user.app_metadata, ...(role ? { role } : {}) } },
+  };
 }
 
 export function hasRole(user: User | null, role: StaffRole): boolean {

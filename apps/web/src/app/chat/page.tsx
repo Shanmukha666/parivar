@@ -40,7 +40,9 @@ export default function ChatPage() {
   const [failedText, setFailedText] = useState<string | null>(null);
 
   const endRef = useRef<HTMLDivElement>(null);
-  useEffect(() => endRef.current?.scrollIntoView({ behavior: 'smooth' }), [messages, loading]);
+  useEffect(() => {
+    endRef.current?.scrollIntoView({ behavior: 'smooth' });
+  }, [messages, loading]);
 
   // Initial welcome message and session initialization
   useEffect(() => {

@@ -1,7 +1,12 @@
 import { NextResponse } from 'next/server';
 import { createSupabaseServerClient } from '../../../lib/supabase-server';
+import { demoOutcomeResponse, hasSupabaseConfig } from '../../../lib/demo-mode';
 
 export async function GET(request: Request) {
+  if (!hasSupabaseConfig()) {
+    return NextResponse.json(demoOutcomeResponse());
+  }
+
   const supabase = await createSupabaseServerClient();
   const params = new URL(request.url).searchParams;
   const tradeId = params.get('trade_id');

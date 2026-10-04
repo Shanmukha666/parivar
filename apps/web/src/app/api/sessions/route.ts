@@ -1,10 +1,19 @@
 import { NextResponse } from 'next/server';
 import { createSupabaseServerClient } from '../../../lib/supabase-server';
 import { enforceRateLimit } from '../../../lib/rate-limit';
+import { demoSessionResponse, hasSupabaseConfig } from '../../../lib/demo-mode';
 
 const DISTRICTS = new Set(['Warangal', 'Adilabad', 'Karimnagar', 'Hyderabad']);
 
 export async function POST(request: Request) {
+  if (!hasSupabaseConfig()) {
+    const body = await request.json();
+    if (!['en', 'hi', 'te', 'ta'].includes(body.lang) || body.state !== 'Telangana' || !DISTRICTS.has(body.district) || body.consent !== true) {
+      return NextResponse.json({ error: 'Unsupported location, language, or consent' }, { status: 400 });
+    }
+    return NextResponse.json(demoSessionResponse(body), { status: 201 });
+  }
+
   const supabase = await createSupabaseServerClient();
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) return NextResponse.json({ error: 'Authentication required' }, { status: 401 });

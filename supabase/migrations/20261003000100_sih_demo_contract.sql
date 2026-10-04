@@ -12,10 +12,12 @@ alter table if exists public.escalations add column if not exists district text;
 alter table if exists public.escalations add column if not exists sla_due_at timestamptz;
 alter table if exists public.escalations drop constraint if exists escalations_status_check;
 alter table if exists public.escalations add constraint escalations_status_check check (status in ('new', 'assigned', 'contacted', 'resolved', 'closed_no_response'));
+alter table if exists public.escalations drop constraint if exists escalations_priority_check;
 alter table if exists public.escalations add constraint escalations_priority_check check (priority in ('normal', 'high', 'urgent'));
 
 alter table if exists public.escalation_contacts add column if not exists consented boolean not null default false;
 alter table if exists public.escalation_contacts add column if not exists expires_at timestamptz not null default (now() + interval '30 days');
+alter table if exists public.escalation_contacts drop constraint if exists escalation_contacts_consent_check;
 alter table if exists public.escalation_contacts add constraint escalation_contacts_consent_check check (consented) not valid;
 alter table if exists public.sessions add column if not exists consent_version text not null default 'v1';
 alter table if exists public.sessions add column if not exists consented_at timestamptz not null default now();

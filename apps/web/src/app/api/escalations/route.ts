@@ -38,27 +38,20 @@ export async function POST(request: Request) {
     .single();
   if (!session) return NextResponse.json({ error: 'Session not found' }, { status: 404 });
 
-  const { data: escalation, error } = await supabase.from('escalations').insert({
-    session_id: session.id,
-    reason: body.reason,
-    concern_category: body.concern_category || null,
-    status: 'new',
-    priority: body.priority || 'normal',
-    language: session.lang,
-    district: session.district,
-    callback_slot: body.callback_slot || '10:00-18:00 Monday-Saturday',
-    sla_due_at: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString(),
-  }).select().single();
-  if (error || !escalation) return NextResponse.json({ error: 'Could not create escalation' }, { status: 500 });
-
-  if (body.callback_phone && body.callback_phone_consent) {
-    const { error: contactError } = await supabase.from('escalation_contacts').insert({
-      escalation_id: escalation.id,
-      callback_phone: body.callback_phone,
-      consented: true,
-    });
-    if (contactError) return NextResponse.json({ error: 'Escalation created but callback contact was not stored' }, { status: 500 });
+  // The SECURITY DEFINER RPC checks ownership and atomically creates the
+  // contact, preventing clients from forging status, assignee, or SLA values.
+  const { data: escalationId, error } = await supabase.rpc('create_escalation', {
+    p_session: session.id,
+    p_reason: body.reason,
+    p_priority: body.priority === 'high' ? 'high' : 'normal',
+    p_slot: body.callback_slot || null,
+    p_phone: body.callback_phone || null,
+    p_phone_consent: Boolean(body.callback_phone_consent),
+  });
+  if (error || !escalationId) {
+    const status = error?.message.includes('ticket_already_open') ? 409 : 400;
+    return NextResponse.json({ error: status === 409 ? 'An open escalation already exists' : 'Could not create escalation' }, { status });
   }
 
-  return NextResponse.json({ id: escalation.id, status: escalation.status }, { status: 201 });
+  return NextResponse.json({ id: escalationId, status: 'new' }, { status: 201 });
 }

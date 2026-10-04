@@ -4,6 +4,10 @@ import { GeminiProvider, type VerifiedOutcome } from '../../../lib/ai/provider';
 import { enforceRateLimit } from '../../../lib/rate-limit';
 import { assessEvidence, validateGeneratedNumbers, requiresQuantitativeEvidence, type EvidenceMetric } from '../../../lib/ai/grounding';
 import { classifyConcerns, updateConcernState, type ConcernState } from '../../../lib/concern-state';
+import { analyseMessage } from '../../../lib/analysis';
+import { createSupabaseAdminClient } from '../../../lib/supabase-admin';
+import { crisisReply, hasDistressSignal as detectsDistress } from '../../../lib/safety';
+import { demoChatReply, hasSupabaseConfig } from '../../../lib/demo-mode';
 
 const MAX_MESSAGES_PER_SESSION = 30;
 const DISTRESS_TERMS = ['self harm', 'suicide', 'want to die', 'kill myself', 'आत्महत्या'];
@@ -20,6 +24,17 @@ function hasDistressSignal(value: string) {
 }
 
 export async function POST(request: Request) {
+  const body = await request.json() as {
+    session_id?: string;
+    speaker?: 'learner' | 'parent';
+    text?: string;
+    lang?: 'en' | 'te' | 'hi';
+  };
+
+  if (!hasSupabaseConfig()) {
+    return NextResponse.json(demoChatReply(body.text || '', body.lang || 'en'));
+  }
+
   const supabase = await createSupabaseServerClient();
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) return NextResponse.json({ error: 'Authentication required' }, { status: 401 });
@@ -27,20 +42,20 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: 'Too many requests' }, { status: 429, headers: { 'Retry-After': '60' } });
   }
 
-  const body = await request.json() as {
+  const requestBody = body as {
     session_id?: string;
     speaker?: 'learner' | 'parent';
     text?: string;
     lang?: 'en' | 'te' | 'hi';
   };
-  if (!body.session_id || !body.text || !body.speaker || !body.lang || body.text.length > 1000) {
+  if (!requestBody.session_id || !requestBody.text || !requestBody.speaker || !requestBody.lang || requestBody.text.length > 1000) {
     return NextResponse.json({ error: 'Invalid message' }, { status: 400 });
   }
 
   const { data: session, error: sessionError } = await supabase
     .from('sessions')
     .select('id, owner_id, state, district, lang, selected_trade_id, concern_state, trades(name_en)')
-    .eq('id', body.session_id)
+    .eq('id', requestBody.session_id)
     .eq('owner_id', user.id)
     .single();
   if (sessionError || !session) return NextResponse.json({ error: 'Session not found' }, { status: 404 });
@@ -48,43 +63,50 @@ export async function POST(request: Request) {
   const { count } = await supabase
     .from('messages')
     .select('id', { count: 'exact', head: true })
-    .eq('session_id', body.session_id);
+    .eq('session_id', requestBody.session_id);
   if ((count || 0) >= MAX_MESSAGES_PER_SESSION) {
     return NextResponse.json({ error: 'Session message limit reached', code: 'SESSION_CAP' }, { status: 429 });
   }
 
-  const { error: insertError } = await supabase.from('messages').insert({
-    session_id: body.session_id,
-    speaker: body.speaker,
-    text: body.text,
-    lang: body.lang,
-  });
+  const { data: familyMessage, error: insertError } = await supabase.from('messages').insert({
+    session_id: requestBody.session_id,
+    speaker: requestBody.speaker,
+    text: requestBody.text,
+    lang: requestBody.lang,
+  }).select('id').single();
   if (insertError) return NextResponse.json({ error: 'Could not save message' }, { status: 500 });
 
-  const classification = classifyConcerns(body.text);
+  if (familyMessage) {
+    try {
+      const analysis = analyseMessage(requestBody.text);
+      await createSupabaseAdminClient().from('message_analysis').insert({
+        message_id: familyMessage.id,
+        objection_category: analysis.objection,
+        sentiment: analysis.sentiment,
+        intent: analysis.intent,
+      });
+    } catch (error) {
+      console.error('message analysis write failed', error);
+    }
+  }
+
+  const classification = classifyConcerns(requestBody.text);
   const concernState = updateConcernState(session.concern_state as Partial<ConcernState> | null, classification);
   await supabase.from('sessions').update({ concern_state: concernState }).eq('id', session.id).eq('owner_id', user.id);
 
-  if (hasDistressSignal(body.text)) {
-    await supabase.from('escalations').insert({
-      session_id: session.id,
-      reason: 'Distress signal detected',
-      status: 'new',
-      priority: 'urgent',
-      language: session.lang,
-      district: session.district,
-      sla_due_at: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString(),
-    });
+  if (detectsDistress(requestBody.text)) {
+    const { error: distressError } = await supabase.rpc('raise_distress', { p_session: session.id });
+    if (distressError) console.error('distress escalation failed', distressError);
     await supabase.from('sessions').update({
       concern_state: updateConcernState(concernState, classification, [], 'escalated'),
     }).eq('id', session.id).eq('owner_id', user.id);
     return NextResponse.json({
-      reply: 'I am sorry you are feeling this way. Please pause this chat and contact a trusted person or local emergency support now. A counsellor request has been marked high priority. Crisis guidance is currently a placeholder pending review.',
+      reply: crisisReply(requestBody.lang),
       citations: [],
       suggested_chips: [],
       escalate: true,
       escalate_reason: 'distress_signal',
-      priority: 'high',
+      priority: 'urgent',
     });
   }
 
@@ -128,7 +150,7 @@ export async function POST(request: Request) {
     await supabase.from('sessions').update({
       concern_state: updateConcernState(concernState, classification, evidence.citations),
     }).eq('id', session.id).eq('owner_id', user.id);
-    if (session.selected_trade_id && requiresQuantitativeEvidence(body.text) && !evidence.usable) {
+    if (session.selected_trade_id && requestBody.text && requiresQuantitativeEvidence(requestBody.text) && !evidence.usable) {
       const reason = evidence.reason;
       const reply = reason === 'conflicting_verified_data'
         ? 'Verified sources give conflicting figures for this question. I will not choose one number without a counsellor reviewing the sources.'
@@ -157,19 +179,20 @@ export async function POST(request: Request) {
   try {
     const provider = new GeminiProvider();
     const result = await provider.generate({
-      language: body.lang,
-      speaker: body.speaker,
-      userMessage: redactPersonalData(body.text),
+      language: requestBody.lang,
+      speaker: requestBody.speaker,
+      userMessage: redactPersonalData(requestBody.text),
       location: { state: session.state, district: session.district },
       tradeName: (session.trades as { name_en?: string } | null)?.name_en,
       verifiedOutcomes: outcomes,
       verifiedEvidence: evidence.metrics,
     });
 
-    const { error: aiMessageError } = await supabase.rpc('insert_ai_message', {
-      target_session_id: body.session_id,
-      message_text: result.text,
-      message_lang: body.lang,
+    const { error: aiMessageError } = await createSupabaseAdminClient().from('messages').insert({
+      session_id: requestBody.session_id,
+      speaker: 'ai',
+      text: result.text,
+      lang: requestBody.lang,
     });
     if (aiMessageError) throw aiMessageError;
 

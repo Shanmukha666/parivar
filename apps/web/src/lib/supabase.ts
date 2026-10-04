@@ -1,10 +1,11 @@
 import { createBrowserClient } from '@supabase/ssr';
 import type { Session } from '@supabase/supabase-js';
+import { hasSupabaseConfig } from './demo-mode';
 
 const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
 const key = process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY;
 
-export const supabase = url && key
+export const supabase = hasSupabaseConfig() && url && key
   ? createBrowserClient(url, key)
   : null;
 
