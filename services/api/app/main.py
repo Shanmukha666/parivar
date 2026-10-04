@@ -38,6 +38,17 @@ app.include_router(escalation.router, tags=["escalation"])
 app.include_router(admin.router, prefix="/admin", tags=["admin"])
 app.include_router(summary.router, tags=["summary"])
 
+@app.get("/")
+async def root() -> dict[str, str]:
+    return {
+        "title": "Parivar Path API",
+        "version": "1.0.0",
+        "status": "online",
+        "docs": "/docs",
+        "health": "/health",
+        "problem_statement": "SIH 2026 #26241 - MSDE"
+    }
+
 @app.get("/health")
 async def health_check() -> dict[str, str]:
     return {"status": "ok"}
