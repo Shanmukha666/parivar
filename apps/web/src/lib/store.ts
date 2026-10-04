@@ -35,17 +35,6 @@ const defaultState: AppState = {
 
 let globalState: AppState = { ...defaultState };
 
-if (typeof window !== 'undefined') {
-  try {
-    const saved = localStorage.getItem('parivar_path_state') || sessionStorage.getItem('parivar_path_state');
-    if (saved) {
-      globalState = { ...defaultState, ...JSON.parse(saved), isHydrated: true };
-    }
-  } catch (e) {
-    console.error('Failed to load state', e);
-  }
-}
-
 let listeners: Array<(state: AppState) => void> = [];
 
 function setGlobalState(newState: Partial<AppState>) {
@@ -68,10 +57,20 @@ export function useStore() {
   const [state, setState] = useState<AppState>(globalState);
 
   useEffect(() => {
-    listeners.push(setState);
-    if (!globalState.isHydrated) {
-      setGlobalState({ isHydrated: true });
+    if (typeof window !== 'undefined' && !globalState.isHydrated) {
+      try {
+        const saved = localStorage.getItem('parivar_path_state') || sessionStorage.getItem('parivar_path_state');
+        if (saved) {
+          globalState = { ...defaultState, ...JSON.parse(saved), isHydrated: true };
+          setState({ ...globalState });
+        } else {
+          globalState = { ...globalState, isHydrated: true };
+        }
+      } catch (e) {
+        console.warn('Storage hydration failed', e);
+      }
     }
+    listeners.push(setState);
     return () => {
       listeners = listeners.filter(l => l !== setState);
     };
