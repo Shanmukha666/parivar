@@ -52,16 +52,24 @@ export function hasDistressSignal(text: string): boolean {
   return ALL.some(p => t.includes(p));
 }
 
-export function crisisReply(lang: Lang): string {
+export function crisisReply(lang: Lang, counsellorNotified = false): string {
   const { short, tollFree } = TELE_MANAS;
+  const counsellorText = {
+    te: counsellorNotified ? ' మీ అభ్యర్థనను అత్యవసరంగా కౌన్సెలర్‌కు పంపాను.' : '',
+    hi: counsellorNotified ? ' मैंने आपका अनुरोध तुरंत काउंसलर को भेज दिया है।' : '',
+    ta: counsellorNotified ? ' உங்கள் கோரிக்கையை அவசரமாக ஆலோசகருக்கு அனுப்பியுள்ளேன்.' : '',
+    en: counsellorNotified ? ' I have marked your request as urgent for a counsellor.' : '',
+  };
+
   if (lang === 'te') {
-    return `మీరు ఇంత బాధలో ఉన్నందుకు నాకు చాలా బాధగా ఉంది. మీరు ఒంటరి కాదు. ఇప్పుడే ${short} (లేదా ${tollFree}) కి కాల్ చేయండి. ఇది ఉచితం, 24 గంటలూ పనిచేస్తుంది, తెలుగులో మాట్లాడవచ్చు. మీ దగ్గర ఉన్న నమ్మకమైన వ్యక్తిని పిలిచి మీ దగ్గరే ఉండమని చెప్పండి. మీ అభ్యర్థనను అత్యవసరంగా కౌన్సెలర్‌కు పంపాను.`;
+    return `మీరు ఇంత బాధలో ఉన్నందుకు నాకు చాలా బాధగా ఉంది. మీరు ఒంటరి కాదు. ఇప్పుడే ${short} (లేదా ${tollFree}) కి కాల్ చేయండి. ఇది ఉచితం, 24 గంటలూ పనిచేస్తుంది, తెలుగులో మాట్లాడవచ్చు. మీ దగ్గర ఉన్న నమ్మకమైన వ్యక్తిని పిలిచి మీ దగ్గరే ఉండమని చెప్పండి.${counsellorText.te}`;
   }
   if (lang === 'hi') {
-    return `आप इतने दुख में हैं, यह सुनकर मुझे बहुत चिंता हो रही है। आप अकेले नहीं हैं। अभी ${short} (या ${tollFree}) पर कॉल करें। यह मुफ़्त है, 24 घंटे चालू रहता है और आप अपनी भाषा में बात कर सकते हैं। किसी भरोसेमंद व्यक्ति को अपने पास बुला लें। मैंने आपका अनुरोध तुरंत काउंसलर को भेज दिया है।`;
+    return `आप इतने दुख में हैं, यह सुनकर मुझे बहुत चिंता हो रही है। आप अकेले नहीं हैं। अभी ${short} (या ${tollFree}) पर कॉल करें। यह मुफ़्त है, 24 घंटे चालू रहता है और आप अपनी भाषा में बात कर सकते हैं। किसी भरोसेमंद व्यक्ति को अपने पास बुला लें।${counsellorText.hi}`;
   }
   if (lang === 'ta') {
-    return `நீங்கள் இவ்வளவு வேதனையில் இருப்பதைக் கேட்டு எனக்கு மிகவும் கவலையாக இருக்கிறது. நீங்கள் தனியாக இல்லை. இப்போதே ${short} (அல்லது ${tollFree}) எண்ணை அழையுங்கள். இது இலவசம், 24 மணி நேரமும் செயல்படும், உங்கள் மொழியில் பேசலாம். நம்பகமான ஒருவரை உங்களுடன் இருக்கச் சொல்லுங்கள். உங்கள் கோரிக்கையை அவசரமாக ஆலோசகருக்கு அனுப்பியுள்ளேன்.`;
+    return `நீங்கள் இவ்வளவு வேதனையில் இருப்பதைக் கேட்டு எனக்கு மிகவும் கவலையாக இருக்கிறது. நீங்கள் தனியாக இல்லை. இப்போதே ${short} (அல்லது ${tollFree}) எண்ணை அழையுங்கள். இது இலவசம், 24 மணி நேரமும் செயல்படும், உங்கள் மொழியில் பேசலாம். நம்பகமான ஒருவரை உங்களுடன் இருக்கச் சொல்லுங்கள்.${counsellorText.ta}`;
   }
-  return `I'm really sorry you're in this much pain, and I'm glad you told me. You are not alone. Please call ${short} (or ${tollFree}) now. It is free, open 24 hours, and you can speak in your own language. If you can, ask someone you trust to stay with you. I have marked your request as urgent for a counsellor.`;
+  return `I'm really sorry you're in this much pain, and I'm glad you told me. You are not alone. Please call ${short} (or ${tollFree}) now. It is free, open 24 hours, and you can speak in your own language. If you can, ask someone you trust to stay with you.${counsellorText.en}`;
 }
+

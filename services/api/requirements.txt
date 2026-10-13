@@ -17,3 +17,6 @@ supabase
 jinja2
 weasyprint
 psycopg2-binary
+pytest
+pytest-asyncio
+

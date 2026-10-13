@@ -19,8 +19,8 @@
 | **2** | `0:30 - 1:00` | **Family Counselling** | Show Parent + Learner dual perspective & minor consent | `/consent` ➔ `/profile` |
 | **3** | `1:00 - 1:30` | **Regional Language** | Native Telugu (`te`) interface, regional speech & scripts | `/` ➔ `/chat` |
 | **4** | `1:30 - 2:00` | **Parent Objection** | Parent asks about job security in colloquial Telugu | `/chat` (Parent toggle) |
-| **5** | `2:00 - 2:30` | **Verified Evidence** | Official NCVT Warangal 78% placement data with citation | `/chat` & `/trades/1` |
-| **6** | `2:30 - 3:00` | **Trust & Provenance** | Open *"Why this number?"* modal (source, sample size, NCVT Table 4.1) | Provenance Drawer |
+| **5** | `2:00 - 2:30` | **Verified Evidence** | Benchmark Warangal 78% placement tracer data with citation | `/chat` & `/trades/1` |
+| **6** | `2:30 - 3:00` | **Trust & Provenance** | Open *"Why this number?"* modal (source, sample size, tracer survey reference) | Provenance Drawer |
 | **7** | `3:00 - 3:30` | **Progression Ladder** | Job ➔ Qualification ➔ Higher Education (NSQF Level 4 ➔ 5 ➔ 6) | `/trades/1` (Ladder) |
 | **8** | `3:30 - 4:00` | **Uncertainty Boundary**| Parent asks unsupported salary; AI **refuses to fabricate** | `/chat` |
 | **9** | `4:00 - 4:30` | **Human Escalation** | Automated ticket queued with masked phone number (`98****3210`) | `/counsellor/dashboard`|
@@ -64,15 +64,15 @@
 
 ### SCENE 5 — Evidence (`2:00 - 2:30`)
 - **What to Say**:  
-  *"Instead of generic platitudes, Parivar queries our verified local database. It filters out synthetic demo records and retrieves the official 2024 NCVT Tracer Study for Warangal: 78.4% of ITI Electrician graduates secured jobs with ₹16,500 starting salary. The AI delivers this in empathetic Telugu with citation."*
+  *"Instead of generic platitudes, Parivar queries our verified local database. It filters out unverified synthetic demo records and retrieves benchmark tracer study metrics for Warangal: 78.4% of ITI Electrician graduates secured jobs with ₹16,500 starting salary. The AI delivers this in empathetic Telugu with citation."*
 - **What to Show**:  
-  AI response citing 78% placement with NCVT Table 4.1 reference.
+  AI response citing 78% placement with grounded survey reference.
 
 ---
 
 ### SCENE 6 — Trust: "Why this number?" (`2:30 - 3:00`)
 - **What to Say**:  
-  *"Anyone can generate a number. But can the family trust it? Every metric features 'Why this number?' (ఈ సంఖ్య ఎందుకు?). When clicked, parents see the verifiable truth: Survey Year: 2024, Sample Size: 42 graduates tracked, Source: NCVT / MSDE, Table 4.1. Notice the verification badge: VERIFIED (Official Government Survey). Where data is simulated for demo, it is explicitly labelled SYNTHETIC."*
+  *"Anyone can generate a number. But can the family trust it? Every metric features 'Why this number?' (ఈ సంఖ్య ఎందుకు?). When clicked, parents see the verifiable truth: Survey Year: 2024, Sample Size: 42 graduates tracked, Source: Tracer Study Benchmark Dataset. Notice the verification badge: VERIFIED (audited survey data) vs SYNTHETIC (clearly labelled demo simulation)."*
 - **What to Show**:  
   Click the `"Why this number?"` badge; show the provenance modal containing sample size, year, source document, and verified status.
 

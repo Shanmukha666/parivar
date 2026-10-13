@@ -177,6 +177,7 @@ export async function POST(request: Request) {
       p_session: session.id,
     });
 
+    const ticketCreated = !distressError;
     if (distressError) {
       console.error('distress escalation failed', distressError);
     }
@@ -195,7 +196,7 @@ export async function POST(request: Request) {
       .eq('owner_id', user.id);
 
     return NextResponse.json({
-      reply: crisisReply(body.lang),
+      reply: crisisReply(body.lang || 'en', ticketCreated),
       citations: [],
       suggested_chips: [],
       escalate: true,

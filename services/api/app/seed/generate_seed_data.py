@@ -47,9 +47,9 @@ def main():
         for dist in dists:
             for idx in range(3):
                 p_type = ["Government ITI", "PMKVY Skill Hub", "Polytechnic Centre"][idx]
-                accred = ["NCVT Verified", "NSDC Certified", "State Board Accredited"][idx]
+                accred = ["NCVT Affiliated (Sample Demo)", "NSDC Certified (Sample Demo)", "State Board Accredited (Sample Demo)"][idx]
                 fee = [1200, 0, 18500][idx]
-                contact = f"040-{random.randint(20000000, 29999999)}" if state == "Telangana" else f"0755-{random.randint(2000000, 2999999)}"
+                contact = f"040-DEMO-{pid:04d}" if state == "Telangana" else f"0755-DEMO-{pid:04d}"
                 providers.append((pid, f"{dist} {p_type}", p_type, state, dist, accred, fee, contact))
                 pid += 1
 
@@ -88,7 +88,7 @@ def main():
             outcomes.append((
                 oid, tid, p_id, p_state, p_dist, random.choice([2023, 2024]),
                 pr, avg_sal, sal_min, sal_max, se_rate, ss,
-                "State Skill Mission & NCVT Portal", "2024-03-15"
+                "State Skill Mission (Simulated Demo Fixture)", "2024-03-15"
             ))
             oid += 1
             if oid > 300:

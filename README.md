@@ -36,7 +36,7 @@ In Indian households, vocational education (ITI, polytechnic, PMKVY) decisions a
   - **Metric Key & Value** (e.g. `₹16,500/month`, `78.4% placed`)
   - **Location & Trade** (e.g. `Warangal, Telangana | Electrician`)
   - **Cohort Year & Sample Size** (e.g. `2024 cohort, N=42`)
-  - **Authoritative Source & Document Reference** (e.g. `NCVT Tracer Study, Table 4.1`)
+  - **Authoritative Source & Document Reference** (e.g. `State Skill Mission Tracer Survey / Benchmark Dataset`)
   - **Verification Status** (`verified` vs `synthetic`)
 
 ### 3. 🗣️ Native Multilingual Dialogue (4 Languages)
@@ -80,8 +80,8 @@ python run_sih_demo.py --delay 0.5
 5. **Trade selection** — Learner explores and selects Electrician (NSQF Level 4).
 6. **Parent raises job-security concern** — Native Telugu question on employment anxiety.
 7. **Concern classification** — NLP identifies category `job_security` with `HIGH` intensity.
-8. **Verified data retrieval** — Retrieves NCVT Tracer Study (filters out synthetic records).
-9. **Evidence display** — AI responds in Telugu citing 78% placement with NCVT Table 4.1 citation.
+8. **Verified data retrieval** — Retrieves local benchmark tracer study metrics (filters out unverified synthetic records).
+9. **Evidence display** — AI responds in Telugu citing 78% placement with grounded survey citation.
 10. **Parent asks about earnings** — Inquiry on first-month wages.
 11. **Grounded response** — System validates ₹16,500 and intercepts hallucinated figures.
 12. **Source drawer opens** — User inspects "Why this number?" modal details.

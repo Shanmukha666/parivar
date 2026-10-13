@@ -72,17 +72,42 @@ export class GeminiProvider implements AiProvider {
   private readonly primaryModel = process.env.GEMINI_MODEL || 'gemini-3.8-flash';
   private readonly fallbackModel = process.env.GEMINI_FALLBACK_MODEL || 'gemini-2.5-flash';
 
-  private async fetchWithFallback(urlPrimary: string, urlFallback: string, options: RequestInit): Promise<Response> {
+  private buildBody(system: string, userMessage: string, model: string) {
+    const isGemini3 = model.includes('3.') || model.includes('gemini-3');
+    const generationConfig: Record<string, unknown> = {
+      temperature: 0.2,
+      max_output_tokens: 1024,
+    };
+    if (isGemini3) {
+      generationConfig.thinking_config = { thinking_level: 'low' };
+    }
+    return {
+      system_instruction: { parts: [{ text: system }] },
+      contents: [{ role: 'user', parts: [{ text: `<user_message>${userMessage}</user_message>` }] }],
+      tools: [{ function_declarations: [outcomeTool] }],
+      generation_config: generationConfig,
+    };
+  }
+
+  private async callModel(
+    model: string,
+    body: Record<string, unknown>,
+  ): Promise<{ ok: boolean; status: number; payload?: any; error?: string }> {
+    const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent`;
     try {
-      const res = await fetch(urlPrimary, { ...options, signal: AbortSignal.timeout(10000) });
-      if (res.status === 404 || res.status === 400) {
-        console.warn(`[GeminiProvider] Primary model returned ${res.status}. Falling back to ${this.fallbackModel}...`);
-        return await fetch(urlFallback, { ...options, signal: AbortSignal.timeout(10000) });
+      const res = await fetch(endpoint, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'x-goog-api-key': this.apiKey || '' },
+        body: JSON.stringify(body),
+        signal: AbortSignal.timeout(10000),
+      });
+      if (res.ok) {
+        const payload = await res.json();
+        return { ok: true, status: res.status, payload };
       }
-      return res;
+      return { ok: false, status: res.status, error: `HTTP ${res.status}` };
     } catch (err: any) {
-      console.warn(`[GeminiProvider] Primary model call failed (${err?.message}). Retrying with fallback ${this.fallbackModel}...`);
-      return await fetch(urlFallback, { ...options, signal: AbortSignal.timeout(10000) });
+      return { ok: false, status: 0, error: err?.message || 'Network error' };
     }
   }
 
@@ -100,29 +125,27 @@ export class GeminiProvider implements AiProvider {
       request.verifiedEvidence ? `VERIFIED_DATA=${JSON.stringify(request.verifiedEvidence)}` : 'VERIFIED_DATA unavailable',
     ].join('\n');
 
-    const body = {
-      system_instruction: { parts: [{ text: system }] },
-      contents: [{ role: 'user', parts: [{ text: `<user_message>${request.userMessage}</user_message>` }] }],
-      tools: [{ function_declarations: [outcomeTool] }],
-      generation_config: { temperature: 0.2, max_output_tokens: 1024, thinking_config: { thinking_level: 'low' } },
-    };
+    let activeModel = this.primaryModel;
+    let body = this.buildBody(system, request.userMessage, activeModel);
 
-    const endpointPrimary = `https://generativelanguage.googleapis.com/v1beta/models/${this.primaryModel}:generateContent`;
-    const endpointFallback = `https://generativelanguage.googleapis.com/v1beta/models/${this.fallbackModel}:generateContent`;
+    // Call primary model
+    let callRes = await this.callModel(activeModel, body);
 
-    const response = await this.fetchWithFallback(endpointPrimary, endpointFallback, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json', 'x-goog-api-key': this.apiKey },
-      body: JSON.stringify(body),
-    });
+    // If primary failed (400, 404, 429, 500, 503, or timeout/network), retry with fallback model
+    if (!callRes.ok && this.fallbackModel && this.fallbackModel !== activeModel) {
+      console.warn(`[GeminiProvider] Primary model ${activeModel} failed (${callRes.status || callRes.error}). Trying fallback ${this.fallbackModel}...`);
+      activeModel = this.fallbackModel;
+      body = this.buildBody(system, request.userMessage, activeModel);
+      callRes = await this.callModel(activeModel, body);
+    }
 
-    if (response.status === 429) throw new Error('AI_RATE_LIMITED');
-    if (!response.ok) throw new Error(`Gemini request failed: ${response.status}`);
+    if (!callRes.ok) {
+      if (callRes.status === 429) throw new Error('AI_RATE_LIMITED');
+      throw new Error(`Gemini request failed: ${callRes.status || callRes.error}`);
+    }
 
-    const payload = await response.json();
-    const parts = payload.candidates?.[0]?.content?.parts || [];
-    // Keep the ORIGINAL part: Gemini 3 returns a thought signature next to functionCall and
-    // rejects the follow-up with HTTP 400 if it is not echoed back unchanged.
+    const payload = callRes.payload;
+    const parts = payload?.candidates?.[0]?.content?.parts || [];
     const functionCallPart = parts.find((part: { functionCall?: unknown }) => part.functionCall);
     const functionCall = parts.find((part: { functionCall?: { name: string; args: Record<string, string> } }) => part.functionCall)?.functionCall;
     const text = parts.find((part: { text?: string }) => part.text)?.text;
@@ -136,16 +159,14 @@ export class GeminiProvider implements AiProvider {
           { role: 'user', parts: [{ functionResponse: { name: functionCall.name, response: { data: request.verifiedEvidence || null } } }] },
         ],
       };
-      const followUp = await this.fetchWithFallback(endpointPrimary, endpointFallback, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'x-goog-api-key': this.apiKey },
-        body: JSON.stringify(followUpBody),
-      });
-      if (!followUp.ok) throw new Error(`Gemini follow-up failed: ${followUp.status}`);
-      const followUpPayload = await followUp.json();
-      const followUpText = followUpPayload.candidates?.[0]?.content?.parts?.find((part: { text?: string }) => part.text)?.text;
+      // Send tool follow-up to the EXACT same active model that issued the call
+      const followUpRes = await this.callModel(activeModel, followUpBody);
+      if (!followUpRes.ok) throw new Error(`Gemini follow-up failed: ${followUpRes.status || followUpRes.error}`);
+      const followUpParts = followUpRes.payload?.candidates?.[0]?.content?.parts || [];
+      const followUpText = followUpParts.find((part: { text?: string }) => part.text)?.text;
       return { text: followUpText || 'Verified data is unavailable right now. Please try again or request a counsellor callback.' };
     }
+
     return { text: text || 'Verified data is unavailable right now. Please try again or request a counsellor callback.' };
   }
 }

@@ -1,14 +1,14 @@
 # Security Architecture & Database Hardening Review
 
 **Audit Subject**: `supabase/migrations/20261004000100_security_hardening.sql` (556 lines)  
-**Security Status**: Verified & Audited  
+**Security Status**: Implemented; automated tests exist but require a local Postgres on port 5433  
 **Threat Model Scope**: Smart India Hackathon PS #26241 (Multilingual Family Joint Vocational Guidance)
 
 ---
 
 ## 1. Executive Summary
 
-The database hardening migration establishes defense-in-depth across eight distinct security pillars, preventing privilege escalation, credential forging, queue tampering, and data exfiltration. Every policy was written and verified with a corresponding automated red-team test.
+The database hardening migration establishes defense-in-depth across eight distinct security pillars, preventing privilege escalation, credential forging, queue tampering, and data exfiltration. The architectural mechanisms described below are fully coded into the migration SQL. Automated verification scripts exist in `supabase/tests/rls_test.py` and require a local PostgreSQL instance running on port 5433 to execute against actual database roles. Dedicated application-layer security tests run independently in the pytest suite.
 
 ---
 
@@ -56,8 +56,8 @@ The database hardening migration establishes defense-in-depth across eight disti
 
 ---
 
-## 3. Red-Team Test Coverage
-All controls above are validated in `services/api/tests/test_security_redteam.py`:
+## 3. Test Coverage & Verification Status
+The application-layer safeguards (PII scrubbing, phone regex, state machine logic, rate limiting, and RBAC guards) are validated in `services/api/tests/test_security_redteam.py`:
 - `test_pii_redaction_masks_indian_phone_numbers`
 - `test_rate_limiter_blocks_excessive_requests`
 - `test_ticket_cannot_be_resolved_without_contact`
@@ -65,3 +65,6 @@ All controls above are validated in `services/api/tests/test_security_redteam.py
 - `test_unassigned_counsellor_cannot_contact_or_resolve_ticket`
 - `test_require_role_denies_unauthorized_roles`
 - `test_escalation_schema_rejects_invalid_phone`
+
+The database-level RLS policies and DB trigger quotas are tested in `supabase/tests/rls_test.py`, which requires a local PostgreSQL service running on port 5433 with the Supabase schema applied.
+
